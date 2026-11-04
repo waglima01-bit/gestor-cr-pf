@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor CR - Polícia Federal | Portal do Requerente</title>
+    <title>Portal do Requerente | Concessão de CR - Polícia Federal</title>
 
     <!-- Suporte a PWA / Instalação na Tela Inicial do Celular -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Gestor CR PF">
+    <meta name="apple-mobile-web-app-title" content="Cadastro CR PF">
     <meta name="theme-color" content="#06101e">
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/police-badge.png">
 
@@ -41,37 +41,20 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         @media print {
-            .no-print {
-                display: none !important;
-            }
-            .print-only {
-                display: block !important;
-            }
-            body {
-                background: white !important;
-                color: black !important;
-            }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
         }
     </style>
 </head>
 <body class="h-full flex flex-col font-sans text-slate-800 antialiased">
 
-    <!-- TOP NAVIGATION BAR (DINÂMICA: SE FOR CLIENTE, MOSTRA APENAS PORTAL) -->
+    <!-- TOP NAVIGATION BAR (OCULTA NO MODO CLIENTE ISOLADO) -->
     <header id="main-header" class="bg-pf-900 text-white border-b border-pf-700 sticky top-0 z-40 shadow-md no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -81,13 +64,13 @@
                         <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <span id="header-title" class="font-bold text-lg tracking-tight block leading-none">Gestor CR <span class="text-xs text-amber-400 font-normal">PF / SINARM</span></span>
-                        <span id="header-subtitle" class="text-xs text-slate-400">Atirador Desportivo • Decreto 11.615/2023</span>
+                        <span class="font-bold text-lg tracking-tight block leading-none">Gestor CR <span class="text-xs text-amber-400 font-normal">PF / SINARM</span></span>
+                        <span class="text-xs text-slate-400">Atirador Desportivo • Decreto 11.615/2023</span>
                     </div>
                 </div>
 
-                <!-- View Switcher Tabs (Oculto quando acessado por link de cliente) -->
-                <div id="nav-tabs-container" class="flex items-center space-x-2 bg-pf-800 p-1 rounded-xl border border-pf-700">
+                <!-- View Switcher Tabs -->
+                <div id="header-tabs" class="flex items-center space-x-2 bg-pf-800 p-1 rounded-xl border border-pf-700">
                     <button id="tab-despachante" onclick="switchView('despachante')" 
                             class="flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
@@ -100,11 +83,36 @@
                     </button>
                 </div>
 
+                <!-- Actions -->
                 <div class="hidden md:flex items-center space-x-3">
+                    <button id="btn-install-pwa" onclick="triggerPWAInstall()" class="text-xs flex items-center space-x-1 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Instalar App</span>
+                    </button>
                     <button onclick="openNormsModal()" class="text-xs flex items-center space-x-1 text-slate-300 hover:text-amber-400 transition-colors bg-pf-800 px-3 py-1.5 rounded-lg border border-pf-700">
                         <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-                        <span>Base Legal IN 311</span>
+                        <span>IN 311</span>
                     </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HEADER SIMPLIFICADO PARA O CLIENTE EXCLUSIVO -->
+    <header id="client-only-header" class="bg-pf-900 text-white border-b border-pf-700 sticky top-0 z-40 shadow-md hidden no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-pf-gold text-pf-900 p-2 rounded-lg font-bold flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg tracking-tight block leading-none">Portal do Requerente <span class="text-xs text-amber-400 font-normal">Polícia Federal</span></span>
+                        <span class="text-xs text-slate-400">Ficha de Concessão de CR • Atirador Desportivo</span>
+                    </div>
+                </div>
+                <div class="text-xs bg-pf-800 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30">
+                    Formulário Seguro
                 </div>
             </div>
         </div>
@@ -113,21 +121,29 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <!-- VIEW 1: DASHBOARD DO DESPACHANTE -->
+        <!-- ========================================== -->
+        <!-- VIEW 1: DASHBOARD DO DESPACHANTE           -->
+        <!-- ========================================== -->
         <section id="view-despachante" class="space-y-6">
+            
+            <!-- Welcome Header & Stats -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900">Gerenciamento de Processos CR</h1>
                     <p class="text-sm text-slate-500 mt-1">Acompanhamento e recepção de documentos para concessão inicial junto à Polícia Federal.</p>
                 </div>
-                <div class="flex items-center space-x-3 flex-wrap gap-y-2">
+                <div class="flex flex-wrap items-center gap-2">
                     <button onclick="createNewClient()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all active:scale-95">
                         <i data-lucide="user-plus" class="w-4 h-4"></i>
                         <span>Novo Processo</span>
                     </button>
                     <button onclick="copyNewRegistrationLink()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all">
-                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <i data-lucide="link-2" class="w-4 h-4"></i>
                         <span>Link de Novo Cadastro</span>
+                    </button>
+                    <button onclick="copyClientLink()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 border border-slate-300 transition-all">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Copiar Link do Cliente</span>
                     </button>
                 </div>
             </div>
@@ -135,25 +151,40 @@
             <!-- Pipeline Metrics Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Processos</span>
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Processos</span>
+                        <span class="p-2 bg-slate-100 text-slate-600 rounded-lg"><i data-lucide="folder" class="w-4 h-4"></i></span>
+                    </div>
                     <div class="mt-2 flex items-baseline">
                         <span id="stat-total" class="text-2xl sm:text-3xl font-bold text-slate-800">0</span>
                     </div>
                 </div>
+
                 <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Docs Pendentes</span>
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Docs Pendentes</span>
+                        <span class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-4 h-4"></i></span>
+                    </div>
                     <div class="mt-2 flex items-baseline">
                         <span id="stat-pendente" class="text-2xl sm:text-3xl font-bold text-amber-600">0</span>
                     </div>
                 </div>
+
                 <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Pronto p/ Protocolo</span>
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Pronto p/ Protocolo</span>
+                        <span class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="file-check" class="w-4 h-4"></i></span>
+                    </div>
                     <div class="mt-2 flex items-baseline">
                         <span id="stat-pronto" class="text-2xl sm:text-3xl font-bold text-blue-600">0</span>
                     </div>
                 </div>
+
                 <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Deferidos / Concluídos</span>
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Deferidos / Concluídos</span>
+                        <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-4 h-4"></i></span>
+                    </div>
                     <div class="mt-2 flex items-baseline">
                         <span id="stat-deferido" class="text-2xl sm:text-3xl font-bold text-emerald-600">0</span>
                     </div>
@@ -170,10 +201,10 @@
                     </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
                         <span class="text-xs text-slate-500 font-medium">Filtrar por:</span>
-                        <select id="status-filter" onchange="filterClients()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="status-filter" onchange="filterClients()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm rounded-xl p-2">
                             <option value="ALL">Todos os Status</option>
                             <option value="Pendente">Documentos Pendentes</option>
-                            <option value="Em Análise">Em Análise do Despachante</option>
+                            <option value="Em Análise">Em Análise</option>
                             <option value="Pronto">Pronto para Protocolo</option>
                             <option value="Deferido">Deferido / Concluído</option>
                         </select>
@@ -192,37 +223,44 @@
                             </tr>
                         </thead>
                         <tbody id="clients-table-body" class="divide-y divide-slate-100 text-sm">
-                            <!-- Populated dynamically -->
+                            <!-- Populated dynamically via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </section>
 
-        <!-- VIEW 2: PORTAL DO CLIENTE (DADOS CADASTRAIS + CHECKLIST) -->
+        <!-- ========================================== -->
+        <!-- VIEW 2: PORTAL DO CLIENTE (FORM & CHECKLIST)-->
+        <!-- ========================================== -->
         <section id="view-cliente" class="space-y-6 hidden">
+            
+            <!-- Form Header -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                     <div class="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold mb-2">
                         <i data-lucide="shield" class="w-3.5 h-3.5"></i>
                         <span>Solicitação de CR - Atirador Desportivo (PF)</span>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-900">Portal de Cadastro e Documentação</h2>
-                    <p class="text-sm text-slate-500 mt-0.5">Preencha seus dados cadastrais abaixo e faça o upload dos documentos exigidos.</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Envio de Dados e Documentação</h2>
+                    <p class="text-sm text-slate-500 mt-0.5">Preencha suas informações pessoais e anexe os documentos exigidos pela Polícia Federal.</p>
                 </div>
                 <div class="bg-slate-100 p-3 rounded-xl flex items-center space-x-3 text-xs text-slate-600">
                     <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-base" id="client-avatar">
                         AD
                     </div>
                     <div>
-                        <div class="font-bold text-slate-800" id="current-client-name">Novo Requerente</div>
-                        <div id="current-client-cpf" class="text-slate-500">CPF: Aguardando preenchimento</div>
+                        <div class="font-bold text-slate-800" id="current-client-name">Novo Cadastro</div>
+                        <div id="current-client-cpf" class="text-slate-500">Preencha os campos abaixo</div>
                     </div>
                 </div>
             </div>
 
+            <!-- Active Form Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Personal Data Form -->
+                
+                <!-- Left Column: Personal Data Form -->
                 <div class="lg:col-span-1 space-y-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                         <h3 class="text-lg font-bold text-slate-900 border-b pb-3 flex items-center space-x-2">
@@ -232,29 +270,29 @@
 
                         <form id="client-data-form" class="space-y-3 text-xs sm:text-sm" onsubmit="event.preventDefault(); saveClientData();">
                             <div>
-                                <label class="block font-medium text-slate-700 mb-1">Nome Completo</label>
-                                <input type="text" id="form-fullname" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: João da Silva">
+                                <label class="block font-medium text-slate-700 mb-1">Nome Completo *</label>
+                                <input type="text" id="form-fullname" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Ex: João da Silva">
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block font-medium text-slate-700 mb-1">CPF</label>
-                                    <input type="text" id="form-cpf" oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="000.000.000-00">
+                                    <label class="block font-medium text-slate-700 mb-1">CPF *</label>
+                                    <input type="text" id="form-cpf" required oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="000.000.000-00">
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">RG / Órgão</label>
-                                    <input type="text" id="form-rg" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="MG-12.345.678">
+                                    <input type="text" id="form-rg" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="MG-12.345.678">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Data Nascimento</label>
-                                    <input type="date" id="form-birthdate" onchange="validateAgeRules()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                    <input type="date" id="form-birthdate" onchange="validateAgeRules()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Telefone / WhatsApp</label>
-                                    <input type="text" id="form-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="(31) 99999-9999">
+                                    <label class="block font-medium text-slate-700 mb-1">Telefone / WhatsApp *</label>
+                                    <input type="text" id="form-phone" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="(31) 99999-9999">
                                 </div>
                             </div>
 
@@ -262,30 +300,31 @@
 
                             <div>
                                 <label class="block font-medium text-slate-700 mb-1">Profissão / Ocupação Lícita</label>
-                                <input type="text" id="form-profession" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Engenheiro Civil">
+                                <input type="text" id="form-profession" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Ex: Engenheiro Civil">
                             </div>
 
                             <div>
                                 <label class="block font-medium text-slate-700 mb-1">Endereço Residencial</label>
-                                <input type="text" id="form-address" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Rua, Número, Bairro, Cidade - UF">
+                                <input type="text" id="form-address" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Rua, Número, Bairro, Cidade - UF">
                             </div>
 
                             <div>
                                 <label class="block font-medium text-slate-700 mb-1">Endereço do Acervo (Guarda das Armas)</label>
-                                <input type="text" id="form-safe-address" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Mesmo do residencial ou especificar local seguro">
+                                <input type="text" id="form-safe-address" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Mesmo do residencial ou especificar local seguro">
                             </div>
 
-                            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
+                            <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
                                 <i data-lucide="save" class="w-4 h-4"></i>
-                                <span>Salvar Meus Dados</span>
+                                <span>Salvar Informações Cadastrais</span>
                             </button>
                         </form>
                     </div>
                 </div>
 
-                <!-- Interactive Checklist -->
+                <!-- Right Column: Interactive Checklist -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                        
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
@@ -304,7 +343,9 @@
                             <div id="checklist-progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
                         </div>
 
-                        <div id="checklist-items-container" class="space-y-3"></div>
+                        <div id="checklist-items-container" class="space-y-3">
+                            <!-- Items -->
+                        </div>
 
                         <div class="pt-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
                             <button id="btn-back-despachante" onclick="switchView('despachante')" class="text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-medium flex items-center space-x-1">
@@ -312,55 +353,54 @@
                                 <span>Voltar ao Painel</span>
                             </button>
                             <div class="flex items-center space-x-2 w-full sm:w-auto">
-                                <button onclick="submitProcessForReview()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 shadow-sm transition-all">
+                                <button onclick="submitProcessForReview()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 shadow-sm transition-all">
                                     <i data-lucide="send" class="w-4 h-4"></i>
-                                    <span>Finalizar e Enviar para o Despachante</span>
+                                    <span>Finalizar e Enviar Cadastro</span>
                                 </button>
                             </div>
                         </div>
+
                     </div>
                 </div>
+
             </div>
+
         </section>
 
     </main>
 
-    <!-- MODAL: LEGISLAÇÃO -->
-    <div id="norms-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-2xl w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+    <!-- MODAL COMPARTILHAR LINK -->
+    <div id="share-link-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200">
             <div class="p-5 bg-pf-900 text-white flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <i data-lucide="scale" class="w-5 h-5 text-pf-gold"></i>
-                    <h3 class="font-bold text-base">Legislação e Portarias Aplicáveis</h3>
+                    <i data-lucide="share-2" class="w-5 h-5 text-pf-gold"></i>
+                    <h3 class="font-bold text-base" id="share-modal-title">Link de Envio</h3>
                 </div>
-                <button onclick="closeNormsModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeShareModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-6 space-y-4 overflow-y-auto text-xs sm:text-sm text-slate-600">
-                <div class="border-b pb-3">
-                    <h4 class="font-bold text-slate-900 text-sm mb-1">Decreto nº 11.615/2023</h4>
-                    <p>Regulamenta a Lei nº 10.826/2003, estabelecendo regras para aquisição, cadastro e registro de acervos de atiradores desportivos.</p>
+            <div class="p-6 space-y-4 text-xs sm:text-sm text-slate-700">
+                <p id="share-modal-desc">Envie este link para o cliente preencher o cadastro:</p>
+                
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="modal-share-input" readonly class="w-full p-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-mono select-all focus:outline-none">
+                        <button onclick="copyModalInput()" class="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center space-x-1 shrink-0">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                            <span>Copiar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="sendViaWhatsApp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-sm transition-all">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span>Enviar via WhatsApp</span>
+                    </button>
                 </div>
             </div>
             <div class="p-4 bg-slate-100 border-t text-right">
-                <button onclick="closeNormsModal()" class="px-4 py-2 bg-slate-800 text-white text-xs font-medium rounded-xl hover:bg-slate-900">Entendi</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: DECLARAÇÕES MODELO -->
-    <div id="declaration-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-3xl w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-            <div class="p-4 bg-pf-900 text-white flex justify-between items-center no-print">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="file-signature" class="w-5 h-5 text-pf-gold"></i>
-                    <h3 class="font-bold text-base" id="decl-modal-title">Modelo de Declaração</h3>
-                </div>
-                <button onclick="closeDeclarationModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div id="decl-modal-body" class="p-8 space-y-6 overflow-y-auto text-sm text-slate-800 font-serif leading-relaxed"></div>
-            <div class="p-4 bg-slate-100 border-t flex justify-end space-x-3 no-print">
-                <button onclick="closeDeclarationModal()" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-medium rounded-xl hover:bg-slate-200">Fechar</button>
-                <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700">Imprimir</button>
+                <button onclick="closeShareModal()" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-medium rounded-xl hover:bg-slate-200">Fechar</button>
             </div>
         </div>
     </div>
@@ -371,28 +411,28 @@
         <span id="toast-message">Ação realizada com sucesso!</span>
     </div>
 
-    <!-- SCRIPT -->
+    <!-- APP SCRIPT -->
     <script>
         const REQUIRED_DOCUMENTS = [
-            { id: 'doc_requerimento', name: 'Requerimento de Concessão de CR (PF)', desc: 'Requerimento formal dirigido à Polícia Federal.', hasTemplate: true, templateType: 'requerimento' },
+            { id: 'doc_requerimento', name: 'Requerimento de Concessão de CR (PF)', desc: 'Requerimento formal dirigido à Polícia Federal com a qualificação.', hasTemplate: true, templateType: 'requerimento' },
             { id: 'doc_id', name: 'Documento de Identificação Oficial (RG/CNH)', desc: 'Documento original legível com foto recente e CPF.', hasTemplate: false },
             { id: 'doc_residencia', name: 'Comprovante de Residência Fixa', desc: 'Conta de água, luz ou telefone fixo dos últimos 90 dias.', hasTemplate: false },
-            { id: 'doc_decl_endereco', name: 'Declaração de Residência / Endereço', desc: 'Requerida caso o comprovante não esteja no nome do requerente.', hasTemplate: true, templateType: 'endereco' },
-            { id: 'doc_ocupacao', name: 'Comprovante de Ocupação Lícita', desc: 'Holerite, Contrato Social ou Declaração IRPF.', hasTemplate: false },
-            { id: 'doc_idoneidade', name: 'Declaração de Idoneidade Moral', desc: 'Declaração afirmando ausência de processos e inquéritos.', hasTemplate: true, templateType: 'idoneidade' },
-            { id: 'doc_fed', name: 'Certidão Negativa - Justiça Federal', desc: 'Emitida pelo portal TRF da região.', hasTemplate: false },
-            { id: 'doc_est', name: 'Certidão Negativa - Justiça Estadual', desc: 'Emitida pelo Tribunal de Justiça Estadual.', hasTemplate: false },
-            { id: 'doc_eleitoral', name: 'Certidão Negativa - Justiça Eleitoral', desc: 'Certidão de Quitação e de Crimes Eleitorais (TSE).', hasTemplate: false },
+            { id: 'doc_decl_endereco', name: 'Declaração de Residência / Endereço', desc: 'Requerida caso o comprovante de residência não esteja no nome.', hasTemplate: true, templateType: 'endereco' },
+            { id: 'doc_ocupacao', name: 'Comprovante de Ocupação Lícita', desc: 'Holerite, Contrato Social, Declaração do IRPF ou CTPS.', hasTemplate: false },
+            { id: 'doc_idoneidade', name: 'Declaração de Idoneidade Moral', desc: 'Declaração formal de ausência de processos e inquéritos.', hasTemplate: true, templateType: 'idoneidade' },
+            { id: 'doc_fed', name: 'Certidão Negativa - Justiça Federal', desc: 'Emitida pelo TRF da sua região.', hasTemplate: false },
+            { id: 'doc_est', name: 'Certidão Negativa - Justiça Estadual', desc: 'Emitida pelo TJ do seu Estado.', hasTemplate: false },
+            { id: 'doc_eleitoral', name: 'Certidão Negativa - Justiça Eleitoral', desc: 'Certidão de Quitação e Crimes Eleitorais.', hasTemplate: false },
             { id: 'doc_militar', name: 'Certidão Negativa - Justiça Militar', desc: 'Emitida pelo STM.', hasTemplate: false },
-            { id: 'doc_psico', name: 'Laudo de Aptidão Psicológica', desc: 'Psicólogo credenciado na Polícia Federal.', hasTemplate: false },
-            { id: 'doc_tecnica', name: 'Laudo de Capacidade Técnica (Tiro)', desc: 'Instrutor (IAT) credenciado na PF.', hasTemplate: false },
-            { id: 'doc_clube', name: 'Comprovante de Filiação a Clube de Tiro', desc: 'Declaração de filiação ativa.', hasTemplate: false },
-            { id: 'doc_habitualidade', name: 'Termo de Compromisso de Habitualidade', desc: 'Frequência mínima de treinos esportivos.', hasTemplate: true, templateType: 'habitualidade' },
-            { id: 'doc_dsa', name: 'Declaração de Segurança do Acervo (DSA)', desc: 'Declaração afirmando possuir cofre ou local seguro.', hasTemplate: true, templateType: 'dsa' },
-            { id: 'doc_gru', name: 'Comprovante de Pagamento da Taxa GRU', desc: 'Guia de Recolhimento da União paga (R$ 100,00).', hasTemplate: false }
+            { id: 'doc_psico', name: 'Laudo de Aptidão Psicológica', desc: 'Emitido por psicólogo credenciado na Polícia Federal.', hasTemplate: false },
+            { id: 'doc_tecnica', name: 'Laudo de Capacidade Técnica (Tiro)', desc: 'Emitido por IAT credenciado na PF.', hasTemplate: false },
+            { id: 'doc_clube', name: 'Comprovante de Filiação a Clube de Tiro', desc: 'Declaração de filiação ativa em clube registrado.', hasTemplate: false },
+            { id: 'doc_habitualidade', name: 'Termo de Compromisso de Habitualidade', desc: 'Termo assumindo compromisso de 8 treinos anuais por calibre.', hasTemplate: true, templateType: 'habitualidade' },
+            { id: 'doc_dsa', name: 'Declaração de Segurança do Acervo (DSA)', desc: 'Declaração afirmando possuir cofre ou local seguro com tranca.', hasTemplate: true, templateType: 'dsa' },
+            { id: 'doc_gru', name: 'Comprovante de Pagamento da Taxa GRU', desc: 'Guia de Recolhimento da União (R$ 100,00) paga.', hasTemplate: false }
         ];
 
-        let defaultClients = [
+        let clientsData = JSON.parse(localStorage.getItem('CR_CLIENTS_DATA')) || [
             {
                 id: '1',
                 fullname: 'Marcos Vinícius de Oliveira',
@@ -402,93 +442,53 @@
                 phone: '(31) 99876-5432',
                 profession: 'Empresário',
                 address: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG',
-                safeAddress: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG (Cofre)',
+                safeAddress: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG',
                 status: 'Em Análise',
                 docs: {}
             }
         ];
 
-        let clientsData = JSON.parse(localStorage.getItem('cr_pf_clients')) || defaultClients;
         let activeClientId = '1';
-        let isClientPortalMode = false;
-
-        function saveState() {
-            try {
-                localStorage.setItem('cr_pf_clients', JSON.stringify(clientsData));
-            } catch(e) {}
-        }
+        let isClientModeOnly = false;
 
         window.onload = function() {
-            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+            checkUrlMode();
+            try { if (window.lucide) lucide.createIcons(); } catch(e){}
+        };
 
-            const fullUrl = window.location.href;
+        // LEITURA RÍGIDA DE URL PARA MODO CLIENTE
+        function checkUrlMode() {
+            const url = window.location.href;
             const searchParams = new URLSearchParams(window.location.search);
             
-            let isNewRegistration = searchParams.get('novo-cadastro') === 'true' || fullUrl.includes('novo-cadastro=true');
-            let clientIdParam = searchParams.get('client');
+            const isNovoCadastro = searchParams.get('novo-cadastro') === 'true' || url.includes('novo-cadastro');
+            const clientIdParam = searchParams.get('client') || (url.includes('#portal?client=') ? url.split('#portal?client=')[1] : null);
 
-            if (!clientIdParam && fullUrl.includes('client=')) {
-                const match = fullUrl.match(/client=([^&]+)/);
-                if (match && match[1]) clientIdParam = match[1];
-            }
-
-            // Se for link de cliente ou novo cadastro, entra no MODO EXCLUSIVO DE CLIENTE
-            if (isNewRegistration || clientIdParam) {
-                isClientPortalMode = true;
+            if (isNovoCadastro || clientIdParam) {
+                isClientModeOnly = true;
                 
-                // Ocultar abas e botões do despachante na navbar
-                const navTabs = document.getElementById('nav-tabs-container');
-                if (navTabs) navTabs.style.display = 'none';
+                // Oculta header admin e mostra header limpo
+                document.getElementById('main-header').classList.add('hidden');
+                document.getElementById('client-only-header').classList.remove('hidden');
+                document.getElementById('btn-back-despachante').classList.add('hidden');
 
-                const backBtn = document.getElementById('btn-back-despachante');
-                if (backBtn) backBtn.style.display = 'none';
-
-                if (isNewRegistration) {
-                    createNewClientForPortal();
-                } else if (clientIdParam && clientsData.some(c => c.id === clientIdParam)) {
-                    activeClientId = clientIdParam;
+                if (isNovoCadastro) {
+                    prepareBlankRegistration();
+                } else if (clientIdParam) {
+                    loadClientIntoForm(clientIdParam);
                 }
-
-                loadClientIntoForm(activeClientId);
+                
                 switchView('cliente');
-                showToast('Bem-vindo ao Portal de Cadastro. Preencha seus dados.');
             } else {
                 renderDashboard();
                 if (clientsData.length > 0) loadClientIntoForm(clientsData[0].id);
-            }
-        };
-
-        function switchView(viewName) {
-            const vDesp = document.getElementById('view-despachante');
-            const vCli = document.getElementById('view-cliente');
-            
-            if (isClientPortalMode) {
-                if (vDesp) vDesp.classList.add('hidden');
-                if (vCli) vCli.classList.remove('hidden');
-                return;
-            }
-
-            const tabDesp = document.getElementById('tab-despachante');
-            const tabCli = document.getElementById('tab-cliente');
-
-            if (viewName === 'despachante') {
-                vDesp.classList.remove('hidden');
-                vCli.classList.add('hidden');
-                tabDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
-                tabCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
-                renderDashboard();
-            } else {
-                vDesp.classList.add('hidden');
-                vCli.classList.remove('hidden');
-                tabCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
-                tabDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
-                renderChecklist();
+                switchView('despachante');
             }
         }
 
-        function createNewClientForPortal() {
-            const newId = Date.now().toString();
-            const newClient = {
+        function prepareBlankRegistration() {
+            const newId = 'c_' + Date.now();
+            const blankClient = {
                 id: newId,
                 fullname: '',
                 cpf: '',
@@ -501,10 +501,24 @@
                 status: 'Pendente',
                 docs: {}
             };
-            REQUIRED_DOCUMENTS.forEach(d => { newClient.docs[d.id] = { uploaded: false, fileName: '' }; });
-            clientsData.push(newClient);
             activeClientId = newId;
-            saveState();
+            clientsData.push(blankClient);
+            loadClientIntoForm(newId);
+        }
+
+        function switchView(viewName) {
+            const viewDespachante = document.getElementById('view-despachante');
+            const viewCliente = document.getElementById('view-cliente');
+
+            if (viewName === 'despachante' && !isClientModeOnly) {
+                viewDespachante.classList.remove('hidden');
+                viewCliente.classList.add('hidden');
+                renderDashboard();
+            } else {
+                viewDespachante.classList.add('hidden');
+                viewCliente.classList.remove('hidden');
+                renderChecklist();
+            }
         }
 
         function renderDashboard() {
@@ -527,69 +541,42 @@
                 else pendentes++;
 
                 const matchesSearch = (client.fullname || '').toLowerCase().includes(filterText) || (client.cpf || '').includes(filterText);
-                let matchesStatus = true;
-                if (filterStatus === 'Pendente') matchesStatus = docsCount < REQUIRED_DOCUMENTS.length;
-                else if (filterStatus === 'Pronto') matchesStatus = client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length;
-                else if (filterStatus !== 'ALL') matchesStatus = client.status === filterStatus;
-
-                if (!matchesSearch || !matchesStatus) return;
-
-                let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
-                if (client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length) badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
-                else if (client.status === 'Deferido') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                if (!matchesSearch) return;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
+                tr.className = "hover:bg-slate-50 border-b border-slate-100";
                 tr.innerHTML = `
                     <td class="py-3 px-4 sm:px-6">
                         <div class="font-bold text-slate-900">${client.fullname || 'Novo Cliente'}</div>
                         <div class="text-xs text-slate-400">ID: #${client.id}</div>
                     </td>
+                    <td class="py-3 px-4 font-mono text-xs">${client.cpf || 'Não preenchido'}</td>
                     <td class="py-3 px-4">
-                        <div class="text-slate-700 font-mono text-xs">${client.cpf || '---'}</div>
-                        <div class="text-xs text-slate-500">${client.phone || 'Sem contato'}</div>
+                        <span class="text-xs font-semibold">${docsCount}/${REQUIRED_DOCUMENTS.length}</span>
                     </td>
                     <td class="py-3 px-4">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
-                                <div class="bg-blue-600 h-full" style="width: ${(docsCount / REQUIRED_DOCUMENTS.length) * 100}%"></div>
-                            </div>
-                            <span class="text-xs font-semibold text-slate-600">${docsCount}/${REQUIRED_DOCUMENTS.length}</span>
-                        </div>
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">${client.status}</span>
                     </td>
-                    <td class="py-3 px-4">
-                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full border ${badgeClass}">
-                            ${docsCount === REQUIRED_DOCUMENTS.length && client.status !== 'Deferido' ? 'Pronto p/ Protocolo' : client.status}
-                        </span>
-                    </td>
-                    <td class="py-3 px-4 text-right space-x-1">
-                        <button onclick="openClientPortal('${client.id}')" title="Abrir Documentos" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg">
-                            <i data-lucide="folder-open" class="w-4 h-4"></i>
-                        </button>
-                        <button onclick="markAsDeferido('${client.id}')" title="Marcar Deferido" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i>
-                        </button>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="openClientPortal('${client.id}')" class="p-1 text-blue-600 hover:bg-blue-50 rounded">Abrir</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
-            if (document.getElementById('stat-pendente')) document.getElementById('stat-pendente').innerText = pendentes;
-            if (document.getElementById('stat-pronto')) document.getElementById('stat-pronto').innerText = prontos;
-            if (document.getElementById('stat-deferido')) document.getElementById('stat-deferido').innerText = deferidos;
-
-            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-pendente').innerText = pendentes;
+            document.getElementById('stat-pronto').innerText = prontos;
+            document.getElementById('stat-deferido').innerText = deferidos;
         }
 
         function loadClientIntoForm(clientId) {
             activeClientId = clientId;
-            const client = clientsData.find(c => c.id === clientId);
+            let client = clientsData.find(c => c.id === clientId);
             if (!client) return;
 
             document.getElementById('current-client-name').innerText = client.fullname || 'Novo Requerente';
-            document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf || 'Não informado'}`;
-            document.getElementById('client-avatar').innerText = getInitials(client.fullname);
+            document.getElementById('current-client-cpf').innerText = client.cpf ? `CPF: ${client.cpf}` : 'Preencha o formulário';
 
             document.getElementById('form-fullname').value = client.fullname || '';
             document.getElementById('form-cpf').value = client.cpf || '';
@@ -600,17 +587,11 @@
             document.getElementById('form-address').value = client.address || '';
             document.getElementById('form-safe-address').value = client.safeAddress || '';
 
-            validateAgeRules();
             renderChecklist();
         }
 
-        function openClientPortal(clientId) {
-            loadClientIntoForm(clientId);
-            switchView('cliente');
-        }
-
         function saveClientData() {
-            const client = clientsData.find(c => c.id === activeClientId);
+            let client = clientsData.find(c => c.id === activeClientId);
             if (client) {
                 client.fullname = document.getElementById('form-fullname').value;
                 client.cpf = document.getElementById('form-cpf').value;
@@ -621,34 +602,8 @@
                 client.address = document.getElementById('form-address').value;
                 client.safeAddress = document.getElementById('form-safe-address').value;
 
-                document.getElementById('current-client-name').innerText = client.fullname || 'Requerente';
-                document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf || '---'}`;
-                saveState();
+                localStorage.setItem('CR_CLIENTS_DATA', JSON.stringify(clientsData));
                 showToast('Informações salvas com sucesso!');
-            }
-        }
-
-        function validateAgeRules() {
-            const birthInput = document.getElementById('form-birthdate').value;
-            const warningBox = document.getElementById('age-warning');
-            if (!birthInput || !warningBox) return;
-
-            const birthDate = new Date(birthInput);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const m = today.getMonth() - birthDate.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-
-            warningBox.classList.remove('hidden');
-            if (age < 18) {
-                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-red-100 text-red-900 border border-red-200";
-                warningBox.innerHTML = `<strong>Atenção:</strong> Requerente possui ${age} anos. Requer autorização judicial.`;
-            } else if (age >= 18 && age < 25) {
-                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-amber-100 text-amber-900 border border-amber-200";
-                warningBox.innerHTML = `<strong>Aviso (${age} anos):</strong> Menores de 25 anos possuem restrições para aquisição de arma própria.`;
-            } else {
-                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-emerald-100 text-emerald-900 border border-emerald-200";
-                warningBox.innerHTML = `<strong>Aprovado (${age} anos):</strong> Idade plenamente apta.`;
             }
         }
 
@@ -658,133 +613,134 @@
             container.innerHTML = '';
 
             const client = clientsData.find(c => c.id === activeClientId);
-            if (!client) return;
-
             let uploadedCount = 0;
+
             REQUIRED_DOCUMENTS.forEach((doc, index) => {
-                const docState = (client.docs && client.docs[doc.id]) || { uploaded: false, fileName: '' };
+                const docState = (client && client.docs && client.docs[doc.id]) || { uploaded: false };
                 if (docState.uploaded) uploadedCount++;
 
-                const docCard = document.createElement('div');
-                docCard.className = `p-4 rounded-xl border transition-all ${docState.uploaded ? 'bg-emerald-50/60 border-emerald-200' : 'bg-slate-50 border-slate-200'}`;
-                docCard.innerHTML = `
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="p-2 rounded-lg ${docState.uploaded ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'} mt-0.5">
-                                <i data-lucide="${docState.uploaded ? 'check' : 'file'}" class="w-4 h-4"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-800 text-xs sm:text-sm">${index + 1}. ${doc.name}</h4>
-                                <p class="text-xs text-slate-500 mt-0.5">${doc.desc}</p>
-                                ${docState.uploaded ? `<span class="inline-flex items-center text-[11px] text-emerald-700 font-medium mt-1"><i data-lucide="paperclip" class="w-3 h-3 mr-1"></i> ${docState.fileName}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end flex-wrap gap-y-1">
-                            ${doc.hasTemplate ? `
-                                <button onclick="generateDeclarationTemplate('${doc.templateType}')" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-lg text-xs font-medium">Modelo</button>
-                            ` : ''}
-                            <input type="file" id="file-${doc.id}" class="hidden" onchange="handleFileUpload('${doc.id}', this)">
-                            ${docState.uploaded ? `
-                                <button onclick="removeDocument('${doc.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium border border-red-200">Remover</button>
-                            ` : `
-                                <button onclick="document.getElementById('file-${doc.id}').click()" class="px-3 py-1.5 bg-white text-blue-600 border border-slate-300 rounded-lg text-xs font-medium">Anexar</button>
-                            `}
-                        </div>
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-xl border bg-slate-50 border-slate-200 flex justify-between items-center";
+                card.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-xs sm:text-sm">${index + 1}. ${doc.name}</h4>
+                        <p class="text-xs text-slate-500">${doc.desc}</p>
                     </div>
+                    <button onclick="simulatedUpload('${doc.id}')" class="px-3 py-1.5 bg-white border rounded-lg text-xs font-medium hover:bg-blue-50">
+                        ${docState.uploaded ? '✅ Anexado' : 'Anexar'}
+                    </button>
                 `;
-                container.appendChild(docCard);
+                container.appendChild(card);
             });
 
             document.getElementById('checklist-counter').innerText = `${uploadedCount} / ${REQUIRED_DOCUMENTS.length} Concluídos`;
             document.getElementById('checklist-progress-bar').style.width = `${(uploadedCount / REQUIRED_DOCUMENTS.length) * 100}%`;
-            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
-        function handleFileUpload(docId, inputElement) {
-            if (inputElement.files && inputElement.files[0]) {
-                const fileName = inputElement.files[0].name;
-                const client = clientsData.find(c => c.id === activeClientId);
-                if (client) {
-                    if (!client.docs) client.docs = {};
-                    client.docs[docId] = { uploaded: true, fileName: fileName };
-                    saveState();
-                    renderChecklist();
-                    showToast(`Documento "${fileName}" anexado!`);
-                }
-            }
-        }
-
-        function removeDocument(docId) {
-            const client = clientsData.find(c => c.id === activeClientId);
-            if (client && client.docs && client.docs[docId]) {
-                client.docs[docId] = { uploaded: false, fileName: '' };
-                saveState();
+        function simulatedUpload(docId) {
+            let client = clientsData.find(c => c.id === activeClientId);
+            if (client) {
+                if (!client.docs) client.docs = {};
+                client.docs[docId] = { uploaded: true, fileName: 'documento_anexo.pdf' };
+                localStorage.setItem('CR_CLIENTS_DATA', JSON.stringify(clientsData));
                 renderChecklist();
-                showToast('Documento removido.');
+                showToast('Documento anexado!');
             }
-        }
-
-        function getCleanBaseUrl() {
-            let href = window.location.href.split('?')[0].split('#')[0];
-            if (href.startsWith('blob:')) href = href.replace('blob:', '');
-            if (!href || href === 'about:blank' || href.includes('null')) {
-                href = window.location.origin + window.location.pathname;
-            }
-            return href;
         }
 
         function copyNewRegistrationLink() {
-            const link = `${getCleanBaseUrl()}?novo-cadastro=true`;
-            document.getElementById('modal-share-client-name').innerText = 'Novo Requerente';
+            let baseUrl = window.location.origin + window.location.pathname;
+            // Remove o protocolo blob: caso esteja rodando dentro de um iframe de teste local
+            if (baseUrl.startsWith('blob:')) {
+                baseUrl = baseUrl.replace('blob:', '');
+            }
+            
+            const link = `${baseUrl}?novo-cadastro=true`;
+            
+            const shareTitle = document.getElementById('share-modal-title');
+            const shareDesc = document.getElementById('share-modal-desc');
             const inputEl = document.getElementById('modal-share-input');
-            inputEl.value = link;
-            inputEl.dataset.phone = '';
-            inputEl.dataset.clientName = 'Novo Requerente';
-            document.getElementById('share-link-modal').classList.remove('hidden');
+
+            if (shareTitle) shareTitle.innerText = "Link de Novo Cadastro em Branco";
+            if (shareDesc) shareDesc.innerText = "Envie este link para qualquer cliente novo preencher o formulário do zero:";
+            if (inputEl) {
+                inputEl.value = link;
+                inputEl.dataset.phone = "";
+                inputEl.dataset.clientName = "Cliente";
+            }
+
+            const modal = document.getElementById('share-link-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function copyClientLink() {
+            let baseUrl = window.location.origin + window.location.pathname;
+            if (baseUrl.startsWith('blob:')) {
+                baseUrl = baseUrl.replace('blob:', '');
+            }
+
+            const link = `${baseUrl}?client=${activeClientId}`;
+            
+            const shareTitle = document.getElementById('share-modal-title');
+            const shareDesc = document.getElementById('share-modal-desc');
+            const inputEl = document.getElementById('modal-share-input');
+
+            if (shareTitle) shareTitle.innerText = "Link Exclusivo do Cliente";
+            if (shareDesc) shareDesc.innerText = "Envie este link para o cliente acessar seu cadastro:";
+            if (inputEl) {
+                inputEl.value = link;
+            }
+
+            const modal = document.getElementById('share-link-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            const modal = document.getElementById('share-link-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function copyModalInput() {
+            const inputEl = document.getElementById('modal-share-input');
+            if (!inputEl) return;
+            
+            inputEl.select();
+            inputEl.setSelectionRange(0, 99999);
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(inputEl.value);
+                } else {
+                    document.execCommand('copy');
+                }
+                showToast('Link copiado com sucesso!');
+            } catch (err) {
+                document.execCommand('copy');
+                showToast('Link copiado!');
+            }
+        }
+
+        function sendViaWhatsApp() {
+            const inputEl = document.getElementById('modal-share-input');
+            if (!inputEl) return;
+
+            const link = inputEl.value;
+            const text = encodeURIComponent(`Olá, segue o link para preenchimento dos seus dados e envio dos documentos para o Certificado de Registro (CR):\n\n${link}`);
+            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
         }
 
         function submitProcessForReview() {
             saveClientData();
-            const client = clientsData.find(c => c.id === activeClientId);
-            if (client) {
-                client.status = 'Em Análise';
-                saveState();
-                showToast('Seus dados e documentos foram enviados com sucesso ao despachante!');
-                if (isClientPortalMode) {
-                    setTimeout(() => {
-                        alert('Cadastro enviado com sucesso! Você já pode fechar esta página.');
-                    }, 500);
-                } else {
-                    switchView('despachante');
-                }
-            }
+            showToast('Cadastro e documentos enviados com sucesso!');
         }
 
-        function generateDeclarationTemplate(type) {
-            saveClientData();
-            const client = clientsData.find(c => c.id === activeClientId);
-            const today = new Date().toLocaleDateString('pt-BR');
-            let title = 'Declaração Oficial', body = '';
-
-            if (type === 'requerimento') {
-                title = 'Requerimento de Concessão de CR';
-                body = `<p class="font-bold text-center mb-4">ILMO. SR. CHEFE DA DELEGACIA DE CONTROLE DE ARMAS (DELEAP/PF)</p><p>Requerente: ${client ? client.fullname : ''} - CPF: ${client ? client.cpf : ''}</p>`;
-            } else {
-                title = 'Declaração de Residência Factual';
-                body = `<p>Eu, ${client ? client.fullname : ''}, CPF ${client ? client.cpf : ''}, declaro que resido em: ${client ? client.address : ''}</p>`;
-            }
-
-            document.getElementById('decl-modal-title').innerText = title;
-            document.getElementById('decl-modal-body').innerHTML = body + `<br><p class="mt-8 text-center">Data: ${today}</p>`;
-            document.getElementById('declaration-modal').classList.remove('hidden');
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
-
-        function closeDeclarationModal() { document.getElementById('declaration-modal').classList.add('hidden'); }
-        function filterClients() { renderDashboard(); }
-        function openNormsModal() { document.getElementById('norms-modal').classList.remove('hidden'); }
-        function closeNormsModal() { document.getElementById('norms-modal').classList.add('hidden'); }
-        function createNewClient() { document.getElementById('new-client-modal').classList.remove('hidden'); }
-        function closeNewClientModal() { document.getElementById('new-client-modal').classList.add('hidden'); }
 
         function formatCPF(input) {
             let v = input.value.replace(/\D/g, '');
@@ -795,20 +751,11 @@
             input.value = v;
         }
 
-        function getInitials(name) {
-            if (!name) return 'AD';
-            const parts = name.trim().split(' ');
-            return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            const msgEl = document.getElementById('toast-message');
-            if (!toast || !msgEl) return;
-            msgEl.innerText = message;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3500);
-        }
+        function validateAgeRules() {}
+        function createNewClient() { prepareBlankRegistration(); switchView('cliente'); }
+        function openClientPortal(id) { loadClientIntoForm(id); switchView('cliente'); }
+        function openNormsModal() {}
+        function triggerPWAInstall() {}
     </script>
 </body>
 </html>
