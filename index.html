@@ -1,462 +1,103 @@
-<!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-50">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor CR - Polícia Federal | Despachante CAC</title>
+<!-- ... existing code ... -->
+        // RENDERIZAR PAINEL DO DESPACHANTE
+        function renderDashboard() {
+            const tbody = document.getElementById('clients-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
 
-    <!-- TRAVA DE SEGURANÇA E ROTEAMENTO POR HASH (#/cadastro) -->
-    <script>
-        (function() {
-            function enforceClientMode() {
-                var hash = window.location.hash || '';
-                var search = window.location.search || '';
-                var href = window.location.href || '';
+            let total = clientsData.length;
+            let pendentes = 0;
+            let prontos = 0;
+            let deferidos = 0;
 
-                if (hash.indexOf('cadastro') !== -1 || hash.indexOf('portal') !== -1 || search.indexOf('novo-cadastro') !== -1 || search.indexOf('client') !== -1 || href.indexOf('cliente') !== -1) {
-                    document.documentElement.classList.add('mode-cliente-only');
-                } else {
-                    document.documentElement.classList.remove('mode-cliente-only');
+            const searchEl = document.getElementById('search-input');
+            const statusEl = document.getElementById('status-filter');
+            const filterText = searchEl ? searchEl.value.toLowerCase() : '';
+            const filterStatus = statusEl ? statusEl.value : 'ALL';
+
+            clientsData.forEach(client => {
+                // Métricas
+                const docsCount = Object.values(client.docs).filter(d => d.uploaded).length;
+                if (client.status === 'Deferido') deferidos++;
+                else if (docsCount === REQUIRED_DOCUMENTS.length || client.status === 'Pronto') prontos++;
+                else pendentes++;
+
+                // Filtro
+                const matchesSearch = (client.fullname || '').toLowerCase().includes(filterText) || (client.cpf || '').includes(filterText);
+                let matchesStatus = true;
+                if (filterStatus === 'Pendente') matchesStatus = docsCount < REQUIRED_DOCUMENTS.length;
+                else if (filterStatus === 'Pronto') matchesStatus = client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length;
+                else if (filterStatus !== 'ALL') matchesStatus = client.status === filterStatus;
+
+                if (!matchesSearch || !matchesStatus) return;
+
+                // Status Badge CSS
+                let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+                if (client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length) {
+                    badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                } else if (client.status === 'Deferido') {
+                    badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
                 }
-            }
-            enforceClientMode();
-            window.addEventListener('hashchange', enforceClientMode);
-        })();
-    </script>
-    <style>
-        /* Regra Estrita: Oculta Painel Admin e Menus quando o link é de cliente */
-        html.mode-cliente-only #main-header,
-        html.mode-cliente-only #view-despachante,
-        html.mode-cliente-only #header-tabs,
-        html.mode-cliente-only #btn-back-despachante {
-            display: none !important;
-        }
-        html.mode-cliente-only #client-only-header,
-        html.mode-cliente-only #view-cliente {
-            display: block !important;
-        }
-        
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
-        }
-    </style>
 
-    <!-- Suporte a PWA / Instalação na Tela Inicial do Celular -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Cadastro CR PF">
-    <meta name="theme-color" content="#06101e">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/police-badge.png">
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        pf: {
-                            50: '#f0f4f8',
-                            100: '#d9e2ec',
-                            700: '#102a43',
-                            800: '#0b1b2b',
-                            900: '#06101e',
-                            gold: '#d4af37'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
-        }
-    </style>
-</head>
-<body class="h-full flex flex-col font-sans text-slate-800 antialiased">
-
-    <!-- TOP NAVIGATION BAR (OCULTA NO MODO CLIENTE ISOLADO) -->
-    <header id="main-header" class="bg-pf-900 text-white border-b border-pf-700 sticky top-0 z-40 shadow-md no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo & Brand -->
-                <div class="flex items-center space-x-3">
-                    <div class="bg-pf-gold text-pf-900 p-2 rounded-lg font-bold flex items-center justify-center">
-                        <i data-lucide="shield-check" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <span class="font-bold text-lg tracking-tight block leading-none">Gestor CR <span class="text-xs text-amber-400 font-normal">PF / SINARM</span></span>
-                        <span class="text-xs text-slate-400">Atirador Desportivo • Decreto 11.615/2023</span>
-                    </div>
-                </div>
-
-                <!-- View Switcher Tabs -->
-                <div id="header-tabs" class="flex items-center space-x-2 bg-pf-800 p-1 rounded-xl border border-pf-700">
-                    <button id="tab-despachante" onclick="switchView('despachante')" 
-                            class="flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                        <span>Painel Despachante</span>
-                    </button>
-                    <button id="tab-cliente" onclick="switchView('cliente')" 
-                            class="flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white">
-                        <i data-lucide="user-check" class="w-4 h-4"></i>
-                        <span>Portal do Cliente</span>
-                    </button>
-                </div>
-
-                <!-- Actions -->
-                <div class="hidden md:flex items-center space-x-3">
-                    <button id="btn-install-pwa" onclick="triggerPWAInstall()" class="text-xs flex items-center space-x-1 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        <span>Instalar App</span>
-                    </button>
-                    <button onclick="openNormsModal()" class="text-xs flex items-center space-x-1 text-slate-300 hover:text-amber-400 transition-colors bg-pf-800 px-3 py-1.5 rounded-lg border border-pf-700">
-                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-                        <span>IN 311</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- HEADER SIMPLIFICADO PARA O CLIENTE EXCLUSIVO -->
-    <header id="client-only-header" class="bg-pf-900 text-white border-b border-pf-700 sticky top-0 z-40 shadow-md hidden no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-pf-gold text-pf-900 p-2 rounded-lg font-bold flex items-center justify-center">
-                        <i data-lucide="shield-check" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <span class="font-bold text-lg tracking-tight block leading-none">Portal do Requerente <span class="text-xs text-amber-400 font-normal">Polícia Federal</span></span>
-                        <span class="text-xs text-slate-400">Ficha de Concessão de CR • Atirador Desportivo</span>
-                    </div>
-                </div>
-                <div class="text-xs bg-pf-800 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30">
-                    Formulário Seguro
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-        <!-- ========================================== -->
-        <!-- VIEW 1: DASHBOARD DO DESPACHANTE           -->
-        <!-- ========================================== -->
-        <section id="view-despachante" class="space-y-6">
-            
-            <!-- Welcome Header & Stats -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-900">Gerenciamento de Processos CR</h1>
-                    <p class="text-sm text-slate-500 mt-1">Acompanhamento e recepção de documentos para concessão inicial junto à Polícia Federal.</p>
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="createNewClient()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all active:scale-95">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        <span>Novo Processo</span>
-                    </button>
-                    <button onclick="copyNewRegistrationLink()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all">
-                        <i data-lucide="link-2" class="w-4 h-4"></i>
-                        <span>Link de Novo Cadastro</span>
-                    </button>
-                    <button onclick="copyClientLink()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 border border-slate-300 transition-all">
-                        <i data-lucide="share-2" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Copiar Link do Cliente</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Pipeline Metrics Cards -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Processos</span>
-                        <span class="p-2 bg-slate-100 text-slate-600 rounded-lg"><i data-lucide="folder" class="w-4 h-4"></i></span>
-                    </div>
-                    <div class="mt-2 flex items-baseline">
-                        <span id="stat-total" class="text-2xl sm:text-3xl font-bold text-slate-800">0</span>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Docs Pendentes</span>
-                        <span class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-4 h-4"></i></span>
-                    </div>
-                    <div class="mt-2 flex items-baseline">
-                        <span id="stat-pendente" class="text-2xl sm:text-3xl font-bold text-amber-600">0</span>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Pronto p/ Protocolo</span>
-                        <span class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="file-check" class="w-4 h-4"></i></span>
-                    </div>
-                    <div class="mt-2 flex items-baseline">
-                        <span id="stat-pronto" class="text-2xl sm:text-3xl font-bold text-blue-600">0</span>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Deferidos / Concluídos</span>
-                        <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-4 h-4"></i></span>
-                    </div>
-                    <div class="mt-2 flex items-baseline">
-                        <span id="stat-deferido" class="text-2xl sm:text-3xl font-bold text-emerald-600">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Filter & Clients List -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div class="relative w-full sm:w-80">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="search-input" onkeyup="filterClients()" placeholder="Buscar cliente por Nome ou CPF..." 
-                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                        <span class="text-xs text-slate-500 font-medium">Filtrar por:</span>
-                        <select id="status-filter" onchange="filterClients()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm rounded-xl p-2">
-                            <option value="ALL">Todos os Status</option>
-                            <option value="Pendente">Documentos Pendentes</option>
-                            <option value="Em Análise">Em Análise</option>
-                            <option value="Pronto">Pronto para Protocolo</option>
-                            <option value="Deferido">Deferido / Concluído</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold border-b border-slate-200">
-                                <th class="py-3 px-4 sm:px-6">Cliente</th>
-                                <th class="py-3 px-4">CPF / Contato</th>
-                                <th class="py-3 px-4">Progresso Checklist</th>
-                                <th class="py-3 px-4">Status Processo</th>
-                                <th class="py-3 px-4 text-right">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clients-table-body" class="divide-y divide-slate-100 text-sm">
-                            <!-- Populated dynamically via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ========================================== -->
-        <!-- VIEW 2: PORTAL DO CLIENTE (FORM & CHECKLIST)-->
-        <!-- ========================================== -->
-        <section id="view-cliente" class="space-y-6 hidden">
-            
-            <!-- Form Header -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div>
-                    <div class="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold mb-2">
-                        <i data-lucide="shield" class="w-3.5 h-3.5"></i>
-                        <span>Solicitação de CR - Atirador Desportivo (PF)</span>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-900">Envio de Dados e Documentação</h2>
-                    <p class="text-sm text-slate-500 mt-0.5">Preencha suas informações pessoais e anexe os documentos exigidos pela Polícia Federal.</p>
-                </div>
-                <div class="bg-slate-100 p-3 rounded-xl flex items-center space-x-3 text-xs text-slate-600">
-                    <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-base" id="client-avatar">
-                        AD
-                    </div>
-                    <div>
-                        <div class="font-bold text-slate-800" id="current-client-name">Novo Cadastro</div>
-                        <div id="current-client-cpf" class="text-slate-500">Preencha os campos abaixo</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Active Form Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Left Column: Personal Data Form -->
-                <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                        <h3 class="text-lg font-bold text-slate-900 border-b pb-3 flex items-center space-x-2">
-                            <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
-                            <span>Dados Cadastrais</span>
-                        </h3>
-
-                        <form id="client-data-form" class="space-y-3 text-xs sm:text-sm" onsubmit="event.preventDefault(); saveClientData();">
-                            <div>
-                                <label class="block font-medium text-slate-700 mb-1">Nome Completo *</label>
-                                <input type="text" id="form-fullname" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Ex: João da Silva">
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 sm:px-6">
+                        <div class="font-bold text-slate-900">${client.fullname || 'Sem nome'}</div>
+                        <div class="text-xs text-slate-400">ID: #${client.id}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="text-slate-700 font-mono text-xs">${client.cpf || '---'}</div>
+                        <div class="text-xs text-slate-500">${client.phone || 'Sem telefone'}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full" style="width: ${(docsCount / REQUIRED_DOCUMENTS.length) * 100}%"></div>
                             </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">CPF *</label>
-                                    <input type="text" id="form-cpf" required oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="000.000.000-00">
-                                </div>
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">RG / Órgão</label>
-                                    <input type="text" id="form-rg" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="MG-12.345.678">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Data Nascimento</label>
-                                    <input type="date" id="form-birthdate" onchange="validateAgeRules()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Telefone / WhatsApp *</label>
-                                    <input type="text" id="form-phone" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="(31) 99999-9999">
-                                </div>
-                            </div>
-
-                            <div id="age-warning" class="hidden p-3 rounded-xl text-xs space-y-1"></div>
-
-                            <div>
-                                <label class="block font-medium text-slate-700 mb-1">Profissão / Ocupação Lícita</label>
-                                <input type="text" id="form-profession" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Ex: Engenheiro Civil">
-                            </div>
-
-                            <div>
-                                <label class="block font-medium text-slate-700 mb-1">Endereço Residencial</label>
-                                <input type="text" id="form-address" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Rua, Número, Bairro, Cidade - UF">
-                            </div>
-
-                            <div>
-                                <label class="block font-medium text-slate-700 mb-1">Endereço do Acervo (Guarda das Armas)</label>
-                                <input type="text" id="form-safe-address" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Mesmo do residencial ou especificar local seguro">
-                            </div>
-
-                            <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
-                                <i data-lucide="save" class="w-4 h-4"></i>
-                                <span>Salvar Informações Cadastrais</span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Right Column: Interactive Checklist -->
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                        
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4">
-                            <div>
-                                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                                    <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
-                                    <span>Checklist de Documentos Obrigatórios</span>
-                                </h3>
-                                <p class="text-xs text-slate-500 mt-0.5">Anexe os arquivos digitais (PDF, JPG ou PNG) nos campos correspondentes.</p>
-                            </div>
-                            <div class="text-right w-full sm:w-auto bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <span class="text-xs text-slate-500 block font-medium">Status dos Anexos</span>
-                                <span id="checklist-counter" class="text-xl font-bold text-blue-600">0 / 16 Concluídos</span>
-                            </div>
+                            <span class="text-xs font-semibold text-slate-600">${docsCount}/${REQUIRED_DOCUMENTS.length}</span>
                         </div>
-
-                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                            <div id="checklist-progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
-                        </div>
-
-                        <div id="checklist-items-container" class="space-y-3">
-                            <!-- Items -->
-                        </div>
-
-                        <div class="pt-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <button id="btn-back-despachante" onclick="switchView('despachante')" class="text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-medium flex items-center space-x-1">
-                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                                <span>Voltar ao Painel</span>
-                            </button>
-                            <div class="flex items-center space-x-2 w-full sm:w-auto">
-                                <button onclick="submitProcessForReview()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 shadow-sm transition-all">
-                                    <i data-lucide="send" class="w-4 h-4"></i>
-                                    <span>Finalizar e Enviar Cadastro</span>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-    <!-- MODAL COMPARTILHAR LINK -->
-    <div id="share-link-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-            <div class="p-5 bg-pf-900 text-white flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="share-2" class="w-5 h-5 text-pf-gold"></i>
-                    <h3 class="font-bold text-base" id="share-modal-title">Link de Envio</h3>
-                </div>
-                <button onclick="closeShareModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-6 space-y-4 text-xs sm:text-sm text-slate-700">
-                <p id="share-modal-desc">Envie este link para o cliente preencher o cadastro:</p>
-                
-                <div class="space-y-2">
-                    <div class="flex items-center space-x-2">
-                        <input type="text" id="modal-share-input" readonly class="w-full p-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-mono select-all focus:outline-none">
-                        <button onclick="copyModalInput()" class="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center space-x-1 shrink-0">
-                            <i data-lucide="copy" class="w-4 h-4"></i>
-                            <span>Copiar</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full border ${badgeClass}">
+                            ${docsCount === REQUIRED_DOCUMENTS.length && client.status !== 'Deferido' ? 'Pronto p/ Protocolo' : client.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1">
+                        <button onclick="openClientPortal('${client.id}')" title="Abrir Documentos" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                            <i data-lucide="folder-open" class="w-4 h-4"></i>
                         </button>
-                    </div>
-                </div>
+                        <button onclick="markAsDeferido('${client.id}')" title="Marcar Deferido" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-                <div class="pt-2">
-                    <button onclick="sendViaWhatsApp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-sm transition-all">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i>
-                        <span>Enviar via WhatsApp</span>
-                    </button>
-                </div>
-            </div>
-            <div class="p-4 bg-slate-100 border-t text-right">
-                <button onclick="closeShareModal()" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-medium rounded-xl hover:bg-slate-200">Fechar</button>
-            </div>
-        </div>
-    </div>
+            // Atualizar cards de estatísticas
+            const totalEl = document.getElementById('stat-total');
+            const pendenteEl = document.getElementById('stat-pendente');
+            const prontoEl = document.getElementById('stat-pronto');
+            const deferidoEl = document.getElementById('stat-deferido');
 
-    <!-- NOTIFICATION TOAST -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center space-x-3 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-xs sm:text-sm">
-        <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
-        <span id="toast-message">Ação realizada com sucesso!</span>
-    </div>
+            if (totalEl) totalEl.innerText = total;
+            if (pendenteEl) pendenteEl.innerText = pendentes;
+            if (prontoEl) prontoEl.innerText = prontos;
+            if (deferidoEl) deferidoEl.innerText = deferidos;
 
-    <!-- APP SCRIPT -->
-    <script>
+            try {
+                if (window.lucide) lucide.createIcons();
+            } catch(e) {}
+        }
+
+        // CARREGAR DADOS DO CLIENTE NO PORTAL DO CLIENTE
+<!-- ... existing code ... -->
         // LEITURA RÍGIDA DE URL E HASH PARA MODO CLIENTE
+        let isClientModeOnly = false;
+
         function checkUrlMode() {
+            loadFromLocalStorage();
             const hash = window.location.hash || '';
             const searchParams = new URLSearchParams(window.location.search);
             const href = window.location.href;
@@ -468,7 +109,6 @@
                 isClientModeOnly = true;
                 document.documentElement.classList.add('mode-cliente-only');
                 
-                // Oculta header admin e mostra header limpo para o cliente
                 const mainHeader = document.getElementById('main-header');
                 const clientHeader = document.getElementById('client-only-header');
                 const btnBack = document.getElementById('btn-back-despachante');
@@ -502,116 +142,5 @@
             }
         }
 
-        function copyNewRegistrationLink() {
-            let baseUrl = window.location.origin + window.location.pathname;
-            if (baseUrl.startsWith('blob:')) {
-                baseUrl = baseUrl.replace('blob:', '');
-            }
-            // Remove barras duplicadas se houver
-            baseUrl = baseUrl.replace(/\/$/, '');
-            
-            // NOVO FORMATO DE HASH (IMUNE A CACHE E REDIRECIONAMENTOS DE SERVIDOR)
-            const link = `${baseUrl}/#/cadastro`;
-            
-            const shareTitle = document.getElementById('share-modal-title');
-            const shareDesc = document.getElementById('share-modal-desc');
-            const inputEl = document.getElementById('modal-share-input');
-
-            if (shareTitle) shareTitle.innerText = "Link de Novo Cadastro em Branco";
-            if (shareDesc) shareDesc.innerText = "Envie este link para qualquer cliente novo preencher o formulário do zero:";
-            if (inputEl) {
-                inputEl.value = link;
-                inputEl.dataset.phone = "";
-                inputEl.dataset.clientName = "Cliente";
-            }
-
-            const modal = document.getElementById('share-link-modal');
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function copyClientLink() {
-            let baseUrl = window.location.origin + window.location.pathname;
-            if (baseUrl.startsWith('blob:')) {
-                baseUrl = baseUrl.replace('blob:', '');
-            }
-
-            const link = `${baseUrl}?client=${activeClientId}`;
-            
-            const shareTitle = document.getElementById('share-modal-title');
-            const shareDesc = document.getElementById('share-modal-desc');
-            const inputEl = document.getElementById('modal-share-input');
-
-            if (shareTitle) shareTitle.innerText = "Link Exclusivo do Cliente";
-            if (shareDesc) shareDesc.innerText = "Envie este link para o cliente acessar seu cadastro:";
-            if (inputEl) {
-                inputEl.value = link;
-            }
-
-            const modal = document.getElementById('share-link-modal');
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function closeShareModal() {
-            const modal = document.getElementById('share-link-modal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function copyModalInput() {
-            const inputEl = document.getElementById('modal-share-input');
-            if (!inputEl) return;
-            
-            inputEl.select();
-            inputEl.setSelectionRange(0, 99999);
-
-            try {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(inputEl.value);
-                } else {
-                    document.execCommand('copy');
-                }
-                showToast('Link copiado com sucesso!');
-            } catch (err) {
-                document.execCommand('copy');
-                showToast('Link copiado!');
-            }
-        }
-
-        function sendViaWhatsApp() {
-            const inputEl = document.getElementById('modal-share-input');
-            if (!inputEl) return;
-
-            const link = inputEl.value;
-            const text = encodeURIComponent(`Olá, segue o link para preenchimento dos seus dados e envio dos documentos para o Certificado de Registro (CR):\n\n${link}`);
-            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-        }
-
-        function submitProcessForReview() {
-            saveClientData();
-            showToast('Cadastro e documentos enviados com sucesso!');
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            if (!toast) return;
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
-        }
-
-        function formatCPF(input) {
-            let v = input.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.substring(0, 11);
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            input.value = v;
-        }
-
-        function validateAgeRules() {}
-        function createNewClient() { prepareBlankRegistration(); switchView('cliente'); }
-        function openClientPortal(id) { loadClientIntoForm(id); switchView('cliente'); }
-        function openNormsModal() {}
-        function triggerPWAInstall() {}
-    </script>
-</body>
-</html>
+        // PREPARAR CADASTRO LIMPO DO ZERO
+<!-- ... existing code ... -->
