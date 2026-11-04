@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor CR - Polícia Federal | Despachante CAC</title>
+    <title>Gestor CR - Polícia Federal | Portal do Requerente</title>
 
     <!-- Suporte a PWA / Instalação na Tela Inicial do Celular -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -41,7 +41,6 @@
         }
     </script>
     <style>
-        /* CSS Customizado para Transições e Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -72,8 +71,8 @@
 </head>
 <body class="h-full flex flex-col font-sans text-slate-800 antialiased">
 
-    <!-- TOP NAVIGATION BAR -->
-    <header class="bg-pf-900 text-white border-b border-pf-700 sticky top-0 z-40 shadow-md no-print">
+    <!-- TOP NAVIGATION BAR (DINÂMICA: SE FOR CLIENTE, MOSTRA APENAS PORTAL) -->
+    <header id="main-header" class="bg-pf-900 text-white border-b border-pf-700 sticky top-0 z-40 shadow-md no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo & Brand -->
@@ -82,13 +81,13 @@
                         <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <span class="font-bold text-lg tracking-tight block leading-none">Gestor CR <span class="text-xs text-amber-400 font-normal">PF / SINARM</span></span>
-                        <span class="text-xs text-slate-400">Atirador Desportivo • Decreto 11.615/2023</span>
+                        <span id="header-title" class="font-bold text-lg tracking-tight block leading-none">Gestor CR <span class="text-xs text-amber-400 font-normal">PF / SINARM</span></span>
+                        <span id="header-subtitle" class="text-xs text-slate-400">Atirador Desportivo • Decreto 11.615/2023</span>
                     </div>
                 </div>
 
-                <!-- View Switcher Tabs -->
-                <div class="flex items-center space-x-2 bg-pf-800 p-1 rounded-xl border border-pf-700">
+                <!-- View Switcher Tabs (Oculto quando acessado por link de cliente) -->
+                <div id="nav-tabs-container" class="flex items-center space-x-2 bg-pf-800 p-1 rounded-xl border border-pf-700">
                     <button id="tab-despachante" onclick="switchView('despachante')" 
                             class="flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
@@ -101,12 +100,7 @@
                     </button>
                 </div>
 
-                <!-- Action / Quick Info & PWA Install Button -->
                 <div class="hidden md:flex items-center space-x-3">
-                    <button id="btn-install-pwa" onclick="triggerPWAInstall()" class="text-xs flex items-center space-x-1 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        <span>Instalar App no Celular</span>
-                    </button>
                     <button onclick="openNormsModal()" class="text-xs flex items-center space-x-1 text-slate-300 hover:text-amber-400 transition-colors bg-pf-800 px-3 py-1.5 rounded-lg border border-pf-700">
                         <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
                         <span>Base Legal IN 311</span>
@@ -119,91 +113,60 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <!-- ========================================== -->
-        <!-- VIEW 1: DASHBOARD DO DESPACHANTE           -->
-        <!-- ========================================== -->
+        <!-- VIEW 1: DASHBOARD DO DESPACHANTE -->
         <section id="view-despachante" class="space-y-6">
-            
-            <!-- Welcome Header & Stats -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900">Gerenciamento de Processos CR</h1>
                     <p class="text-sm text-slate-500 mt-1">Acompanhamento e recepção de documentos para concessão inicial junto à Polícia Federal.</p>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 flex-wrap gap-y-2">
                     <button onclick="createNewClient()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all active:scale-95">
                         <i data-lucide="user-plus" class="w-4 h-4"></i>
                         <span>Novo Processo</span>
                     </button>
-                    <button onclick="copyClientLink()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 border border-slate-300 transition-all">
-                        <i data-lucide="link" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Copiar Link do Cliente</span>
+                    <button onclick="copyNewRegistrationLink()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Link de Novo Cadastro</span>
                     </button>
                 </div>
             </div>
 
             <!-- Pipeline Metrics Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Processos</span>
-                        <span class="p-2 bg-slate-100 text-slate-600 rounded-lg"><i data-lucide="folder" class="w-4 h-4"></i></span>
-                    </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Processos</span>
                     <div class="mt-2 flex items-baseline">
                         <span id="stat-total" class="text-2xl sm:text-3xl font-bold text-slate-800">0</span>
                     </div>
                 </div>
-
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-amber-300 transition-all">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Docs Pendentes</span>
-                        <span class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-4 h-4"></i></span>
-                    </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Docs Pendentes</span>
                     <div class="mt-2 flex items-baseline">
                         <span id="stat-pendente" class="text-2xl sm:text-3xl font-bold text-amber-600">0</span>
                     </div>
                 </div>
-
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 transition-all">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Pronto p/ Protocolo</span>
-                        <span class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="file-check" class="w-4 h-4"></i></span>
-                    </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Pronto p/ Protocolo</span>
                     <div class="mt-2 flex items-baseline">
                         <span id="stat-pronto" class="text-2xl sm:text-3xl font-bold text-blue-600">0</span>
                     </div>
                 </div>
-
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-300 transition-all">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Deferidos / Concluídos</span>
-                        <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-4 h-4"></i></span>
-                    </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Deferidos / Concluídos</span>
                     <div class="mt-2 flex items-baseline">
                         <span id="stat-deferido" class="text-2xl sm:text-3xl font-bold text-emerald-600">0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Warning Banner Regulatório -->
-            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-xl shadow-sm text-amber-900 text-sm flex items-start space-x-3">
-                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
-                <div class="space-y-1">
-                    <p class="font-semibold">Atenção às Regras Vigentes (Decreto 11.615/2023 & IN DG/PF 311)</p>
-                    <p class="text-xs text-amber-800">
-                        O processo de concessão de CR para Atirador Desportivo exige a verificação minuciosa de idade mínima (18 anos para prática, restrições para aquisição < 25 anos), habitividades registradas (mínimo 8 por ano/calibre para revalidação), laudos psicológicos e de capacidade técnica emitidos por credenciados PF.
-                    </p>
-                </div>
-            </div>
-
             <!-- Table Filter & Clients List -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <!-- Toolbar -->
                 <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="relative w-full sm:w-80">
                         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <input type="text" id="search-input" onkeyup="filterClients()" placeholder="Buscar cliente por Nome ou CPF..." 
-                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
                         <span class="text-xs text-slate-500 font-medium">Filtrar por:</span>
@@ -217,7 +180,6 @@
                     </div>
                 </div>
 
-                <!-- Clients Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -230,44 +192,37 @@
                             </tr>
                         </thead>
                         <tbody id="clients-table-body" class="divide-y divide-slate-100 text-sm">
-                            <!-- Populated dynamically via JS -->
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </section>
 
-        <!-- ========================================== -->
-        <!-- VIEW 2: PORTAL DO CLIENTE (FORM & CHECKLIST)-->
-        <!-- ========================================== -->
+        <!-- VIEW 2: PORTAL DO CLIENTE (DADOS CADASTRAIS + CHECKLIST) -->
         <section id="view-cliente" class="space-y-6 hidden">
-            
-            <!-- Form Header -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                     <div class="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold mb-2">
                         <i data-lucide="shield" class="w-3.5 h-3.5"></i>
                         <span>Solicitação de CR - Atirador Desportivo (PF)</span>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-900">Envio de Dados e Documentação</h2>
-                    <p class="text-sm text-slate-500 mt-0.5">Preencha suas informações pessoais e anexe os documentos exigidos pela Polícia Federal.</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Portal de Cadastro e Documentação</h2>
+                    <p class="text-sm text-slate-500 mt-0.5">Preencha seus dados cadastrais abaixo e faça o upload dos documentos exigidos.</p>
                 </div>
                 <div class="bg-slate-100 p-3 rounded-xl flex items-center space-x-3 text-xs text-slate-600">
                     <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-base" id="client-avatar">
                         AD
                     </div>
                     <div>
-                        <div class="font-bold text-slate-800" id="current-client-name">Selecione ou Crie um Cliente</div>
-                        <div id="current-client-cpf" class="text-slate-500">CPF: ---.---.--- criticism--</div>
+                        <div class="font-bold text-slate-800" id="current-client-name">Novo Requerente</div>
+                        <div id="current-client-cpf" class="text-slate-500">CPF: Aguardando preenchimento</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Active Form Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Left Column: Personal Data Form -->
+                <!-- Personal Data Form -->
                 <div class="lg:col-span-1 space-y-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                         <h3 class="text-lg font-bold text-slate-900 border-b pb-3 flex items-center space-x-2">
@@ -303,7 +258,6 @@
                                 </div>
                             </div>
 
-                            <!-- Alert Age Rules Notice -->
                             <div id="age-warning" class="hidden p-3 rounded-xl text-xs space-y-1"></div>
 
                             <div>
@@ -323,31 +277,15 @@
 
                             <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
                                 <i data-lucide="save" class="w-4 h-4"></i>
-                                <span>Salvar Informações Cadastrais</span>
+                                <span>Salvar Meus Dados</span>
                             </button>
                         </form>
                     </div>
-
-                    <!-- Regulation Quick Card -->
-                    <div class="bg-pf-900 text-white p-5 rounded-2xl shadow-sm space-y-3 border border-pf-700">
-                        <div class="flex items-center space-x-2 text-amber-400 font-semibold text-sm">
-                            <i data-lucide="info" class="w-4 h-4"></i>
-                            <span>Resumo Exigências Normativas</span>
-                        </div>
-                        <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
-                            <li><strong class="text-white">Validade do CR:</strong> 3 anos (IN DG/PF 311).</li>
-                            <li><strong class="text-white">Habitividade Mínima:</strong> 8 treinos/competições por ano para cada calibre registrado.</li>
-                            <li><strong class="text-white">Guarda Segura:</strong> Exigência de cofre ou local com tranca (DSA obrigatória).</li>
-                            <li><strong class="text-white">Taxa GRU:</strong> Código de arrecadação específico PF R$ 100,00.</li>
-                        </ul>
-                    </div>
                 </div>
 
-                <!-- Right Column: Interactive Checklist -->
+                <!-- Interactive Checklist -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                        
-                        <!-- Progress Header -->
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
@@ -358,48 +296,36 @@
                             </div>
                             <div class="text-right w-full sm:w-auto bg-slate-50 p-3 rounded-xl border border-slate-100">
                                 <span class="text-xs text-slate-500 block font-medium">Status dos Anexos</span>
-                                <span id="checklist-counter" class="text-xl font-bold text-blue-600">0 / 12 Concluídos</span>
+                                <span id="checklist-counter" class="text-xl font-bold text-blue-600">0 / 16 Concluídos</span>
                             </div>
                         </div>
 
-                        <!-- Progress Bar -->
                         <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                             <div id="checklist-progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
                         </div>
 
-                        <!-- Upload Checklist Accordion / Items -->
-                        <div id="checklist-items-container" class="space-y-3">
-                            <!-- Populated via JS -->
-                        </div>
+                        <div id="checklist-items-container" class="space-y-3"></div>
 
-                        <!-- Submit Buttons / Actions -->
                         <div class="pt-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <button onclick="switchView('despachante')" class="text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-medium flex items-center space-x-1">
+                            <button id="btn-back-despachante" onclick="switchView('despachante')" class="text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-medium flex items-center space-x-1">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                                 <span>Voltar ao Painel</span>
                             </button>
                             <div class="flex items-center space-x-2 w-full sm:w-auto">
-                                <button onclick="printSummary()" class="flex-1 sm:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 border border-slate-300">
-                                    <i data-lucide="printer" class="w-4 h-4"></i>
-                                    <span>Imprimir / Gerar PDF</span>
-                                </button>
-                                <button onclick="submitProcessForReview()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 shadow-sm transition-all">
+                                <button onclick="submitProcessForReview()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 shadow-sm transition-all">
                                     <i data-lucide="send" class="w-4 h-4"></i>
-                                    <span>Finalizar e Enviar</span>
+                                    <span>Finalizar e Enviar para o Despachante</span>
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
-
             </div>
-
         </section>
 
     </main>
 
-    <!-- MODAL: BASE LEGAL E REGULAMENTAÇÃO -->
+    <!-- MODAL: LEGISLAÇÃO -->
     <div id="norms-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white max-w-2xl w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
             <div class="p-5 bg-pf-900 text-white flex justify-between items-center">
@@ -412,21 +338,7 @@
             <div class="p-6 space-y-4 overflow-y-auto text-xs sm:text-sm text-slate-600">
                 <div class="border-b pb-3">
                     <h4 class="font-bold text-slate-900 text-sm mb-1">Decreto nº 11.615/2023</h4>
-                    <p>Regulamenta a Lei nº 10.826/2003 (Estatuto do Desarmamento), estabelecendo regras para aquisição, cadastro, registro, posse e porte de armas de fogo, munições e acervos de Caçadores, Atiradores e Colecionadores (CACs).</p>
-                </div>
-
-                <div class="border-b pb-3">
-                    <h4 class="font-bold text-slate-900 text-sm mb-1">Instrução Normativa DG/PF nº 311</h4>
-                    <p>Estabelece os procedimentos relativos à concessão de Certificado de Registro (CR) para Atirador Desportivo no âmbito da Polícia Federal, exigências documentais, comprovação de idoneidade e habitualidade.</p>
-                </div>
-
-                <div class="space-y-2 bg-slate-50 p-4 rounded-xl">
-                    <h5 class="font-semibold text-slate-800 text-xs">Pontos de Atenção Críticos para Aprovação:</h5>
-                    <ul class="list-disc list-inside space-y-1 text-xs text-slate-600">
-                        <li><strong>Certidões Negativas:</strong> Devem ser emitidas sem apontamentos nas Justiças Federal, Estadual, Eleitoral e Militar.</li>
-                        <li><strong>Laudos de Aptidão:</strong> Devem obrigatoriamente ser assinados por psicólogos e IATs (Instrutores de Armamento e Tiro) credenciados ativamente na Polícia Federal.</li>
-                        <li><strong>Comprovante de Habitação:</strong> Se o requerente não residir em imóvel próprio, é necessária declaração com firma reconhecida.</li>
-                    </ul>
+                    <p>Regulamenta a Lei nº 10.826/2003, estabelecendo regras para aquisição, cadastro e registro de acervos de atiradores desportivos.</p>
                 </div>
             </div>
             <div class="p-4 bg-slate-100 border-t text-right">
@@ -435,38 +347,7 @@
         </div>
     </div>
 
-    <!-- MODAL: ADICIONAR NOVO CLIENTE -->
-    <div id="new-client-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-            <div class="p-5 bg-slate-900 text-white flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="user-plus" class="w-5 h-5 text-blue-400"></i>
-                    <h3 class="font-bold text-base">Cadastrar Novo Cliente</h3>
-                </div>
-                <button onclick="closeNewClientModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block font-medium text-xs text-slate-700 mb-1">Nome Completo</label>
-                    <input type="text" id="modal-name" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Carlos Eduardo">
-                </div>
-                <div>
-                    <label class="block font-medium text-xs text-slate-700 mb-1">CPF</label>
-                    <input type="text" id="modal-cpf" oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="000.000.000-00">
-                </div>
-                <div>
-                    <label class="block font-medium text-xs text-slate-700 mb-1">Telefone / WhatsApp</label>
-                    <input type="text" id="modal-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="(31) 99999-9999">
-                </div>
-            </div>
-            <div class="p-4 bg-slate-100 border-t flex justify-end space-x-2">
-                <button onclick="closeNewClientModal()" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-medium rounded-xl hover:bg-slate-200">Cancelar</button>
-                <button onclick="saveNewClientModal()" class="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700 shadow-sm">Cadastrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: MODELO / MINUTA DE DECLARAÇÃO -->
+    <!-- MODAL: DECLARAÇÕES MODELO -->
     <div id="declaration-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white max-w-3xl w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
             <div class="p-4 bg-pf-900 text-white flex justify-between items-center no-print">
@@ -476,17 +357,10 @@
                 </div>
                 <button onclick="closeDeclarationModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            
-            <div id="decl-modal-body" class="p-8 space-y-6 overflow-y-auto text-sm text-slate-800 font-serif leading-relaxed">
-                <!-- Conteúdo da declaração gerado dinamicamente -->
-            </div>
-
+            <div id="decl-modal-body" class="p-8 space-y-6 overflow-y-auto text-sm text-slate-800 font-serif leading-relaxed"></div>
             <div class="p-4 bg-slate-100 border-t flex justify-end space-x-3 no-print">
                 <button onclick="closeDeclarationModal()" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-medium rounded-xl hover:bg-slate-200">Fechar</button>
-                <button onclick="printDeclaration()" class="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700 flex items-center space-x-2 shadow-sm">
-                    <i data-lucide="printer" class="w-4 h-4"></i>
-                    <span>Imprimir Declaração</span>
-                </button>
+                <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700">Imprimir</button>
             </div>
         </div>
     </div>
@@ -497,173 +371,28 @@
         <span id="toast-message">Ação realizada com sucesso!</span>
     </div>
 
-    <!-- MODAL: COMPARTILHAR LINK DO CLIENTE -->
-    <div id="share-link-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-            <div class="p-5 bg-pf-900 text-white flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="share-2" class="w-5 h-5 text-pf-gold"></i>
-                    <h3 class="font-bold text-base">Link do Portal do Cliente</h3>
-                </div>
-                <button onclick="closeShareModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-6 space-y-4 text-xs sm:text-sm text-slate-700">
-                <p>Envie o link abaixo para o cliente <strong id="modal-share-client-name" class="text-slate-900"></strong> preencher e anexar a documentação:</p>
-                
-                <div class="space-y-2">
-                    <label class="block text-xs font-semibold text-slate-600">Link exclusivo:</label>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" id="modal-share-input" readonly class="w-full p-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-mono select-all focus:outline-none">
-                        <button onclick="copyModalInput()" class="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center space-x-1 shrink-0">
-                            <i data-lucide="copy" class="w-4 h-4"></i>
-                            <span>Copiar</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="pt-2">
-                    <button onclick="sendViaWhatsApp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-sm transition-all">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i>
-                        <span>Enviar via WhatsApp do Cliente</span>
-                    </button>
-                </div>
-            </div>
-            <div class="p-4 bg-slate-100 border-t text-right">
-                <button onclick="closeShareModal()" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-medium rounded-xl hover:bg-slate-200">Fechar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PRINT/REPORT TEMPLATE (VISIBLE ONLY WHEN PRINTING) -->
-    <div id="print-area" class="hidden print-only p-8 text-black bg-white">
-        <div class="text-center border-b-2 border-black pb-4 mb-6">
-            <h1 class="text-xl font-bold uppercase tracking-wider">Polícia Federal - Concessão de CR</h1>
-            <h2 class="text-sm font-semibold">Ficha Sintética de Instrução Processual & Checklist</h2>
-            <p class="text-xs text-gray-600 mt-1">Gerado em: <span id="print-date"></span></p>
-        </div>
-
-        <div class="mb-6 space-y-2 text-sm">
-            <h3 class="font-bold border-b border-gray-300 pb-1 uppercase">1. Dados do Requerente</h3>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-                <p><strong>Nome:</strong> <span id="print-fullname"></span></p>
-                <p><strong>CPF:</strong> <span id="print-cpf"></span></p>
-                <p><strong>RG:</strong> <span id="print-rg"></span></p>
-                <p><strong>Nascimento:</strong> <span id="print-birth"></span></p>
-                <p><strong>Profissão:</strong> <span id="print-profession"></span></p>
-                <p><strong>Contato:</strong> <span id="print-phone"></span></p>
-                <p class="col-span-2"><strong>Endereço Residencial:</strong> <span id="print-address"></span></p>
-                <p class="col-span-2"><strong>Endereço do Acervo (Guarda):</strong> <span id="print-safe"></span></p>
-            </div>
-        </div>
-
-        <div class="mb-8 space-y-2 text-sm">
-            <h3 class="font-bold border-b border-gray-300 pb-1 uppercase">2. Checklist de Documentação Obrigatória</h3>
-            <div id="print-checklist" class="space-y-1 text-xs font-mono">
-                <!-- Preenchido via JS -->
-            </div>
-        </div>
-
-        <div class="mt-16 text-center space-y-10">
-            <div class="pt-8 border-t border-black max-w-xs mx-auto">
-                <p class="font-bold text-xs" id="print-sign-name">Assinatura do Requerente</p>
-                <p class="text-[10px] text-gray-500">CPF: <span id="print-sign-cpf"></span></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: INSTRUÇÕES DE INSTALAÇÃO NO CELULAR -->
-    <div id="pwa-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-            <div class="p-5 bg-pf-900 text-white flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="smartphone" class="w-5 h-5 text-pf-gold"></i>
-                    <h3 class="font-bold text-base">Instalar Ícone no Celular</h3>
-                </div>
-                <button onclick="closeInstallInstructions()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-6 space-y-4 text-xs sm:text-sm text-slate-700">
-                <p>Para ter o aplicativo na tela inicial do seu smartphone como um App comum, siga o passo a passo referente ao seu dispositivo:</p>
-                
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
-                    <h4 class="font-bold text-slate-900 flex items-center space-x-1">
-                        <i data-lucide="chrome" class="w-4 h-4 text-blue-600"></i>
-                        <span>No Android (Chrome)</span>
-                    </h4>
-                    <ol class="list-decimal list-inside space-y-1 text-xs text-slate-600">
-                        <li>Abra este link no navegador <strong>Google Chrome</strong>.</li>
-                        <li>Toque nos <strong>três pontinhos (⋮)</strong> no canto superior direito.</li>
-                        <li>Selecione <strong>"Adicionar à tela inicial"</strong> ou <strong>"Instalar aplicativo"</strong>.</li>
-                    </ol>
-                </div>
-
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
-                    <h4 class="font-bold text-slate-900 flex items-center space-x-1">
-                        <i data-lucide="compass" class="w-4 h-4 text-blue-500"></i>
-                        <span>No iPhone / iPad (Safari)</span>
-                    </h4>
-                    <ol class="list-decimal list-inside space-y-1 text-xs text-slate-600">
-                        <li>Abra este link no navegador <strong>Safari</strong>.</li>
-                        <li>Toque no botão de <strong>Compartilhar</strong> (ícone do quadrado com a seta para cima).</li>
-                        <li>Role as opções e toque em <strong>"Adicionar à Tela de Início"</strong>.</li>
-                    </ol>
-                </div>
-            </div>
-            <div class="p-4 bg-slate-100 border-t text-right">
-                <button onclick="closeInstallInstructions()" class="px-4 py-2 bg-pf-900 text-white text-xs font-medium rounded-xl hover:bg-pf-800">Entendi</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- APP LOGIC & SCRIPT -->
+    <!-- SCRIPT -->
     <script>
-        // CONFIGURAÇÃO DOS DOCUMENTOS EXIGIDOS PELA PF (IN 311 & DECRETO 11.615)
-        let deferredPrompt;
-
-        // Captura o evento nativo do celular para permitir a instalação direta com 1 clique
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const btnInstall = document.getElementById('btn-install-pwa');
-            if (btnInstall) {
-                btnInstall.classList.add('animate-pulse', 'bg-amber-500', 'text-pf-900');
-            }
-        });
-
-        function triggerPWAInstall() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        showToast('Aplicativo instalado com sucesso na tela inicial!');
-                    }
-                    deferredPrompt = null;
-                });
-            } else {
-                showInstallInstructions();
-            }
-        }
-
         const REQUIRED_DOCUMENTS = [
-            { id: 'doc_requerimento', name: 'Requerimento de Concessão de CR (PF)', desc: 'Requerimento formal dirigido à Polícia Federal com a qualificação e opção do tipo de acervo.', hasTemplate: true, templateType: 'requerimento' },
+            { id: 'doc_requerimento', name: 'Requerimento de Concessão de CR (PF)', desc: 'Requerimento formal dirigido à Polícia Federal.', hasTemplate: true, templateType: 'requerimento' },
             { id: 'doc_id', name: 'Documento de Identificação Oficial (RG/CNH)', desc: 'Documento original legível com foto recente e CPF.', hasTemplate: false },
             { id: 'doc_residencia', name: 'Comprovante de Residência Fixa', desc: 'Conta de água, luz ou telefone fixo dos últimos 90 dias.', hasTemplate: false },
-            { id: 'doc_decl_endereco', name: 'Declaração de Residência / Endereço', desc: 'Requerida caso o comprovante de residência não esteja no nome do requerente ou para imóvel alugado.', hasTemplate: true, templateType: 'endereco' },
-            { id: 'doc_ocupacao', name: 'Comprovante de Ocupação Lícita', desc: 'Holerite, Contrato Social, Declaração do IRPF ou Carteira de Trabalho.', hasTemplate: false },
-            { id: 'doc_idoneidade', name: 'Declaração de Idoneidade Moral', desc: 'Declaração formal sob as penas da lei afirmando ausência de processos e inquéritos.', hasTemplate: true, templateType: 'idoneidade' },
-            { id: 'doc_fed', name: 'Certidão Negativa - Justiça Federal', desc: 'Emitida pelo portal TRF da sua região residencial.', hasTemplate: false },
-            { id: 'doc_est', name: 'Certidão Negativa - Justiça Estadual', desc: 'Emitida pelo Tribunal de Justiça do seu Estado (Primeira e Segunda Instância).', hasTemplate: false },
-            { id: 'doc_eleitoral', name: 'Certidão Negativa - Justiça Eleitoral', desc: 'Certidão de Quitação e de Crimes Eleitorais emitidas pelo TSE.', hasTemplate: false },
-            { id: 'doc_militar', name: 'Certidão Negativa - Justiça Militar', desc: 'Emitida pelo STM (Superior Tribunal Militar).', hasTemplate: false },
-            { id: 'doc_psico', name: 'Laudo de Aptidão Psicológica', desc: 'Emitido por psicólogo credenciado no cadastro ativo da Polícia Federal.', hasTemplate: false },
-            { id: 'doc_tecnica', name: 'Laudo de Capacidade Técnica (Tiro)', desc: 'Emitido por Instrutor de Armamento e Tiro (IAT) credenciado na PF.', hasTemplate: false },
-            { id: 'doc_clube', name: 'Comprovante de Filiação a Clube de Tiro', desc: 'Declaração de filiação ativa emitida por entidade legalmente registrada.', hasTemplate: false },
-            { id: 'doc_habitualidade', name: 'Termo de Compromisso de Habitualidade', desc: 'Termo declarando compromisso de cumprimento da frequência mínima de treinos esportivos.', hasTemplate: true, templateType: 'habitualidade' },
-            { id: 'doc_dsa', name: 'Declaração de Segurança do Acervo (DSA)', desc: 'Declaração afirmando possuir cofre ou local seguro com tranca.', hasTemplate: true, templateType: 'dsa' },
-            { id: 'doc_gru', name: 'Comprovante de Pagamento da Taxa GRU', desc: 'Guia de Recolhimento da União no valor de R$ 100,00 paga.', hasTemplate: false }
+            { id: 'doc_decl_endereco', name: 'Declaração de Residência / Endereço', desc: 'Requerida caso o comprovante não esteja no nome do requerente.', hasTemplate: true, templateType: 'endereco' },
+            { id: 'doc_ocupacao', name: 'Comprovante de Ocupação Lícita', desc: 'Holerite, Contrato Social ou Declaração IRPF.', hasTemplate: false },
+            { id: 'doc_idoneidade', name: 'Declaração de Idoneidade Moral', desc: 'Declaração afirmando ausência de processos e inquéritos.', hasTemplate: true, templateType: 'idoneidade' },
+            { id: 'doc_fed', name: 'Certidão Negativa - Justiça Federal', desc: 'Emitida pelo portal TRF da região.', hasTemplate: false },
+            { id: 'doc_est', name: 'Certidão Negativa - Justiça Estadual', desc: 'Emitida pelo Tribunal de Justiça Estadual.', hasTemplate: false },
+            { id: 'doc_eleitoral', name: 'Certidão Negativa - Justiça Eleitoral', desc: 'Certidão de Quitação e de Crimes Eleitorais (TSE).', hasTemplate: false },
+            { id: 'doc_militar', name: 'Certidão Negativa - Justiça Militar', desc: 'Emitida pelo STM.', hasTemplate: false },
+            { id: 'doc_psico', name: 'Laudo de Aptidão Psicológica', desc: 'Psicólogo credenciado na Polícia Federal.', hasTemplate: false },
+            { id: 'doc_tecnica', name: 'Laudo de Capacidade Técnica (Tiro)', desc: 'Instrutor (IAT) credenciado na PF.', hasTemplate: false },
+            { id: 'doc_clube', name: 'Comprovante de Filiação a Clube de Tiro', desc: 'Declaração de filiação ativa.', hasTemplate: false },
+            { id: 'doc_habitualidade', name: 'Termo de Compromisso de Habitualidade', desc: 'Frequência mínima de treinos esportivos.', hasTemplate: true, templateType: 'habitualidade' },
+            { id: 'doc_dsa', name: 'Declaração de Segurança do Acervo (DSA)', desc: 'Declaração afirmando possuir cofre ou local seguro.', hasTemplate: true, templateType: 'dsa' },
+            { id: 'doc_gru', name: 'Comprovante de Pagamento da Taxa GRU', desc: 'Guia de Recolhimento da União paga (R$ 100,00).', hasTemplate: false }
         ];
 
-        // BASE DE DADOS INICIAL / MOCK DATA
-        let clientsData = [
+        let defaultClients = [
             {
                 id: '1',
                 fullname: 'Marcos Vinícius de Oliveira',
@@ -673,103 +402,118 @@
                 phone: '(31) 99876-5432',
                 profession: 'Empresário',
                 address: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG',
-                safeAddress: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG (Cofre embutido)',
+                safeAddress: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG (Cofre)',
                 status: 'Em Análise',
-                docs: {
-                    doc_id: { uploaded: true, fileName: 'rg_marcos.pdf' },
-                    doc_residencia: { uploaded: true, fileName: 'comprovante_luz.pdf' },
-                    doc_decl_endereco: { uploaded: true, fileName: 'declaracao_residencia.pdf' },
-                    doc_ocupacao: { uploaded: true, fileName: 'contrato_social.pdf' },
-                    doc_idoneidade: { uploaded: true, fileName: 'decl_idoneidade.pdf' },
-                    doc_fed: { uploaded: true, fileName: 'certidao_fed.pdf' },
-                    doc_est: { uploaded: true, fileName: 'certidao_est.pdf' },
-                    doc_eleitoral: { uploaded: true, fileName: 'certidao_eleit.pdf' },
-                    doc_militar: { uploaded: true, fileName: 'certidao_militar.pdf' },
-                    doc_psico: { uploaded: true, fileName: 'laudo_psico.pdf' },
-                    doc_tecnica: { uploaded: true, fileName: 'laudo_iat.pdf' },
-                    doc_clube: { uploaded: true, fileName: 'declaracao_clube.pdf' },
-                    doc_habitualidade: { uploaded: false, fileName: '' },
-                    doc_dsa: { uploaded: false, fileName: '' },
-                    doc_gru: { uploaded: false, fileName: '' }
-                }
-            },
-            {
-                id: '2',
-                fullname: 'Fernanda Cristina Santos',
-                cpf: '987.654.321-11',
-                rg: 'SSP-12.889.000',
-                birthdate: '1995-11-20',
-                phone: '(31) 98765-1234',
-                profession: 'Advogada',
-                address: 'Rua das Flores, 88, Savassi - Belo Horizonte/MG',
-                safeAddress: 'Rua das Flores, 88, Savassi - Belo Horizonte/MG',
-                status: 'Pronto',
-                docs: {
-                    doc_id: { uploaded: true, fileName: 'cnh_fernanda.pdf' },
-                    doc_residencia: { uploaded: true, fileName: 'conta_agua.pdf' },
-                    doc_ocupacao: { uploaded: true, fileName: 'oab_comprovante.pdf' },
-                    doc_fed: { uploaded: true, fileName: 'cert_fed.pdf' },
-                    doc_est: { uploaded: true, fileName: 'cert_est.pdf' },
-                    doc_eleitoral: { uploaded: true, fileName: 'cert_eleit.pdf' },
-                    doc_militar: { uploaded: true, fileName: 'cert_milt.pdf' },
-                    doc_psico: { uploaded: true, fileName: 'psico_aprovado.pdf' },
-                    doc_tecnica: { uploaded: true, fileName: 'iat_aprovado.pdf' },
-                    doc_clube: { uploaded: true, fileName: 'filiacao_clube.pdf' },
-                    doc_dsa: { uploaded: true, fileName: 'dsa_assinado.pdf' },
-                    doc_gru: { uploaded: true, fileName: 'gru_paga.pdf' }
-                }
+                docs: {}
             }
         ];
 
+        let clientsData = JSON.parse(localStorage.getItem('cr_pf_clients')) || defaultClients;
         let activeClientId = '1';
+        let isClientPortalMode = false;
 
-        // INICIALIZAÇÃO DO APP
-        window.onload = function() {
+        function saveState() {
             try {
-                if (window.lucide) {
-                    lucide.createIcons();
+                localStorage.setItem('cr_pf_clients', JSON.stringify(clientsData));
+            } catch(e) {}
+        }
+
+        window.onload = function() {
+            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+
+            const fullUrl = window.location.href;
+            const searchParams = new URLSearchParams(window.location.search);
+            
+            let isNewRegistration = searchParams.get('novo-cadastro') === 'true' || fullUrl.includes('novo-cadastro=true');
+            let clientIdParam = searchParams.get('client');
+
+            if (!clientIdParam && fullUrl.includes('client=')) {
+                const match = fullUrl.match(/client=([^&]+)/);
+                if (match && match[1]) clientIdParam = match[1];
+            }
+
+            // Se for link de cliente ou novo cadastro, entra no MODO EXCLUSIVO DE CLIENTE
+            if (isNewRegistration || clientIdParam) {
+                isClientPortalMode = true;
+                
+                // Ocultar abas e botões do despachante na navbar
+                const navTabs = document.getElementById('nav-tabs-container');
+                if (navTabs) navTabs.style.display = 'none';
+
+                const backBtn = document.getElementById('btn-back-despachante');
+                if (backBtn) backBtn.style.display = 'none';
+
+                if (isNewRegistration) {
+                    createNewClientForPortal();
+                } else if (clientIdParam && clientsData.some(c => c.id === clientIdParam)) {
+                    activeClientId = clientIdParam;
                 }
-            } catch(e) { console.error('Erro ao inicializar ícones Lucide:', e); }
-            renderDashboard();
-            if (clientsData && clientsData.length > 0) {
+
                 loadClientIntoForm(activeClientId);
+                switchView('cliente');
+                showToast('Bem-vindo ao Portal de Cadastro. Preencha seus dados.');
+            } else {
+                renderDashboard();
+                if (clientsData.length > 0) loadClientIntoForm(clientsData[0].id);
             }
         };
 
-        // TROCA DE TELAS (DESPACHANTE <-> CLIENTE)
         function switchView(viewName) {
-            const viewDespachante = document.getElementById('view-despachante');
-            const viewCliente = document.getElementById('view-cliente');
-            const tabDespachante = document.getElementById('tab-despachante');
-            const tabCliente = document.getElementById('tab-cliente');
+            const vDesp = document.getElementById('view-despachante');
+            const vCli = document.getElementById('view-cliente');
+            
+            if (isClientPortalMode) {
+                if (vDesp) vDesp.classList.add('hidden');
+                if (vCli) vCli.classList.remove('hidden');
+                return;
+            }
+
+            const tabDesp = document.getElementById('tab-despachante');
+            const tabCli = document.getElementById('tab-cliente');
 
             if (viewName === 'despachante') {
-                viewDespachante.classList.remove('hidden');
-                viewCliente.classList.add('hidden');
-                
-                tabDespachante.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
-                tabCliente.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
+                vDesp.classList.remove('hidden');
+                vCli.classList.add('hidden');
+                tabDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
+                tabCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
                 renderDashboard();
             } else {
-                viewDespachante.classList.add('hidden');
-                viewCliente.classList.remove('hidden');
-
-                tabCliente.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
-                tabDespachante.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
+                vDesp.classList.add('hidden');
+                vCli.classList.remove('hidden');
+                tabCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
+                tabDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
                 renderChecklist();
             }
         }
 
-        // RENDERIZAR PAINEL DO DESPACHANTE
+        function createNewClientForPortal() {
+            const newId = Date.now().toString();
+            const newClient = {
+                id: newId,
+                fullname: '',
+                cpf: '',
+                rg: '',
+                birthdate: '',
+                phone: '',
+                profession: '',
+                address: '',
+                safeAddress: '',
+                status: 'Pendente',
+                docs: {}
+            };
+            REQUIRED_DOCUMENTS.forEach(d => { newClient.docs[d.id] = { uploaded: false, fileName: '' }; });
+            clientsData.push(newClient);
+            activeClientId = newId;
+            saveState();
+        }
+
         function renderDashboard() {
             const tbody = document.getElementById('clients-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
 
             let total = clientsData.length;
-            let pendentes = 0;
-            let prontos = 0;
-            let deferidos = 0;
+            let pendentes = 0, prontos = 0, deferidos = 0;
 
             const searchEl = document.getElementById('search-input');
             const statusEl = document.getElementById('status-filter');
@@ -777,14 +521,12 @@
             const filterStatus = statusEl ? statusEl.value : 'ALL';
 
             clientsData.forEach(client => {
-                // Métricas
-                const docsCount = Object.values(client.docs).filter(d => d.uploaded).length;
+                const docsCount = Object.values(client.docs || {}).filter(d => d.uploaded).length;
                 if (client.status === 'Deferido') deferidos++;
                 else if (docsCount === REQUIRED_DOCUMENTS.length || client.status === 'Pronto') prontos++;
                 else pendentes++;
 
-                // Filtro
-                const matchesSearch = client.fullname.toLowerCase().includes(filterText) || client.cpf.includes(filterText);
+                const matchesSearch = (client.fullname || '').toLowerCase().includes(filterText) || (client.cpf || '').includes(filterText);
                 let matchesStatus = true;
                 if (filterStatus === 'Pendente') matchesStatus = docsCount < REQUIRED_DOCUMENTS.length;
                 else if (filterStatus === 'Pronto') matchesStatus = client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length;
@@ -792,24 +534,20 @@
 
                 if (!matchesSearch || !matchesStatus) return;
 
-                // Status Badge CSS
                 let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
-                if (client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length) {
-                    badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
-                } else if (client.status === 'Deferido') {
-                    badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-                }
+                if (client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length) badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                else if (client.status === 'Deferido') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
                 tr.innerHTML = `
                     <td class="py-3 px-4 sm:px-6">
-                        <div class="font-bold text-slate-900">${client.fullname || 'Sem nome'}</div>
+                        <div class="font-bold text-slate-900">${client.fullname || 'Novo Cliente'}</div>
                         <div class="text-xs text-slate-400">ID: #${client.id}</div>
                     </td>
                     <td class="py-3 px-4">
                         <div class="text-slate-700 font-mono text-xs">${client.cpf || '---'}</div>
-                        <div class="text-xs text-slate-500">${client.phone || 'Sem telefone'}</div>
+                        <div class="text-xs text-slate-500">${client.phone || 'Sem contato'}</div>
                     </td>
                     <td class="py-3 px-4">
                         <div class="flex items-center space-x-2">
@@ -825,10 +563,10 @@
                         </span>
                     </td>
                     <td class="py-3 px-4 text-right space-x-1">
-                        <button onclick="openClientPortal('${client.id}')" title="Abrir Documentos" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <button onclick="openClientPortal('${client.id}')" title="Abrir Documentos" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg">
                             <i data-lucide="folder-open" class="w-4 h-4"></i>
                         </button>
-                        <button onclick="markAsDeferido('${client.id}')" title="Marcar Deferido" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                        <button onclick="markAsDeferido('${client.id}')" title="Marcar Deferido" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg">
                             <i data-lucide="check-circle" class="w-4 h-4"></i>
                         </button>
                     </td>
@@ -836,33 +574,23 @@
                 tbody.appendChild(tr);
             });
 
-            // Atualizar cards de estatísticas com verificação de segurança
-            const totalEl = document.getElementById('stat-total');
-            const pendenteEl = document.getElementById('stat-pendente');
-            const prontoEl = document.getElementById('stat-pronto');
-            const deferidoEl = document.getElementById('stat-deferido');
+            if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
+            if (document.getElementById('stat-pendente')) document.getElementById('stat-pendente').innerText = pendentes;
+            if (document.getElementById('stat-pronto')) document.getElementById('stat-pronto').innerText = prontos;
+            if (document.getElementById('stat-deferido')) document.getElementById('stat-deferido').innerText = deferidos;
 
-            if (totalEl) totalEl.innerText = total;
-            if (pendenteEl) pendenteEl.innerText = pendentes;
-            if (prontoEl) prontoEl.innerText = prontos;
-            if (deferidoEl) deferidoEl.innerText = deferidos;
-
-            try {
-                if (window.lucide) lucide.createIcons();
-            } catch(e) {}
+            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
-        // CARREGAR DADOS DO CLIENTE NO PORTAL DO CLIENTE
         function loadClientIntoForm(clientId) {
             activeClientId = clientId;
             const client = clientsData.find(c => c.id === clientId);
             if (!client) return;
 
-            document.getElementById('current-client-name').innerText = client.fullname || 'Cliente Não Identificado';
+            document.getElementById('current-client-name').innerText = client.fullname || 'Novo Requerente';
             document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf || 'Não informado'}`;
             document.getElementById('client-avatar').innerText = getInitials(client.fullname);
 
-            // Preencher campos
             document.getElementById('form-fullname').value = client.fullname || '';
             document.getElementById('form-cpf').value = client.cpf || '';
             document.getElementById('form-rg').value = client.rg || '';
@@ -881,228 +609,6 @@
             switchView('cliente');
         }
 
-        // REGRA DE VALIDAÇÃO DE IDADE (DECRETO 11.615)
-        function validateAgeRules() {
-            const birthInput = document.getElementById('form-birthdate').value;
-            const warningBox = document.getElementById('age-warning');
-
-            if (!birthInput) {
-                warningBox.classList.add('hidden');
-                return;
-            }
-
-            const birthDate = new Date(birthInput);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-
-            warningBox.classList.remove('hidden');
-
-            if (age < 18) {
-                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-red-100 text-red-900 border border-red-200";
-                warningBox.innerHTML = `<strong>Atenção:</strong> Requerente possui ${age} anos. A prática de tiro desportivo por menores de 18 anos exige autorização judicial específica.`;
-            } else if (age >= 18 && age < 25) {
-                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-amber-100 text-amber-900 border border-amber-200";
-                warningBox.innerHTML = `<strong>Aviso Normativo (${age} anos):</strong> Menores de 25 anos podem obter o CR para prática esportiva, porém possuem restrições legais para aquisição e posse de armas próprias (Decreto nº 11.615/2023).`;
-            } else {
-                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-emerald-100 text-emerald-900 border border-emerald-200";
-                warningBox.innerHTML = `<strong>Requisito Aprovado (${age} anos):</strong> Idade plenamente apta para concessão de CR e aquisição regular de acervo de atirador desportivo.`;
-            }
-        }
-
-        // RENDERIZAR CHECKLIST INTERATIVO DE DOCUMENTOS
-        function renderChecklist() {
-            const container = document.getElementById('checklist-items-container');
-            container.innerHTML = '';
-
-            const client = clientsData.find(c => c.id === activeClientId);
-            if (!client) return;
-
-            let uploadedCount = 0;
-
-            REQUIRED_DOCUMENTS.forEach((doc, index) => {
-                const docState = client.docs[doc.id] || { uploaded: false, fileName: '' };
-                if (docState.uploaded) uploadedCount++;
-
-                const docCard = document.createElement('div');
-                docCard.className = `p-4 rounded-xl border transition-all ${
-                    docState.uploaded ? 'bg-emerald-50/60 border-emerald-200' : 'bg-slate-50 border-slate-200'
-                }`;
-
-                docCard.innerHTML = `
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div class="flex items-start space-x-3">
-                            <div class="p-2 rounded-lg ${docState.uploaded ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'} mt-0.5">
-                                <i data-lucide="${docState.uploaded ? 'check' : 'file'}" class="w-4 h-4"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-800 text-xs sm:text-sm">${index + 1}. ${doc.name}</h4>
-                                <p class="text-xs text-slate-500 mt-0.5">${doc.desc}</p>
-                                ${docState.uploaded ? `<span class="inline-flex items-center text-[11px] text-emerald-700 font-medium mt-1"><i data-lucide="paperclip" class="w-3 h-3 mr-1"></i> ${docState.fileName}</span>` : ''}
-                            </div>
-                        </div>
-
-                        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end flex-wrap gap-y-1">
-                            ${doc.hasTemplate ? `
-                                <button onclick="generateDeclarationTemplate('${doc.templateType}')" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-lg text-xs font-medium shadow-sm transition-all flex items-center space-x-1" title="Gerar Minuta Pronta">
-                                    <i data-lucide="file-signature" class="w-3.5 h-3.5"></i>
-                                    <span>Gerar Modelo</span>
-                                </button>
-                            ` : ''}
-
-                            <input type="file" id="file-${doc.id}" class="hidden" onchange="handleFileUpload('${doc.id}', this)">
-                            
-                            ${docState.uploaded ? `
-                                <button onclick="removeDocument('${doc.id}')" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-medium border border-red-200 transition-colors">
-                                    Remover
-                                </button>
-                            ` : `
-                                <button onclick="document.getElementById('file-${doc.id}').click()" class="px-3 py-1.5 bg-white hover:bg-blue-50 text-blue-600 border border-slate-300 rounded-lg text-xs font-medium shadow-sm transition-all flex items-center space-x-1">
-                                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                                    <span>Anexar Arquivo</span>
-                                </button>
-                            `}
-                        </div>
-                    </div>
-                `;
-                container.appendChild(docCard);
-            });
-
-            // Atualizar contadores
-            document.getElementById('checklist-counter').innerText = `${uploadedCount} / ${REQUIRED_DOCUMENTS.length} Concluídos`;
-            const progressPercent = (uploadedCount / REQUIRED_DOCUMENTS.length) * 100;
-            document.getElementById('checklist-progress-bar').style.width = `${progressPercent}%`;
-
-            if (window.lucide) lucide.createIcons();
-        }
-
-        // GERADOR DE MODELOS DE DECLARAÇÕES COM PREENCHIMENTO AUTOMÁTICO
-        function generateDeclarationTemplate(type) {
-            saveClientData();
-            const client = clientsData.find(c => c.id === activeClientId);
-            if (!client || !client.fullname) {
-                alert('Por favor, preencha o Nome e CPF do cliente antes de gerar a declaração.');
-                return;
-            }
-
-            const today = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-            let title = '';
-            let content = '';
-
-            if (type === 'requerimento') {
-                title = 'Requerimento de Concessão de CR - Polícia Federal';
-                content = `
-                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">
-                        ILMO. SR. CHEFE DA DELEGACIA DE CONTROLE DE ARMAS E PRODUTOS CONTROLADOS (DELEAP/PF)<br>
-                        POLÍCIA FEDERAL / SINARM
-                    </div>
-                    <p class="mb-4"><strong>REQUERENTE:</strong> ${client.fullname}</p>
-                    <p class="mb-2"><strong>CPF:</strong> ${client.cpf || '___________'} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>RG:</strong> ${client.rg || '___________'}</p>
-                    <p class="mb-2"><strong>DATA NASCIMENTO:</strong> ${client.birthdate ? new Date(client.birthdate).toLocaleDateString('pt-BR') : '___________'} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>PROFISSÃO:</strong> ${client.profession || '___________'}</p>
-                    <p class="mb-2"><strong>ENDEREÇO RESIDENCIAL:</strong> ${client.address || '___________'}</p>
-                    <p class="mb-6"><strong>TELEFONE/WHATSAPP:</strong> ${client.phone || '___________'}</p>
-
-                    <p class="mb-4 text-justify">Vem, respeitosamente, à presença de Vossa Senhoria, com fundamento no Decreto nº 11.615/2023 e na Instrução Normativa DG/PF nº 311, requerer a <strong>CONCESSÃO DE CERTIFICADO DE REGISTRO (CR) PARA A ATIVIDADE DE ATIRADOR DESPORTIVO</strong> no âmbito do Sistema Nacional de Armas (SINARM).</p>
-                    
-                    <p class="mb-4 text-justify">Para tanto, instrui o presente pedido com todos os documentos exigidos pela legislação em vigor, inclusive certidões de antecedentes, laudo de aptidão psicológica, laudo de capacidade técnica para manuseio de arma de fogo e comprovante de filiação a clube de tiro registrado.</p>
-
-                    <p class="mb-4 text-justify">Declara, sob as penas da lei, serem verdadeiras todas as informações constantes deste requerimento e dos documentos anexos.</p>
-                `;
-            } else if (type === 'endereco') {
-                title = 'Declaração de Residência Factual';
-                content = `
-                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">DECLARAÇÃO DE RESIDÊNCIA FIXA</div>
-                    <p>Eu, <strong>${client.fullname}</strong>, inscrito(a) no CPF sob o nº <strong>${client.cpf}</strong>, portador(a) do RG nº <strong>${client.rg || '___________'}</strong>, de profissão <strong>${client.profession || '___________'}</strong>, DECLARO para os devidos fins de comprovação junto à Polícia Federal, nos termos da legislação vigente e do Decreto nº 11.615/2023, que resido habitualmente no seguinte endereço:</p>
-                    <p class="my-4 text-center font-bold bg-slate-100 p-3 rounded border">${client.address || '[ Endereço Não Informado ]'}</p>
-                    <p>Declaro ainda estar ciente de que a falsidade das informações prestadas nesta declaração configurará crime previsto no Art. 299 do Código Penal Brasileiro (Falsidade Ideológica), sujeitando-me às sanções penais e administrativas cabíveis.</p>
-                `;
-            } else if (type === 'idoneidade') {
-                title = 'Declaração de Idoneidade Moral';
-                content = `
-                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">DECLARAÇÃO DE IDONEIDADE MORAL E AUSÊNCIA DE PROCESSOS</div>
-                    <p>Eu, <strong>${client.fullname}</strong>, inscrito(a) no CPF sob o nº <strong>${client.cpf}</strong>, portador(a) do RG nº <strong>${client.rg || '___________'}</strong>, DECLARO sob as penas da lei, para fins de instrução de processo de Concessão de Certificado de Registro (CR) de Atirador Desportivo junto à Polícia Federal (SINARM):</p>
-                    <ol class="list-decimal list-inside my-4 space-y-2">
-                        <li>Que possuo idoneidade moral e conduta ilibada;</li>
-                        <li>Que não respondo a inquérito policial ou a processo criminal em qualquer comarca do território nacional;</li>
-                        <li>Que não fui condenado(a) por crime doloso.</li>
-                    </ol>
-                    <p>Por ser verdade, firmo a presente declaração sob as penas da lei.</p>
-                `;
-            } else if (type === 'habitualidade') {
-                title = 'Termo de Compromisso de Habitualidade';
-                content = `
-                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">TERMO DE COMPROMISSO DE HABITUALIDADE DO ATIRADOR</div>
-                    <p>Eu, <strong>${client.fullname}</strong>, inscrito(a) no CPF sob o nº <strong>${client.cpf}</strong>, DECLARO perante a Polícia Federal que tenho pleno conhecimento das disposições do Decreto nº 11.615/2023 e da Instrução Normativa DG/PF nº 311/2023, e ASSUMO O COMPROMISSO formal de cumprir a habitualidade mínima exigida para a prática do tiro desportivo.</p>
-                    <p class="my-3">Comprometo-me a realizar e comprovar no mínimo <strong>8 (oito) treinamentos ou competições anuais</strong> em entidade de tiro autorizada para cada calibre de arma de fogo do meu acervo registrado.</p>
-                `;
-            } else if (type === 'dsa') {
-                title = 'Declaração de Segurança do Acervo (DSA)';
-                content = `
-                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">DECLARAÇÃO DE SEGURANÇA DO ACERVO (DSA)</div>
-                    <p>Eu, <strong>${client.fullname}</strong>, inscrito(a) no CPF sob o nº <strong>${client.cpf}</strong>, DECLARO à Polícia Federal que o local destinado à guarda do meu acervo de atirador desportivo situa-se no endereço:</p>
-                    <p class="my-4 text-center font-bold bg-slate-100 p-3 rounded border">${client.safeAddress || client.address || '[ Local de Guarda Não Informado ]'}</p>
-                    <p>Atesto que o referido local possui cofre, armário trancado ou compartimento com fechadura reforçada, apresentando condições adequadas de segurança contra furto, roubo ou acesso não autorizado por terceiros e menores de idade, cumprindo rigorosamente as determinações legais vigentes.</p>
-                `;
-            }
-
-            const footer = `
-                <div class="mt-12 text-center space-y-8">
-                    <p>Data: ${today}</p>
-                    <div class="pt-8 border-t border-black max-w-md mx-auto">
-                        <p class="font-bold">${client.fullname}</p>
-                        <p class="text-xs">CPF: ${client.cpf}</p>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('decl-modal-title').innerText = title;
-            document.getElementById('decl-modal-body').innerHTML = content + footer;
-            document.getElementById('declaration-modal').classList.remove('hidden');
-        }
-
-        function closeDeclarationModal() {
-            document.getElementById('declaration-modal').classList.add('hidden');
-        }
-
-        function openNormsModal() {
-            document.getElementById('norms-modal').classList.remove('hidden');
-        }
-
-        function closeNormsModal() {
-            document.getElementById('norms-modal').classList.add('hidden');
-        }
-
-        function printDeclaration() {
-            window.print();
-        }
-
-        // SIMULAR UPLOAD DE ARQUIVO
-        function handleFileUpload(docId, inputElement) {
-            if (inputElement.files && inputElement.files[0]) {
-                const fileName = inputElement.files[0].name;
-                const client = clientsData.find(c => c.id === activeClientId);
-                if (client) {
-                    client.docs[docId] = { uploaded: true, fileName: fileName };
-                    renderChecklist();
-                    showToast(`Documento "${fileName}" anexado com sucesso!`);
-                }
-            }
-        }
-
-        function removeDocument(docId) {
-            const client = clientsData.find(c => c.id === activeClientId);
-            if (client) {
-                client.docs[docId] = { uploaded: false, fileName: '' };
-                renderChecklist();
-                showToast('Documento removido.');
-            }
-        }
-
-        // SALVAR DADOS PESSOAIS
         function saveClientData() {
             const client = clientsData.find(c => c.id === activeClientId);
             if (client) {
@@ -1115,189 +621,171 @@
                 client.address = document.getElementById('form-address').value;
                 client.safeAddress = document.getElementById('form-safe-address').value;
 
-                document.getElementById('current-client-name').innerText = client.fullname;
-                document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf}`;
-                showToast('Informações cadastrais salvas!');
+                document.getElementById('current-client-name').innerText = client.fullname || 'Requerente';
+                document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf || '---'}`;
+                saveState();
+                showToast('Informações salvas com sucesso!');
             }
         }
 
-        // FINALIZAR ENVIO PARA ANÁLISE
-        function submitProcessForReview() {
-            saveClientData();
-            const client = clientsData.find(c => c.id === activeClientId);
-            const docsCount = Object.values(client.docs).filter(d => d.uploaded).length;
+        function validateAgeRules() {
+            const birthInput = document.getElementById('form-birthdate').value;
+            const warningBox = document.getElementById('age-warning');
+            if (!birthInput || !warningBox) return;
 
-            if (docsCount < REQUIRED_DOCUMENTS.length) {
-                if (confirm(`Ainda restam ${REQUIRED_DOCUMENTS.length - docsCount} documentos pendentes. Deseja enviar mesmo assim para pré-análise?`)) {
-                    client.status = 'Em Análise';
-                    showToast('Processo enviado para pré-análise do despachante.');
-                    switchView('despachante');
-                }
+            const birthDate = new Date(birthInput);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+
+            warningBox.classList.remove('hidden');
+            if (age < 18) {
+                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-red-100 text-red-900 border border-red-200";
+                warningBox.innerHTML = `<strong>Atenção:</strong> Requerente possui ${age} anos. Requer autorização judicial.`;
+            } else if (age >= 18 && age < 25) {
+                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-amber-100 text-amber-900 border border-amber-200";
+                warningBox.innerHTML = `<strong>Aviso (${age} anos):</strong> Menores de 25 anos possuem restrições para aquisição de arma própria.`;
             } else {
-                client.status = 'Pronto';
-                showToast('Processo concluído e PRONTO para Protocolo no SINARM!');
-                switchView('despachante');
+                warningBox.className = "p-3 rounded-xl text-xs space-y-1 bg-emerald-100 text-emerald-900 border border-emerald-200";
+                warningBox.innerHTML = `<strong>Aprovado (${age} anos):</strong> Idade plenamente apta.`;
             }
         }
 
-        // MARCAR DEFERIDO PELO DESPACHANTE
-        function markAsDeferido(clientId) {
-            const client = clientsData.find(c => c.id === clientId);
-            if (client) {
-                client.status = 'Deferido';
-                renderDashboard();
-                showToast(`Status do cliente ${client.fullname} atualizado para DEFERIDO!`);
-            }
-        }
+        function renderChecklist() {
+            const container = document.getElementById('checklist-items-container');
+            if (!container) return;
+            container.innerHTML = '';
 
-        // IMPRESSÃO / IMPRIMIR FICHA
-        function printSummary() {
             const client = clientsData.find(c => c.id === activeClientId);
             if (!client) return;
 
-            document.getElementById('print-date').innerText = new Date().toLocaleDateString('pt-BR');
-            document.getElementById('print-fullname').innerText = client.fullname || 'N/A';
-            document.getElementById('print-cpf').innerText = client.cpf || 'N/A';
-            document.getElementById('print-rg').innerText = client.rg || 'N/A';
-            document.getElementById('print-birth').innerText = client.birthdate ? new Date(client.birthdate).toLocaleDateString('pt-BR') : 'N/A';
-            document.getElementById('print-profession').innerText = client.profession || 'N/A';
-            document.getElementById('print-phone').innerText = client.phone || 'N/A';
-            document.getElementById('print-address').innerText = client.address || 'N/A';
-            document.getElementById('print-safe').innerText = client.safeAddress || 'N/A';
+            let uploadedCount = 0;
+            REQUIRED_DOCUMENTS.forEach((doc, index) => {
+                const docState = (client.docs && client.docs[doc.id]) || { uploaded: false, fileName: '' };
+                if (docState.uploaded) uploadedCount++;
 
-            document.getElementById('print-sign-name').innerText = client.fullname || 'Assinatura do Requerente';
-            document.getElementById('print-sign-cpf').innerText = client.cpf || 'N/A';
-
-            const checklistPrint = document.getElementById('print-checklist');
-            checklistPrint.innerHTML = '';
-
-            REQUIRED_DOCUMENTS.forEach(doc => {
-                const docState = client.docs[doc.id] || { uploaded: false };
-                const p = document.createElement('p');
-                p.innerHTML = `[ ${docState.uploaded ? 'X' : ' '} ] <strong>${doc.name}:</strong> ${docState.uploaded ? 'ANEXADO (' + docState.fileName + ')' : 'PENDENTE'}`;
-                checklistPrint.appendChild(p);
+                const docCard = document.createElement('div');
+                docCard.className = `p-4 rounded-xl border transition-all ${docState.uploaded ? 'bg-emerald-50/60 border-emerald-200' : 'bg-slate-50 border-slate-200'}`;
+                docCard.innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 rounded-lg ${docState.uploaded ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'} mt-0.5">
+                                <i data-lucide="${docState.uploaded ? 'check' : 'file'}" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-xs sm:text-sm">${index + 1}. ${doc.name}</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">${doc.desc}</p>
+                                ${docState.uploaded ? `<span class="inline-flex items-center text-[11px] text-emerald-700 font-medium mt-1"><i data-lucide="paperclip" class="w-3 h-3 mr-1"></i> ${docState.fileName}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end flex-wrap gap-y-1">
+                            ${doc.hasTemplate ? `
+                                <button onclick="generateDeclarationTemplate('${doc.templateType}')" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-lg text-xs font-medium">Modelo</button>
+                            ` : ''}
+                            <input type="file" id="file-${doc.id}" class="hidden" onchange="handleFileUpload('${doc.id}', this)">
+                            ${docState.uploaded ? `
+                                <button onclick="removeDocument('${doc.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium border border-red-200">Remover</button>
+                            ` : `
+                                <button onclick="document.getElementById('file-${doc.id}').click()" class="px-3 py-1.5 bg-white text-blue-600 border border-slate-300 rounded-lg text-xs font-medium">Anexar</button>
+                            `}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(docCard);
             });
 
-            window.print();
+            document.getElementById('checklist-counter').innerText = `${uploadedCount} / ${REQUIRED_DOCUMENTS.length} Concluídos`;
+            document.getElementById('checklist-progress-bar').style.width = `${(uploadedCount / REQUIRED_DOCUMENTS.length) * 100}%`;
+            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
-        // ADICIONAR NOVO CLIENTE VIA MODAL
-        function createNewClient() {
-            document.getElementById('new-client-modal').classList.remove('hidden');
-        }
-
-        function closeNewClientModal() {
-            document.getElementById('new-client-modal').classList.add('hidden');
-        }
-
-        function saveNewClientModal() {
-            const name = document.getElementById('modal-name').value;
-            const cpf = document.getElementById('modal-cpf').value;
-            const phone = document.getElementById('modal-phone').value;
-
-            if (!name || !cpf) {
-                alert('Preencha ao menos Nome e CPF.');
-                return;
+        function handleFileUpload(docId, inputElement) {
+            if (inputElement.files && inputElement.files[0]) {
+                const fileName = inputElement.files[0].name;
+                const client = clientsData.find(c => c.id === activeClientId);
+                if (client) {
+                    if (!client.docs) client.docs = {};
+                    client.docs[docId] = { uploaded: true, fileName: fileName };
+                    saveState();
+                    renderChecklist();
+                    showToast(`Documento "${fileName}" anexado!`);
+                }
             }
-
-            const newId = (clientsData.length + 1).toString();
-            const newClient = {
-                id: newId,
-                fullname: name,
-                cpf: cpf,
-                rg: '',
-                birthdate: '',
-                phone: phone,
-                profession: '',
-                address: '',
-                safeAddress: '',
-                status: 'Pendente',
-                docs: {}
-            };
-
-            REQUIRED_DOCUMENTS.forEach(d => {
-                newClient.docs[d.id] = { uploaded: false, fileName: '' };
-            });
-
-            clientsData.push(newClient);
-            closeNewClientModal();
-            renderDashboard();
-            showToast('Novo cliente cadastrado!');
-            openClientPortal(newId);
         }
 
-        // COPIAR LINK DO CLIENTE
-        function copyClientLink() {
+        function removeDocument(docId) {
             const client = clientsData.find(c => c.id === activeClientId);
-            const clientName = client ? client.fullname : 'Cliente';
-            const clientPhone = client ? client.phone.replace(/\D/g, '') : '';
-            
-            // Monta a URL para o cliente
-            const baseUrl = window.location.href.split('#')[0];
-            const link = `${baseUrl}#portal?client=${activeClientId}`;
-            
-            // Preenche o modal de compartilhamento
-            document.getElementById('modal-share-client-name').innerText = clientName;
+            if (client && client.docs && client.docs[docId]) {
+                client.docs[docId] = { uploaded: false, fileName: '' };
+                saveState();
+                renderChecklist();
+                showToast('Documento removido.');
+            }
+        }
+
+        function getCleanBaseUrl() {
+            let href = window.location.href.split('?')[0].split('#')[0];
+            if (href.startsWith('blob:')) href = href.replace('blob:', '');
+            if (!href || href === 'about:blank' || href.includes('null')) {
+                href = window.location.origin + window.location.pathname;
+            }
+            return href;
+        }
+
+        function copyNewRegistrationLink() {
+            const link = `${getCleanBaseUrl()}?novo-cadastro=true`;
+            document.getElementById('modal-share-client-name').innerText = 'Novo Requerente';
             const inputEl = document.getElementById('modal-share-input');
             inputEl.value = link;
-
-            // Salva dados temporários para WhatsApp
-            inputEl.dataset.phone = clientPhone;
-            inputEl.dataset.clientName = clientName;
-
+            inputEl.dataset.phone = '';
+            inputEl.dataset.clientName = 'Novo Requerente';
             document.getElementById('share-link-modal').classList.remove('hidden');
-            if (window.lucide) lucide.createIcons();
         }
 
-        function closeShareModal() {
-            document.getElementById('share-link-modal').classList.add('hidden');
-        }
-
-        function copyModalInput() {
-            const inputEl = document.getElementById('modal-share-input');
-            inputEl.select();
-            inputEl.setSelectionRange(0, 99999);
-
-            try {
-                navigator.clipboard.writeText(inputEl.value);
-                showToast('Link copiado com sucesso!');
-            } catch (err) {
-                document.execCommand('copy');
-                showToast('Link copiado para a área de transferência!');
+        function submitProcessForReview() {
+            saveClientData();
+            const client = clientsData.find(c => c.id === activeClientId);
+            if (client) {
+                client.status = 'Em Análise';
+                saveState();
+                showToast('Seus dados e documentos foram enviados com sucesso ao despachante!');
+                if (isClientPortalMode) {
+                    setTimeout(() => {
+                        alert('Cadastro enviado com sucesso! Você já pode fechar esta página.');
+                    }, 500);
+                } else {
+                    switchView('despachante');
+                }
             }
         }
 
-        function sendViaWhatsApp() {
-            const inputEl = document.getElementById('modal-share-input');
-            const link = inputEl.value;
-            const phone = inputEl.dataset.phone;
-            const clientName = inputEl.dataset.clientName;
+        function generateDeclarationTemplate(type) {
+            saveClientData();
+            const client = clientsData.find(c => c.id === activeClientId);
+            const today = new Date().toLocaleDateString('pt-BR');
+            let title = 'Declaração Oficial', body = '';
 
-            const text = encodeURIComponent(`Olá ${clientName}, segue o link para envio dos seus documentos referente ao processo do Certificado de Registro (CR) junto à Polícia Federal:\n\n${link}`);
-            
-            let whatsappUrl = `https://wa.me/?text=${text}`;
-            if (phone && phone.length >= 10) {
-                whatsappUrl = `https://wa.me/55${phone}?text=${text}`;
+            if (type === 'requerimento') {
+                title = 'Requerimento de Concessão de CR';
+                body = `<p class="font-bold text-center mb-4">ILMO. SR. CHEFE DA DELEGACIA DE CONTROLE DE ARMAS (DELEAP/PF)</p><p>Requerente: ${client ? client.fullname : ''} - CPF: ${client ? client.cpf : ''}</p>`;
+            } else {
+                title = 'Declaração de Residência Factual';
+                body = `<p>Eu, ${client ? client.fullname : ''}, CPF ${client ? client.cpf : ''}, declaro que resido em: ${client ? client.address : ''}</p>`;
             }
 
-            window.open(whatsappUrl, '_blank');
+            document.getElementById('decl-modal-title').innerText = title;
+            document.getElementById('decl-modal-body').innerHTML = body + `<br><p class="mt-8 text-center">Data: ${today}</p>`;
+            document.getElementById('declaration-modal').classList.remove('hidden');
         }
 
-        // FILTROS DA TABELA
-        function filterClients() {
-            renderDashboard();
-        }
+        function closeDeclarationModal() { document.getElementById('declaration-modal').classList.add('hidden'); }
+        function filterClients() { renderDashboard(); }
+        function openNormsModal() { document.getElementById('norms-modal').classList.remove('hidden'); }
+        function closeNormsModal() { document.getElementById('norms-modal').classList.add('hidden'); }
+        function createNewClient() { document.getElementById('new-client-modal').classList.remove('hidden'); }
+        function closeNewClientModal() { document.getElementById('new-client-modal').classList.add('hidden'); }
 
-        // INSTRUÇÕES DE INSTALAÇÃO DO PWA NO CELULAR
-        function showInstallInstructions() {
-            document.getElementById('pwa-modal').classList.remove('hidden');
-        }
-
-        function closeInstallInstructions() {
-            document.getElementById('pwa-modal').classList.add('hidden');
-        }
-
-        // AUXILIARES
         function formatCPF(input) {
             let v = input.value.replace(/\D/g, '');
             if (v.length > 11) v = v.substring(0, 11);
@@ -1310,20 +798,16 @@
         function getInitials(name) {
             if (!name) return 'AD';
             const parts = name.trim().split(' ');
-            if (parts.length >= 2) {
-                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-            }
-            return name.substring(0, 2).toUpperCase();
+            return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
         }
 
         function showToast(message) {
             const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = message;
+            const msgEl = document.getElementById('toast-message');
+            if (!toast || !msgEl) return;
+            msgEl.innerText = message;
             toast.classList.remove('translate-y-20', 'opacity-0');
-            
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3500);
+            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3500);
         }
     </script>
 </body>
