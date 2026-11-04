@@ -620,7 +620,7 @@
 
                 if (mH2) mH2.classList.remove('hidden');
                 if (cH2) cH2.classList.add('hidden');
-                if (bB2) bB2.classList.remove('hidden');
+                if (bB2) bB2.classList.add('hidden');
                 
                 renderDashboard();
                 if (clientsData.length > 0) loadClientIntoForm(clientsData[0].id);
@@ -840,11 +840,11 @@
         }
 
         function renderChecklist() {
-            var container = document.getElementById('checklist-items-container');
+            const container = document.getElementById('checklist-items-container');
             if (!container) return;
             container.innerHTML = '';
 
-            var client = clientsData.find(function(c) { return c.id === activeClientId; }) || { docs: {} };
+            const client = clientsData.find(function(c) { return c.id === activeClientId; }) || { docs: {} };
             var uploadedCount = 0;
 
             REQUIRED_DOCUMENTS.forEach(function(doc, index) {
@@ -879,65 +879,96 @@
                 container.appendChild(docCard);
             });
 
-            var eCnt = document.getElementById('checklist-counter');
-            var eBar = document.getElementById('checklist-progress-bar');
+            var counterEl = document.getElementById('checklist-counter');
+            if (counterEl) counterEl.innerText = uploadedCount + ' / ' + REQUIRED_DOCUMENTS.length + ' Concluídos';
+            
+            var progressBar = document.getElementById('checklist-progress-bar');
+            if (progressBar) progressBar.style.width = ((uploadedCount / REQUIRED_DOCUMENTS.length) * 100) + '%';
 
-            if (eCnt) eCnt.innerText = uploadedCount + ' / ' + REQUIRED_DOCUMENTS.length + ' Concluídos';
-            if (eBar) eBar.style.width = ((uploadedCount / REQUIRED_DOCUMENTS.length) * 100) + '%';
             try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
-        function handleFileUpload(docId, inputElement) {
-            if (inputElement.files && inputElement.files[0]) {
-                var fileName = inputElement.files[0].name;
-                var client = clientsData.find(function(c) { return c.id === activeClientId; });
-                if (client) {
-                    if (!client.docs) client.docs = {};
-                    client.docs[docId] = { uploaded: true, fileName: fileName };
-                    saveToLocalStorage();
-                    renderChecklist();
-                    showToast('Documento anexado com sucesso!');
-                }
+        // COPIAR LINK DO CLIENTE
+        function copyClientLink() {
+            const client = clientsData.find(c => c.id === activeClientId);
+            const clientName = client ? client.fullname : 'Cliente';
+            const clientPhone = client ? client.phone.replace(/\D/g, '') : '';
+            
+            const baseUrl = window.location.href.split('#')[0].split('?')[0];
+            const link = baseUrl + '?novo-cadastro=true';
+            
+            const inputEl = document.getElementById('modal-share-input');
+            if (inputEl) {
+                inputEl.value = link;
+                inputEl.dataset.phone = clientPhone;
+                inputEl.dataset.clientName = clientName;
             }
-        }
 
-        function removeDocument(docId) {
-            var client = clientsData.find(function(c) { return c.id === activeClientId; });
-            if (client && client.docs) {
-                client.docs[docId] = { uploaded: false, fileName: '' };
-                saveToLocalStorage();
-                renderChecklist();
-                showToast('Documento removido.');
-            }
+            const clientNameSpan = document.getElementById('modal-share-client-name');
+            if (clientNameSpan) clientNameSpan.innerText = clientName;
+
+            const modal = document.getElementById('share-link-modal');
+            if (modal) modal.classList.remove('hidden');
+            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
         function copyNewRegistrationLink() {
-            var baseUrl = window.location.href.split('#')[0];
-            var link = baseUrl + '#/cadastro';
+            // URL fixa do seu GitHub Pages para evitar links temporários blob:
+            const link = 'https://waglima01-bit.github.io/gestor-cr-pf/#/cadastro';
             
-            var eDesc = document.getElementById('modal-share-desc');
-            var inputEl = document.getElementById('modal-share-input');
-
-            if (eDesc) eDesc.innerText = 'Envie este link para um novo cliente preencher os dados do zero:';
+            const inputEl = document.getElementById('modal-share-input');
             if (inputEl) {
                 inputEl.value = link;
+                inputEl.dataset.phone = '';
+                inputEl.dataset.clientName = 'Novo Requerente';
             }
 
+            const clientNameSpan = document.getElementById('modal-share-client-name');
+            if (clientNameSpan) clientNameSpan.innerText = 'Novo Requerente (Cadastro em Branco)';
+
+            const modal = document.getElementById('share-link-modal');
+            if (modal) modal.classList.remove('hidden');
+            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+        }
+
+        function closeShareModal() {
             var mSh = document.getElementById('share-link-modal');
-            if (mSh) mSh.classList.remove('hidden');
+            if (mSh) mSh.classList.add('hidden');
         }
 
         function copyModalInput() {
-            var inputEl = document.getElementById('modal-share-input');
+            const inputEl = document.getElementById('modal-share-input');
             if (!inputEl) return;
             inputEl.select();
             inputEl.setSelectionRange(0, 99999);
+
             try {
-                navigator.clipboard.writeText(inputEl.value);
-                showToast('Link copiado!');
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(inputEl.value).then(function() {
+                        showToast('Link copiado com sucesso!');
+                    }).catch(function() {
+                        fallbackCopy(inputEl);
+                    });
+                } else {
+                    fallbackCopy(inputEl);
+                }
             } catch (err) {
-                document.execCommand('copy');
-                showToast('Link copiado para a área de transferência!');
+                fallbackCopy(inputEl);
+            }
+        }
+
+        function fallbackCopy(inputEl) {
+            try {
+                inputEl.focus();
+                inputEl.select();
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Link copiado para a área de transferência!');
+                } else {
+                    showToast('Pressione Ctrl+C para copiar o link.');
+                }
+            } catch (err) {
+                showToast('Pressione Ctrl+C para copiar o link.');
             }
         }
 
@@ -988,10 +1019,6 @@
             openClientPortal(newId);
         }
 
-        function closeShareModal() {
-            var mSh = document.getElementById('share-link-modal');
-            if (mSh) mSh.classList.add('hidden');
-        }
         function openNormsModal() {
             var mNr = document.getElementById('norms-modal');
             if (mNr) mNr.classList.remove('hidden');
