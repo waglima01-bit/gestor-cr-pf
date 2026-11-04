@@ -734,7 +734,7 @@
             var eAva = document.getElementById('client-avatar');
 
             if (eNam) eNam.innerText = client.fullname || 'Sem nome';
-            if (eCpf) eCpf.innerText = `CPF: ${client.cpf || '---'}`;
+            if (eCpf) eCpf.innerText = 'CPF: ' + (client.cpf || '---');
             if (eAva) eAva.innerText = getInitials(client.fullname);
 
             setInputValue('form-fullname', client.fullname);
@@ -896,7 +896,7 @@
                     client.docs[docId] = { uploaded: true, fileName: fileName };
                     saveToLocalStorage();
                     renderChecklist();
-                    showToast(`Documento "${fileName}" anexado com sucesso!`);
+                    showToast('Documento anexado com sucesso!');
                 }
             }
         }
@@ -913,16 +913,14 @@
 
         function copyNewRegistrationLink() {
             var baseUrl = window.location.href.split('#')[0];
-            var link = `${baseUrl}#/cadastro`;
+            var link = baseUrl + '#/cadastro';
             
             var eDesc = document.getElementById('modal-share-desc');
             var inputEl = document.getElementById('modal-share-input');
 
-            if (eDesc) eDesc.innerText = "Envie este link para um novo cliente preencher os dados do zero:";
+            if (eDesc) eDesc.innerText = 'Envie este link para um novo cliente preencher os dados do zero:';
             if (inputEl) {
                 inputEl.value = link;
-                inputEl.dataset.phone = "";
-                inputEl.dataset.clientName = "Novo Cliente";
             }
 
             var mSh = document.getElementById('share-link-modal');
@@ -946,8 +944,8 @@
         function sendViaWhatsApp() {
             var inputEl = document.getElementById('modal-share-input');
             var link = inputEl ? inputEl.value : '';
-            var text = encodeURIComponent(`Olá, segue o link para preenchimento da sua ficha de cadastro de Concessão de CR (Polícia Federal):\n\n${link}`);
-            window.open(`https://wa.me/?text=${text}`, '_blank');
+            var text = encodeURIComponent('Olá, segue o link para preenchimento da sua ficha de cadastro de Concessão de CR (Polícia Federal):\n\n' + link);
+            window.open('https://wa.me/?text=' + text, '_blank');
         }
 
         function markAsDeferido(clientId) {
@@ -956,7 +954,7 @@
                 client.status = 'Deferido';
                 saveToLocalStorage();
                 renderDashboard();
-                showToast(`Processo de ${client.fullname} marcado como DEFERIDO!`);
+                showToast('Processo de ' + client.fullname + ' marcado como DEFERIDO!');
             }
         }
 
