@@ -8,11 +8,13 @@
     <!-- TRAVA RÍGIDA DE MODO CLIENTE NO HEAD -->
     <script>
         (function() {
-            const hash = window.location.hash || '';
-            const href = window.location.href || '';
-            if (hash.includes('cadastro') || href.includes('novo-cadastro=true') || href.includes('#/cadastro')) {
-                document.documentElement.classList.add('mode-cliente-only');
-            }
+            try {
+                var hash = window.location.hash || '';
+                var href = window.location.href || '';
+                if (hash.indexOf('cadastro') !== -1 || href.indexOf('novo-cadastro=true') !== -1 || href.indexOf('#/cadastro') !== -1) {
+                    document.documentElement.classList.add('mode-cliente-only');
+                }
+            } catch(e) {}
         })();
     </script>
 
@@ -49,7 +51,7 @@
                     }
                 }
             }
-        }
+        };
     </script>
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -84,7 +86,7 @@
                     </div>
                     <div>
                         <span class="font-bold text-lg tracking-tight block leading-none">Gestor CR <span class="text-xs text-amber-400 font-normal">PF / SINARM</span></span>
-                        <span class="text-xs text-slate-400">Atirador Desportivo • Decreto 11.615/2023</span>
+                        <span class="text-xs text-slate-400">Atirador Desportivo &bull; Decreto 11.615/2023</span>
                     </div>
                 </div>
 
@@ -135,9 +137,7 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <!-- ========================================== -->
-        <!-- VIEW 1: PAINEL DO DESPACHANTE              -->
-        <!-- ========================================== -->
+        <!-- VIEW 1: PAINEL DO DESPACHANTE -->
         <section id="view-despachante" class="space-y-6">
             
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -232,9 +232,7 @@
 
         </section>
 
-        <!-- ========================================== -->
-        <!-- VIEW 2: PORTAL DO CLIENTE (FORM COMPLETO)  -->
-        <!-- ========================================== -->
+        <!-- VIEW 2: PORTAL DO CLIENTE (FORM COMPLETO) -->
         <section id="view-cliente" class="space-y-6 hidden">
             
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -252,7 +250,7 @@
                     </div>
                     <div>
                         <div class="font-bold text-slate-800" id="current-client-name">Novo Cadastro</div>
-                        <div id="current-client-cpf" class="text-slate-500">CPF: ---.---.--- criticism--</div>
+                        <div id="current-client-cpf" class="text-slate-500">CPF: ---.---.---</div>
                     </div>
                 </div>
             </div>
@@ -281,14 +279,14 @@
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">E-mail *</label>
-                                    <input type="email" id="form-email" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="email@exemplo.com">
+                                    <input type="email" id="form-email" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="messiassanto78@gmail.com">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-3 gap-2">
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">RG</label>
-                                    <input type="text" id="form-rg" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="9.143.092">
+                                    <input type="text" id="form-rg" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="9143092">
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Órgão Emissor</label>
@@ -307,7 +305,7 @@
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Telefone / WhatsApp</label>
-                                    <input type="text" id="form-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="(33) 99999-9999">
+                                    <input type="text" id="form-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="33999250819">
                                 </div>
                             </div>
 
@@ -316,11 +314,11 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Município Natal</label>
-                                    <input type="text" id="form-birth-city" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Tarumirim">
+                                    <input type="text" id="form-birth-city" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="TARUMIRIM">
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Estado Natal (UF)</label>
-                                    <input type="text" id="form-birth-state" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Minas Gerais">
+                                    <input type="text" id="form-birth-state" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="MINAS GERAIS">
                                 </div>
                             </div>
 
@@ -337,7 +335,7 @@
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Profissão</label>
-                                    <input type="text" id="form-profession" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Vigilante">
+                                    <input type="text" id="form-profession" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="VIGILANTE">
                                 </div>
                             </div>
 
@@ -351,11 +349,11 @@
                                 <span class="font-bold text-slate-800 text-xs block">Filiação</span>
                                 <div>
                                     <label class="block text-[11px] text-slate-600 mb-0.5">Nome da Mãe</label>
-                                    <input type="text" id="form-mother-name" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Maria Ambrosia Viana">
+                                    <input type="text" id="form-mother-name" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="MARIA AMBROSIA VIANA">
                                 </div>
                                 <div>
                                     <label class="block text-[11px] text-slate-600 mb-0.5">Nome do Pai</label>
-                                    <input type="text" id="form-father-name" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Vivaldo Olímpio do Espírito Santo">
+                                    <input type="text" id="form-father-name" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="VIVALDO OLIMPIO DO ESPIRITO SANTO">
                                 </div>
                             </div>
 
@@ -364,22 +362,22 @@
                                 <span class="font-bold text-slate-800 text-xs block">Endereço Principal</span>
                                 <div>
                                     <label class="block text-[11px] text-slate-600 mb-0.5">Logradouro / Rua e Número</label>
-                                    <input type="text" id="form-address-street" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Travessa Augusto de Lima, 25">
+                                    <input type="text" id="form-address-street" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="TRAVESSA AUGUSTO DE LIMA, 25">
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-[11px] text-slate-600 mb-0.5">Bairro</label>
-                                        <input type="text" id="form-address-district" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Centro">
+                                        <input type="text" id="form-address-district" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="CENTRO">
                                     </div>
                                     <div>
                                         <label class="block text-[11px] text-slate-600 mb-0.5">CEP</label>
-                                        <input type="text" id="form-address-cep" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="35140-000">
+                                        <input type="text" id="form-address-cep" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="35140000">
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-[11px] text-slate-600 mb-0.5">Cidade</label>
-                                        <input type="text" id="form-address-city" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Tarumirim">
+                                        <input type="text" id="form-address-city" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="TARUMIRIM">
                                     </div>
                                     <div>
                                         <label class="block text-[11px] text-slate-600 mb-0.5">Estado (UF)</label>
@@ -389,8 +387,8 @@
                             </div>
 
                             <div>
-                                <label class="block font-medium text-slate-700 mb-1">Número do CR (Se houver / Renovação)</label>
-                                <input type="text" id="form-cr-number" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="N/A ou Número">
+                                <label class="block font-medium text-slate-700 mb-1">Número do CR (Se houver)</label>
+                                <input type="text" id="form-cr-number" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="N/A">
                             </div>
 
                             <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
@@ -527,7 +525,7 @@
     </div>
 
     <script>
-        const REQUIRED_DOCUMENTS = [
+        var REQUIRED_DOCUMENTS = [
             { id: 'doc_requerimento', name: 'Requerimento de Concessão de CR (PF)', desc: 'Requerimento formal dirigido à Polícia Federal com qualificação.' },
             { id: 'doc_id', name: 'Documento de Identificação Oficial (RG/CNH)', desc: 'Documento legível com foto recente e CPF.' },
             { id: 'doc_residencia', name: 'Comprovante de Residência Fixa', desc: 'Conta de água, luz ou telefone fixo dos últimos 90 dias.' },
@@ -546,7 +544,7 @@
             { id: 'doc_gru', name: 'Comprovante de Pagamento da Taxa GRU', desc: 'Guia no valor de R$ 100,00 paga.' }
         ];
 
-        let clientsData = [
+        var clientsData = [
             {
                 id: '1',
                 fullname: 'MANIOEL MESSIAS DO ESPIRITO SANTO',
@@ -568,14 +566,14 @@
                 district: 'CENTRO',
                 city: 'TARUMIRIM',
                 state: 'MG',
-                cep: '35140-000',
+                cep: '35140000',
                 crNumber: 'N/A',
                 status: 'Em Análise',
                 docs: {}
             }
         ];
 
-        let activeClientId = '1';
+        var activeClientId = '1';
 
         window.onload = function() {
             loadFromLocalStorage();
@@ -586,35 +584,43 @@
         function saveToLocalStorage() {
             try {
                 localStorage.setItem('gestor_cr_pf_clients', JSON.stringify(clientsData));
-            } catch(e) { console.error('Erro ao salvar no localStorage:', e); }
+            } catch(e) {}
         }
 
         function loadFromLocalStorage() {
             try {
-                const stored = localStorage.getItem('gestor_cr_pf_clients');
+                var stored = localStorage.getItem('gestor_cr_pf_clients');
                 if (stored) {
                     clientsData = JSON.parse(stored);
                 }
-            } catch(e) { console.error('Erro ao ler do localStorage:', e); }
+            } catch(e) {}
         }
 
         function checkUrlMode() {
-            const hash = window.location.hash || '';
-            const href = window.location.href || '';
+            var hash = window.location.hash || '';
+            var href = window.location.href || '';
             
-            if (hash.includes('cadastro') || href.includes('novo-cadastro=true') || href.includes('#/cadastro')) {
+            if (hash.indexOf('cadastro') !== -1 || href.indexOf('novo-cadastro=true') !== -1 || href.indexOf('#/cadastro') !== -1) {
                 document.documentElement.classList.add('mode-cliente-only');
-                document.getElementById('main-header').classList.add('hidden');
-                document.getElementById('client-only-header').classList.remove('hidden');
-                document.getElementById('btn-back-despachante').classList.add('hidden');
+                var mH = document.getElementById('main-header');
+                var cH = document.getElementById('client-only-header');
+                var bB = document.getElementById('btn-back-despachante');
+
+                if (mH) mH.classList.add('hidden');
+                if (cH) cH.classList.remove('hidden');
+                if (bB) bB.classList.add('hidden');
                 
                 prepareBlankRegistration();
                 switchView('cliente');
             } else {
                 document.documentElement.classList.remove('mode-cliente-only');
-                document.getElementById('main-header').classList.remove('hidden');
-                document.getElementById('client-only-header').classList.add('hidden');
-                document.getElementById('btn-back-despachante').classList.remove('hidden');
+                var mH2 = document.getElementById('main-header');
+                var cH2 = document.getElementById('client-only-header');
+                var bB2 = document.getElementById('btn-back-despachante');
+
+                if (mH2) mH2.classList.remove('hidden');
+                if (cH2) cH2.classList.add('hidden');
+                if (bB2) bB2.classList.remove('hidden');
                 
                 renderDashboard();
                 if (clientsData.length > 0) loadClientIntoForm(clientsData[0].id);
@@ -623,51 +629,53 @@
         }
 
         function switchView(viewName) {
-            const vDesp = document.getElementById('view-despachante');
-            const vCli = document.getElementById('view-cliente');
-            const tDesp = document.getElementById('tab-despachante');
-            const tCli = document.getElementById('tab-cliente');
+            var vDesp = document.getElementById('view-despachante');
+            var vCli = document.getElementById('view-cliente');
+            var tDesp = document.getElementById('tab-despachante');
+            var tCli = document.getElementById('tab-cliente');
 
             if (viewName === 'despachante') {
-                vDesp.classList.remove('hidden');
-                vCli.classList.add('hidden');
-                tDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
-                tCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
+                if (vDesp) vDesp.classList.remove('hidden');
+                if (vCli) vCli.classList.add('hidden');
+                if (tDesp) tDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
+                if (tCli) tCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
                 renderDashboard();
             } else {
-                vDesp.classList.add('hidden');
-                vCli.classList.remove('hidden');
-                tCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
-                tDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
+                if (vDesp) vDesp.classList.add('hidden');
+                if (vCli) vCli.classList.remove('hidden');
+                if (tCli) tCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
+                if (tDesp) tDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
                 renderChecklist();
             }
         }
 
         function renderDashboard() {
-            const tbody = document.getElementById('clients-table-body');
+            var tbody = document.getElementById('clients-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            let total = clientsData.length;
-            let pendentes = 0, prontos = 0, deferidos = 0;
+            var total = clientsData.length;
+            var pendentes = 0, prontos = 0, deferidos = 0;
 
-            const filterText = (document.getElementById('search-input')?.value || '').toLowerCase();
-            const filterStatus = document.getElementById('status-filter')?.value || 'ALL';
+            var sInp = document.getElementById('search-input');
+            var filterText = (sInp ? sInp.value : '').toLowerCase();
+            var sFlt = document.getElementById('status-filter');
+            var filterStatus = sFlt ? sFlt.value : 'ALL';
 
-            clientsData.forEach(client => {
-                const docsCount = Object.values(client.docs || {}).filter(d => d.uploaded).length;
+            clientsData.forEach(function(client) {
+                var docsCount = Object.keys(client.docs || {}).filter(function(k) { return client.docs[k].uploaded; }).length;
                 if (client.status === 'Deferido') deferidos++;
                 else if (docsCount === REQUIRED_DOCUMENTS.length || client.status === 'Pronto') prontos++;
                 else pendentes++;
 
-                const matchesSearch = (client.fullname || '').toLowerCase().includes(filterText) || (client.cpf || '').includes(filterText);
+                var matchesSearch = (client.fullname || '').toLowerCase().indexOf(filterText) !== -1 || (client.cpf || '').indexOf(filterText) !== -1;
                 if (!matchesSearch) return;
 
-                let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+                var badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
                 if (client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length) badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
                 else if (client.status === 'Deferido') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
 
-                const tr = document.createElement('tr');
+                var tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
                 tr.innerHTML = `
                     <td class="py-3 px-4 sm:px-6">
@@ -703,51 +711,65 @@
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('stat-total').innerText = total;
-            document.getElementById('stat-pendente').innerText = pendentes;
-            document.getElementById('stat-pronto').innerText = prontos;
-            document.getElementById('stat-deferido').innerText = deferidos;
+            var eTot = document.getElementById('stat-total');
+            var ePen = document.getElementById('stat-pendente');
+            var ePro = document.getElementById('stat-pronto');
+            var eDef = document.getElementById('stat-deferido');
+
+            if (eTot) eTot.innerText = total;
+            if (ePen) ePen.innerText = pendentes;
+            if (ePro) ePro.innerText = prontos;
+            if (eDef) eDef.innerText = deferidos;
 
             try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
         function loadClientIntoForm(clientId) {
             activeClientId = clientId;
-            const client = clientsData.find(c => c.id === clientId) || clientsData[0];
+            var client = clientsData.find(function(c) { return c.id === clientId; }) || clientsData[0];
             if (!client) return;
 
-            document.getElementById('current-client-name').innerText = client.fullname || 'Sem nome';
-            document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf || '---'}`;
-            document.getElementById('client-avatar').innerText = getInitials(client.fullname);
+            var eNam = document.getElementById('current-client-name');
+            var eCpf = document.getElementById('current-client-cpf');
+            var eAva = document.getElementById('client-avatar');
 
-            document.getElementById('form-fullname').value = client.fullname || '';
-            document.getElementById('form-cpf').value = client.cpf || '';
-            document.getElementById('form-email').value = client.email || '';
-            document.getElementById('form-phone').value = client.phone || '';
-            document.getElementById('form-birthdate').value = client.birthdate || '';
-            document.getElementById('form-birth-city').value = client.birthCity || '';
-            document.getElementById('form-birth-state').value = client.birthState || '';
-            document.getElementById('form-rg').value = client.rg || '';
-            document.getElementById('form-rg-issuer').value = client.rgIssuer || '';
-            document.getElementById('form-rg-date').value = client.rgDate || '';
-            document.getElementById('form-civil-status').value = client.civilStatus || 'CASADO(A)';
-            document.getElementById('form-profession').value = client.profession || '';
-            document.getElementById('form-voter-card').value = client.voterCard || '';
-            document.getElementById('form-mother-name').value = client.motherName || '';
-            document.getElementById('form-father-name').value = client.fatherName || '';
-            document.getElementById('form-address-street').value = client.street || '';
-            document.getElementById('form-address-district').value = client.district || '';
-            document.getElementById('form-address-city').value = client.city || '';
-            document.getElementById('form-address-state').value = client.state || '';
-            document.getElementById('form-address-cep').value = client.cep || '';
-            document.getElementById('form-cr-number').value = client.crNumber || 'N/A';
+            if (eNam) eNam.innerText = client.fullname || 'Sem nome';
+            if (eCpf) eCpf.innerText = `CPF: ${client.cpf || '---'}`;
+            if (eAva) eAva.innerText = getInitials(client.fullname);
+
+            setInputValue('form-fullname', client.fullname);
+            setInputValue('form-cpf', client.cpf);
+            setInputValue('form-email', client.email);
+            setInputValue('form-phone', client.phone);
+            setInputValue('form-birthdate', client.birthdate);
+            setInputValue('form-birth-city', client.birthCity);
+            setInputValue('form-birth-state', client.birthState);
+            setInputValue('form-rg', client.rg);
+            setInputValue('form-rg-issuer', client.rgIssuer);
+            setInputValue('form-rg-date', client.rgDate);
+            setInputValue('form-civil-status', client.civilStatus || 'CASADO(A)');
+            setInputValue('form-profession', client.profession);
+            setInputValue('form-voter-card', client.voterCard);
+            setInputValue('form-mother-name', client.motherName);
+            setInputValue('form-father-name', client.fatherName);
+            setInputValue('form-address-street', client.street);
+            setInputValue('form-address-district', client.district);
+            setInputValue('form-address-city', client.city);
+            setInputValue('form-address-state', client.state);
+            setInputValue('form-address-cep', client.cep);
+            setInputValue('form-cr-number', client.crNumber || 'N/A');
 
             renderChecklist();
         }
 
+        function setInputValue(id, val) {
+            var el = document.getElementById(id);
+            if (el) el.value = val || '';
+        }
+
         function prepareBlankRegistration() {
             activeClientId = 'new_' + Date.now();
-            const newClient = {
+            var newClient = {
                 id: activeClientId,
                 fullname: '',
                 cpf: '',
@@ -766,47 +788,51 @@
         }
 
         function saveClientData() {
-            let client = clientsData.find(c => c.id === activeClientId);
+            var client = clientsData.find(function(c) { return c.id === activeClientId; });
             if (!client) {
                 client = { id: activeClientId, docs: {} };
                 clientsData.push(client);
             }
 
-            client.fullname = document.getElementById('form-fullname').value;
-            client.cpf = document.getElementById('form-cpf').value;
-            client.email = document.getElementById('form-email').value;
-            client.phone = document.getElementById('form-phone').value;
-            client.birthdate = document.getElementById('form-birthdate').value;
-            client.birthCity = document.getElementById('form-birth-city').value;
-            client.birthState = document.getElementById('form-birth-state').value;
-            client.rg = document.getElementById('form-rg').value;
-            client.rgIssuer = document.getElementById('form-rg-issuer').value;
-            client.rgDate = document.getElementById('form-rg-date').value;
-            client.civilStatus = document.getElementById('form-civil-status').value;
-            client.profession = document.getElementById('form-profession').value;
-            client.voterCard = document.getElementById('form-voter-card').value;
-            client.motherName = document.getElementById('form-mother-name').value;
-            client.fatherName = document.getElementById('form-father-name').value;
-            client.street = document.getElementById('form-address-street').value;
-            client.district = document.getElementById('form-address-district').value;
-            client.city = document.getElementById('form-address-city').value;
-            client.state = document.getElementById('form-address-state').value;
-            client.cep = document.getElementById('form-address-cep').value;
-            client.crNumber = document.getElementById('form-cr-number').value;
+            client.fullname = getVal('form-fullname');
+            client.cpf = getVal('form-cpf');
+            client.email = getVal('form-email');
+            client.phone = getVal('form-phone');
+            client.birthdate = getVal('form-birthdate');
+            client.birthCity = getVal('form-birth-city');
+            client.birthState = getVal('form-birth-state');
+            client.rg = getVal('form-rg');
+            client.rgIssuer = getVal('form-rg-issuer');
+            client.rgDate = getVal('form-rg-date');
+            client.civilStatus = getVal('form-civil-status');
+            client.profession = getVal('form-profession');
+            client.voterCard = getVal('form-voter-card');
+            client.motherName = getVal('form-mother-name');
+            client.fatherName = getVal('form-father-name');
+            client.street = getVal('form-address-street');
+            client.district = getVal('form-address-district');
+            client.city = getVal('form-address-city');
+            client.state = getVal('form-address-state');
+            client.cep = getVal('form-address-cep');
+            client.crNumber = getVal('form-cr-number');
 
             saveToLocalStorage();
             showToast('Informações Cadastrais Salvas com Sucesso!');
         }
 
+        function getVal(id) {
+            var el = document.getElementById(id);
+            return el ? el.value : '';
+        }
+
         function submitProcessForReview() {
             saveClientData();
-            const client = clientsData.find(c => c.id === activeClientId);
+            var client = clientsData.find(function(c) { return c.id === activeClientId; });
             if (client) {
                 client.status = 'Em Análise';
                 saveToLocalStorage();
                 showToast('Cadastro e Documentos Enviados com Sucesso!');
                 
-                // Se não estiver no modo exclusivo, volta ao dashboard
                 if (!document.documentElement.classList.contains('mode-cliente-only')) {
                     switchView('despachante');
                 }
@@ -814,18 +840,18 @@
         }
 
         function renderChecklist() {
-            const container = document.getElementById('checklist-items-container');
+            var container = document.getElementById('checklist-items-container');
             if (!container) return;
             container.innerHTML = '';
 
-            const client = clientsData.find(c => c.id === activeClientId) || { docs: {} };
-            let uploadedCount = 0;
+            var client = clientsData.find(function(c) { return c.id === activeClientId; }) || { docs: {} };
+            var uploadedCount = 0;
 
-            REQUIRED_DOCUMENTS.forEach((doc, index) => {
-                const docState = client.docs[doc.id] || { uploaded: false, fileName: '' };
+            REQUIRED_DOCUMENTS.forEach(function(doc, index) {
+                var docState = client.docs[doc.id] || { uploaded: false, fileName: '' };
                 if (docState.uploaded) uploadedCount++;
 
-                const docCard = document.createElement('div');
+                var docCard = document.createElement('div');
                 docCard.className = `p-4 rounded-xl border transition-all ${
                     docState.uploaded ? 'bg-emerald-50/60 border-emerald-200' : 'bg-slate-50 border-slate-200'
                 }`;
@@ -857,15 +883,18 @@
                 container.appendChild(docCard);
             });
 
-            document.getElementById('checklist-counter').innerText = `${uploadedCount} / ${REQUIRED_DOCUMENTS.length} Concluídos`;
-            document.getElementById('checklist-progress-bar').style.width = `${(uploadedCount / REQUIRED_DOCUMENTS.length) * 100}%`;
+            var eCnt = document.getElementById('checklist-counter');
+            var eBar = document.getElementById('checklist-progress-bar');
+
+            if (eCnt) eCnt.innerText = `${uploadedCount} / ${REQUIRED_DOCUMENTS.length} Concluídos`;
+            if (eBar) eBar.style.width = `${(uploadedCount / REQUIRED_DOCUMENTS.length) * 100}%`;
             try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
         function handleFileUpload(docId, inputElement) {
             if (inputElement.files && inputElement.files[0]) {
-                const fileName = inputElement.files[0].name;
-                let client = clientsData.find(c => c.id === activeClientId);
+                var fileName = inputElement.files[0].name;
+                var client = clientsData.find(function(c) { return c.id === activeClientId; });
                 if (client) {
                     if (!client.docs) client.docs = {};
                     client.docs[docId] = { uploaded: true, fileName: fileName };
@@ -877,7 +906,7 @@
         }
 
         function removeDocument(docId) {
-            let client = clientsData.find(c => c.id === activeClientId);
+            var client = clientsData.find(function(c) { return c.id === activeClientId; });
             if (client && client.docs) {
                 client.docs[docId] = { uploaded: false, fileName: '' };
                 saveToLocalStorage();
@@ -887,20 +916,26 @@
         }
 
         function copyNewRegistrationLink() {
-            const baseUrl = window.location.href.split('#')[0];
-            const link = `${baseUrl}#/cadastro`;
+            var baseUrl = window.location.href.split('#')[0];
+            var link = `${baseUrl}#/cadastro`;
             
-            document.getElementById('modal-share-desc').innerText = "Envie este link para um novo cliente preencher os dados do zero:";
-            const inputEl = document.getElementById('modal-share-input');
-            inputEl.value = link;
-            inputEl.dataset.phone = "";
-            inputEl.dataset.clientName = "Novo Cliente";
+            var eDesc = document.getElementById('modal-share-desc');
+            var inputEl = document.getElementById('modal-share-input');
 
-            document.getElementById('share-link-modal').classList.remove('hidden');
+            if (eDesc) eDesc.innerText = "Envie este link para um novo cliente preencher os dados do zero:";
+            if (inputEl) {
+                inputEl.value = link;
+                inputEl.dataset.phone = "";
+                inputEl.dataset.clientName = "Novo Cliente";
+            }
+
+            var mSh = document.getElementById('share-link-modal');
+            if (mSh) mSh.classList.remove('hidden');
         }
 
         function copyModalInput() {
-            const inputEl = document.getElementById('modal-share-input');
+            var inputEl = document.getElementById('modal-share-input');
+            if (!inputEl) return;
             inputEl.select();
             inputEl.setSelectionRange(0, 99999);
             try {
@@ -913,13 +948,14 @@
         }
 
         function sendViaWhatsApp() {
-            const link = document.getElementById('modal-share-input').value;
-            const text = encodeURIComponent(`Olá, segue o link para preenchimento da sua ficha de cadastro de Concessão de CR (Polícia Federal):\n\n${link}`);
+            var inputEl = document.getElementById('modal-share-input');
+            var link = inputEl ? inputEl.value : '';
+            var text = encodeURIComponent(`Olá, segue o link para preenchimento da sua ficha de cadastro de Concessão de CR (Polícia Federal):\n\n${link}`);
             window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
         function markAsDeferido(clientId) {
-            const client = clientsData.find(c => c.id === clientId);
+            var client = clientsData.find(function(c) { return c.id === clientId; });
             if (client) {
                 client.status = 'Deferido';
                 saveToLocalStorage();
@@ -929,20 +965,22 @@
         }
 
         function createNewClient() {
-            document.getElementById('new-client-modal').classList.remove('hidden');
+            var mNew = document.getElementById('new-client-modal');
+            if (mNew) mNew.classList.remove('hidden');
         }
 
         function closeNewClientModal() {
-            document.getElementById('new-client-modal').classList.add('hidden');
+            var mNew = document.getElementById('new-client-modal');
+            if (mNew) mNew.classList.add('hidden');
         }
 
         function saveNewClientModal() {
-            const name = document.getElementById('modal-name').value;
-            const cpf = document.getElementById('modal-cpf').value;
-            const phone = document.getElementById('modal-phone').value;
+            var name = getVal('modal-name');
+            var cpf = getVal('modal-cpf');
+            var phone = getVal('modal-phone');
 
-            const newId = Date.now().toString();
-            const newClient = {
+            var newId = Date.now().toString();
+            var newClient = {
                 id: newId,
                 fullname: name,
                 cpf: cpf,
@@ -956,13 +994,22 @@
             openClientPortal(newId);
         }
 
-        function closeShareModal() { document.getElementById('share-link-modal').classList.add('hidden'); }
-        function openNormsModal() { document.getElementById('norms-modal').classList.remove('hidden'); }
-        function closeNormsModal() { document.getElementById('norms-modal').classList.add('hidden'); }
+        function closeShareModal() {
+            var mSh = document.getElementById('share-link-modal');
+            if (mSh) mSh.classList.add('hidden');
+        }
+        function openNormsModal() {
+            var mNr = document.getElementById('norms-modal');
+            if (mNr) mNr.classList.remove('hidden');
+        }
+        function closeNormsModal() {
+            var mNr = document.getElementById('norms-modal');
+            if (mNr) mNr.classList.add('hidden');
+        }
         function filterClients() { renderDashboard(); }
 
         function formatCPF(input) {
-            let v = input.value.replace(/\D/g, '');
+            var v = input.value.replace(/\D/g, '');
             if (v.length > 11) v = v.substring(0, 11);
             v = v.replace(/(\d{3})(\d)/, '$1.$2');
             v = v.replace(/(\d{3})(\d)/, '$1.$2');
@@ -972,15 +1019,18 @@
 
         function getInitials(name) {
             if (!name) return 'AD';
-            const parts = name.trim().split(' ');
+            var parts = name.trim().split(' ');
             return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
         }
 
         function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = message;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3500);
+            var toast = document.getElementById('toast');
+            var toastMsg = document.getElementById('toast-message');
+            if (toastMsg) toastMsg.innerText = message;
+            if (toast) {
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                setTimeout(function() { toast.classList.add('translate-y-20', 'opacity-0'); }, 3500);
+            }
         }
     </script>
 </body>
