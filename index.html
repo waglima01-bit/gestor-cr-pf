@@ -3,7 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal do Requerente | Concessão de CR - Polícia Federal</title>
+    <title>Gestor CR - Polícia Federal | Despachante CAC</title>
+
+    <!-- TRAVA RÍGIDA DE MODO CLIENTE NO HEAD -->
+    <script>
+        (function() {
+            var href = window.location.href;
+            if (href.indexOf('novo-cadastro=true') !== -1 || href.indexOf('client=') !== -1 || href.indexOf('#portal') !== -1) {
+                document.documentElement.classList.add('mode-cliente-only');
+            }
+        })();
+    </script>
+    <style>
+        /* Regra estrita: Oculta Painel Admin e Menus se a classe mode-cliente-only estiver ativa */
+        html.mode-cliente-only #main-header,
+        html.mode-cliente-only #view-despachante,
+        html.mode-cliente-only #header-tabs,
+        html.mode-cliente-only #btn-back-despachante {
+            display: none !important;
+        }
+        html.mode-cliente-only #client-only-header,
+        html.mode-cliente-only #view-cliente {
+            display: block !important;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+        }
+    </style>
 
     <!-- Suporte a PWA / Instalação na Tela Inicial do Celular -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -461,16 +494,21 @@
             const url = window.location.href;
             const searchParams = new URLSearchParams(window.location.search);
             
-            const isNovoCadastro = searchParams.get('novo-cadastro') === 'true' || url.includes('novo-cadastro');
-            const clientIdParam = searchParams.get('client') || (url.includes('#portal?client=') ? url.split('#portal?client=')[1] : null);
+            const isNovoCadastro = searchParams.get('novo-cadastro') === 'true' || url.includes('novo-cadastro=true');
+            const clientIdParam = searchParams.get('client') || (url.includes('client=') ? url.split('client=')[1] : null);
 
             if (isNovoCadastro || clientIdParam) {
                 isClientModeOnly = true;
+                document.documentElement.classList.add('mode-cliente-only');
                 
                 // Oculta header admin e mostra header limpo
-                document.getElementById('main-header').classList.add('hidden');
-                document.getElementById('client-only-header').classList.remove('hidden');
-                document.getElementById('btn-back-despachante').classList.add('hidden');
+                const mainHeader = document.getElementById('main-header');
+                const clientHeader = document.getElementById('client-only-header');
+                const btnBack = document.getElementById('btn-back-despachante');
+
+                if (mainHeader) mainHeader.classList.add('hidden');
+                if (clientHeader) clientHeader.classList.remove('hidden');
+                if (btnBack) btnBack.classList.add('hidden');
 
                 if (isNovoCadastro) {
                     prepareBlankRegistration();
@@ -480,6 +518,7 @@
                 
                 switchView('cliente');
             } else {
+                document.documentElement.classList.remove('mode-cliente-only');
                 renderDashboard();
                 if (clientsData.length > 0) loadClientIntoForm(clientsData[0].id);
                 switchView('despachante');
