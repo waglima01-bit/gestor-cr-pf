@@ -5,17 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor CR - Polícia Federal | Despachante CAC</title>
 
-    <!-- TRAVA RÍGIDA DE MODO CLIENTE NO HEAD -->
+    <!-- TRAVA DE SEGURANÇA E ROTEAMENTO POR HASH (#/cadastro) -->
     <script>
         (function() {
-            var href = window.location.href;
-            if (href.indexOf('novo-cadastro=true') !== -1 || href.indexOf('client=') !== -1 || href.indexOf('#portal') !== -1) {
-                document.documentElement.classList.add('mode-cliente-only');
+            function enforceClientMode() {
+                var hash = window.location.hash || '';
+                var search = window.location.search || '';
+                var href = window.location.href || '';
+
+                if (hash.indexOf('cadastro') !== -1 || hash.indexOf('portal') !== -1 || search.indexOf('novo-cadastro') !== -1 || search.indexOf('client') !== -1 || href.indexOf('cliente') !== -1) {
+                    document.documentElement.classList.add('mode-cliente-only');
+                } else {
+                    document.documentElement.classList.remove('mode-cliente-only');
+                }
             }
+            enforceClientMode();
+            window.addEventListener('hashchange', enforceClientMode);
         })();
     </script>
     <style>
-        /* Regra estrita: Oculta Painel Admin e Menus se a classe mode-cliente-only estiver ativa */
+        /* Regra Estrita: Oculta Painel Admin e Menus quando o link é de cliente */
         html.mode-cliente-only #main-header,
         html.mode-cliente-only #view-despachante,
         html.mode-cliente-only #header-tabs,
@@ -446,62 +455,20 @@
 
     <!-- APP SCRIPT -->
     <script>
-        const REQUIRED_DOCUMENTS = [
-            { id: 'doc_requerimento', name: 'Requerimento de Concessão de CR (PF)', desc: 'Requerimento formal dirigido à Polícia Federal com a qualificação.', hasTemplate: true, templateType: 'requerimento' },
-            { id: 'doc_id', name: 'Documento de Identificação Oficial (RG/CNH)', desc: 'Documento original legível com foto recente e CPF.', hasTemplate: false },
-            { id: 'doc_residencia', name: 'Comprovante de Residência Fixa', desc: 'Conta de água, luz ou telefone fixo dos últimos 90 dias.', hasTemplate: false },
-            { id: 'doc_decl_endereco', name: 'Declaração de Residência / Endereço', desc: 'Requerida caso o comprovante de residência não esteja no nome.', hasTemplate: true, templateType: 'endereco' },
-            { id: 'doc_ocupacao', name: 'Comprovante de Ocupação Lícita', desc: 'Holerite, Contrato Social, Declaração do IRPF ou CTPS.', hasTemplate: false },
-            { id: 'doc_idoneidade', name: 'Declaração de Idoneidade Moral', desc: 'Declaração formal de ausência de processos e inquéritos.', hasTemplate: true, templateType: 'idoneidade' },
-            { id: 'doc_fed', name: 'Certidão Negativa - Justiça Federal', desc: 'Emitida pelo TRF da sua região.', hasTemplate: false },
-            { id: 'doc_est', name: 'Certidão Negativa - Justiça Estadual', desc: 'Emitida pelo TJ do seu Estado.', hasTemplate: false },
-            { id: 'doc_eleitoral', name: 'Certidão Negativa - Justiça Eleitoral', desc: 'Certidão de Quitação e Crimes Eleitorais.', hasTemplate: false },
-            { id: 'doc_militar', name: 'Certidão Negativa - Justiça Militar', desc: 'Emitida pelo STM.', hasTemplate: false },
-            { id: 'doc_psico', name: 'Laudo de Aptidão Psicológica', desc: 'Emitido por psicólogo credenciado na Polícia Federal.', hasTemplate: false },
-            { id: 'doc_tecnica', name: 'Laudo de Capacidade Técnica (Tiro)', desc: 'Emitido por IAT credenciado na PF.', hasTemplate: false },
-            { id: 'doc_clube', name: 'Comprovante de Filiação a Clube de Tiro', desc: 'Declaração de filiação ativa em clube registrado.', hasTemplate: false },
-            { id: 'doc_habitualidade', name: 'Termo de Compromisso de Habitualidade', desc: 'Termo assumindo compromisso de 8 treinos anuais por calibre.', hasTemplate: true, templateType: 'habitualidade' },
-            { id: 'doc_dsa', name: 'Declaração de Segurança do Acervo (DSA)', desc: 'Declaração afirmando possuir cofre ou local seguro com tranca.', hasTemplate: true, templateType: 'dsa' },
-            { id: 'doc_gru', name: 'Comprovante de Pagamento da Taxa GRU', desc: 'Guia de Recolhimento da União (R$ 100,00) paga.', hasTemplate: false }
-        ];
-
-        let clientsData = JSON.parse(localStorage.getItem('CR_CLIENTS_DATA')) || [
-            {
-                id: '1',
-                fullname: 'Marcos Vinícius de Oliveira',
-                cpf: '123.456.789-00',
-                rg: 'MG-15.420.111',
-                birthdate: '1988-05-14',
-                phone: '(31) 99876-5432',
-                profession: 'Empresário',
-                address: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG',
-                safeAddress: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG',
-                status: 'Em Análise',
-                docs: {}
-            }
-        ];
-
-        let activeClientId = '1';
-        let isClientModeOnly = false;
-
-        window.onload = function() {
-            checkUrlMode();
-            try { if (window.lucide) lucide.createIcons(); } catch(e){}
-        };
-
-        // LEITURA RÍGIDA DE URL PARA MODO CLIENTE
+        // LEITURA RÍGIDA DE URL E HASH PARA MODO CLIENTE
         function checkUrlMode() {
-            const url = window.location.href;
+            const hash = window.location.hash || '';
             const searchParams = new URLSearchParams(window.location.search);
+            const href = window.location.href;
             
-            const isNovoCadastro = searchParams.get('novo-cadastro') === 'true' || url.includes('novo-cadastro=true');
-            const clientIdParam = searchParams.get('client') || (url.includes('client=') ? url.split('client=')[1] : null);
+            const isNovoCadastro = hash.includes('cadastro') || searchParams.get('novo-cadastro') === 'true' || href.includes('novo-cadastro=true');
+            const clientIdParam = searchParams.get('client') || (hash.includes('client=') ? hash.split('client=')[1] : null);
 
             if (isNovoCadastro || clientIdParam) {
                 isClientModeOnly = true;
                 document.documentElement.classList.add('mode-cliente-only');
                 
-                // Oculta header admin e mostra header limpo
+                // Oculta header admin e mostra header limpo para o cliente
                 const mainHeader = document.getElementById('main-header');
                 const clientHeader = document.getElementById('client-only-header');
                 const btnBack = document.getElementById('btn-back-despachante');
@@ -518,183 +485,33 @@
                 
                 switchView('cliente');
             } else {
+                isClientModeOnly = false;
                 document.documentElement.classList.remove('mode-cliente-only');
+                
+                const mainHeader = document.getElementById('main-header');
+                const clientHeader = document.getElementById('client-only-header');
+                const btnBack = document.getElementById('btn-back-despachante');
+
+                if (mainHeader) mainHeader.classList.remove('hidden');
+                if (clientHeader) clientHeader.classList.add('hidden');
+                if (btnBack) btnBack.classList.remove('hidden');
+
                 renderDashboard();
                 if (clientsData.length > 0) loadClientIntoForm(clientsData[0].id);
                 switchView('despachante');
             }
         }
 
-        function prepareBlankRegistration() {
-            const newId = 'c_' + Date.now();
-            const blankClient = {
-                id: newId,
-                fullname: '',
-                cpf: '',
-                rg: '',
-                birthdate: '',
-                phone: '',
-                profession: '',
-                address: '',
-                safeAddress: '',
-                status: 'Pendente',
-                docs: {}
-            };
-            activeClientId = newId;
-            clientsData.push(blankClient);
-            loadClientIntoForm(newId);
-        }
-
-        function switchView(viewName) {
-            const viewDespachante = document.getElementById('view-despachante');
-            const viewCliente = document.getElementById('view-cliente');
-
-            if (viewName === 'despachante' && !isClientModeOnly) {
-                viewDespachante.classList.remove('hidden');
-                viewCliente.classList.add('hidden');
-                renderDashboard();
-            } else {
-                viewDespachante.classList.add('hidden');
-                viewCliente.classList.remove('hidden');
-                renderChecklist();
-            }
-        }
-
-        function renderDashboard() {
-            const tbody = document.getElementById('clients-table-body');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            let total = clientsData.length;
-            let pendentes = 0, prontos = 0, deferidos = 0;
-
-            const searchEl = document.getElementById('search-input');
-            const statusEl = document.getElementById('status-filter');
-            const filterText = searchEl ? searchEl.value.toLowerCase() : '';
-            const filterStatus = statusEl ? statusEl.value : 'ALL';
-
-            clientsData.forEach(client => {
-                const docsCount = Object.values(client.docs || {}).filter(d => d.uploaded).length;
-                if (client.status === 'Deferido') deferidos++;
-                else if (docsCount === REQUIRED_DOCUMENTS.length || client.status === 'Pronto') prontos++;
-                else pendentes++;
-
-                const matchesSearch = (client.fullname || '').toLowerCase().includes(filterText) || (client.cpf || '').includes(filterText);
-                if (!matchesSearch) return;
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="py-3 px-4 sm:px-6">
-                        <div class="font-bold text-slate-900">${client.fullname || 'Novo Cliente'}</div>
-                        <div class="text-xs text-slate-400">ID: #${client.id}</div>
-                    </td>
-                    <td class="py-3 px-4 font-mono text-xs">${client.cpf || 'Não preenchido'}</td>
-                    <td class="py-3 px-4">
-                        <span class="text-xs font-semibold">${docsCount}/${REQUIRED_DOCUMENTS.length}</span>
-                    </td>
-                    <td class="py-3 px-4">
-                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">${client.status}</span>
-                    </td>
-                    <td class="py-3 px-4 text-right">
-                        <button onclick="openClientPortal('${client.id}')" class="p-1 text-blue-600 hover:bg-blue-50 rounded">Abrir</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('stat-total').innerText = total;
-            document.getElementById('stat-pendente').innerText = pendentes;
-            document.getElementById('stat-pronto').innerText = prontos;
-            document.getElementById('stat-deferido').innerText = deferidos;
-        }
-
-        function loadClientIntoForm(clientId) {
-            activeClientId = clientId;
-            let client = clientsData.find(c => c.id === clientId);
-            if (!client) return;
-
-            document.getElementById('current-client-name').innerText = client.fullname || 'Novo Requerente';
-            document.getElementById('current-client-cpf').innerText = client.cpf ? `CPF: ${client.cpf}` : 'Preencha o formulário';
-
-            document.getElementById('form-fullname').value = client.fullname || '';
-            document.getElementById('form-cpf').value = client.cpf || '';
-            document.getElementById('form-rg').value = client.rg || '';
-            document.getElementById('form-birthdate').value = client.birthdate || '';
-            document.getElementById('form-phone').value = client.phone || '';
-            document.getElementById('form-profession').value = client.profession || '';
-            document.getElementById('form-address').value = client.address || '';
-            document.getElementById('form-safe-address').value = client.safeAddress || '';
-
-            renderChecklist();
-        }
-
-        function saveClientData() {
-            let client = clientsData.find(c => c.id === activeClientId);
-            if (client) {
-                client.fullname = document.getElementById('form-fullname').value;
-                client.cpf = document.getElementById('form-cpf').value;
-                client.rg = document.getElementById('form-rg').value;
-                client.birthdate = document.getElementById('form-birthdate').value;
-                client.phone = document.getElementById('form-phone').value;
-                client.profession = document.getElementById('form-profession').value;
-                client.address = document.getElementById('form-address').value;
-                client.safeAddress = document.getElementById('form-safe-address').value;
-
-                localStorage.setItem('CR_CLIENTS_DATA', JSON.stringify(clientsData));
-                showToast('Informações salvas com sucesso!');
-            }
-        }
-
-        function renderChecklist() {
-            const container = document.getElementById('checklist-items-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const client = clientsData.find(c => c.id === activeClientId);
-            let uploadedCount = 0;
-
-            REQUIRED_DOCUMENTS.forEach((doc, index) => {
-                const docState = (client && client.docs && client.docs[doc.id]) || { uploaded: false };
-                if (docState.uploaded) uploadedCount++;
-
-                const card = document.createElement('div');
-                card.className = "p-4 rounded-xl border bg-slate-50 border-slate-200 flex justify-between items-center";
-                card.innerHTML = `
-                    <div>
-                        <h4 class="font-bold text-xs sm:text-sm">${index + 1}. ${doc.name}</h4>
-                        <p class="text-xs text-slate-500">${doc.desc}</p>
-                    </div>
-                    <button onclick="simulatedUpload('${doc.id}')" class="px-3 py-1.5 bg-white border rounded-lg text-xs font-medium hover:bg-blue-50">
-                        ${docState.uploaded ? '✅ Anexado' : 'Anexar'}
-                    </button>
-                `;
-                container.appendChild(card);
-            });
-
-            document.getElementById('checklist-counter').innerText = `${uploadedCount} / ${REQUIRED_DOCUMENTS.length} Concluídos`;
-            document.getElementById('checklist-progress-bar').style.width = `${(uploadedCount / REQUIRED_DOCUMENTS.length) * 100}%`;
-        }
-
-        function simulatedUpload(docId) {
-            let client = clientsData.find(c => c.id === activeClientId);
-            if (client) {
-                if (!client.docs) client.docs = {};
-                client.docs[docId] = { uploaded: true, fileName: 'documento_anexo.pdf' };
-                localStorage.setItem('CR_CLIENTS_DATA', JSON.stringify(clientsData));
-                renderChecklist();
-                showToast('Documento anexado!');
-            }
-        }
-
         function copyNewRegistrationLink() {
             let baseUrl = window.location.origin + window.location.pathname;
-            // Remove o protocolo blob: caso esteja rodando dentro de um iframe de teste local
             if (baseUrl.startsWith('blob:')) {
                 baseUrl = baseUrl.replace('blob:', '');
             }
+            // Remove barras duplicadas se houver
+            baseUrl = baseUrl.replace(/\/$/, '');
             
-            const link = `${baseUrl}?novo-cadastro=true`;
+            // NOVO FORMATO DE HASH (IMUNE A CACHE E REDIRECIONAMENTOS DE SERVIDOR)
+            const link = `${baseUrl}/#/cadastro`;
             
             const shareTitle = document.getElementById('share-modal-title');
             const shareDesc = document.getElementById('share-modal-desc');
