@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor CR - Polícia Federal | Despachante CAC</title>
 
+    <!-- PWA MANIFEST EMBUTIDO PARA CORRIGIR ERRO DE INSTALAÇÃO NO CELULAR -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Gestor%20CR%20PF%20-%20Despachante%20CAC%22%2C%22short_name%22%3A%22Gestor%20CR%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2306101e%22%2C%22theme_color%22%3A%22%2306101e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fimg.icons8.com%2Fcolor%2F512%2Fpolice-badge.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
     <!-- TRAVA RÍGIDA DE MODO CLIENTE NO HEAD -->
     <script>
         (function() {
@@ -145,7 +148,7 @@
                     <h1 class="text-2xl font-bold text-slate-900">Gerenciamento de Processos CR</h1>
                     <p class="text-sm text-slate-500 mt-1">Acompanhamento e recepção de documentos para concessão inicial junto à Polícia Federal.</p>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 flex-wrap gap-y-2">
                     <button onclick="createNewClient()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all active:scale-95">
                         <i data-lucide="user-plus" class="w-4 h-4"></i>
                         <span>Novo Processo</span>
@@ -153,6 +156,10 @@
                     <button onclick="copyNewRegistrationLink()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all active:scale-95">
                         <i data-lucide="link-2" class="w-4 h-4"></i>
                         <span>Link de Novo Cadastro</span>
+                    </button>
+                    <button onclick="copyAppAccessLink()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all active:scale-95">
+                        <i data-lucide="globe" class="w-4 h-4"></i>
+                        <span>Link de Acesso do App</span>
                     </button>
                 </div>
             </div>
@@ -912,8 +919,26 @@
             try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
+        function copyAppAccessLink() {
+            // URL oficial principal do App no GitHub Pages para acesso administrativo
+            const link = 'https://waglima01-bit.github.io/gestor-cr-pf/';
+            
+            const inputEl = document.getElementById('modal-share-input');
+            if (inputEl) {
+                inputEl.value = link;
+                inputEl.dataset.phone = '';
+                inputEl.dataset.clientName = 'Painel Administrativo do Despachante';
+            }
+
+            const clientNameSpan = document.getElementById('modal-share-client-name');
+            if (clientNameSpan) clientNameSpan.innerText = 'Painel do Despachante (Acesso Geral)';
+
+            const modal = document.getElementById('share-link-modal');
+            if (modal) modal.classList.remove('hidden');
+            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+        }
+
         function copyNewRegistrationLink() {
-            // URL fixa do seu GitHub Pages para evitar links temporários blob:
             const link = 'https://waglima01-bit.github.io/gestor-cr-pf/#/cadastro';
             
             const inputEl = document.getElementById('modal-share-input');
@@ -925,6 +950,24 @@
 
             const clientNameSpan = document.getElementById('modal-share-client-name');
             if (clientNameSpan) clientNameSpan.innerText = 'Novo Requerente (Cadastro em Branco)';
+
+            const modal = document.getElementById('share-link-modal');
+            if (modal) modal.classList.remove('hidden');
+            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+        }
+
+        function copyAppAccessLink() {
+            const link = 'https://waglima01-bit.github.io/gestor-cr-pf/';
+            
+            const inputEl = document.getElementById('modal-share-input');
+            if (inputEl) {
+                inputEl.value = link;
+                inputEl.dataset.phone = '';
+                inputEl.dataset.clientName = 'Painel Administrativo do Despachante';
+            }
+
+            const clientNameSpan = document.getElementById('modal-share-client-name');
+            if (clientNameSpan) clientNameSpan.innerText = 'Acesso ao Painel do Despachante';
 
             const modal = document.getElementById('share-link-modal');
             if (modal) modal.classList.remove('hidden');
