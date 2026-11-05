@@ -5,23 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor CR - Polícia Federal | Despachante CAC</title>
 
-    <!-- PWA MANIFEST EMBUTIDO PARA CORRIGIR ERRO DE INSTALAÇÃO NO CELULAR -->
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Gestor%20CR%20PF%20-%20Despachante%20CAC%22%2C%22short_name%22%3A%22Gestor%20CR%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2306101e%22%2C%22theme_color%22%3A%22%2306101e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fimg.icons8.com%2Fcolor%2F512%2Fpolice-badge.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-
-    <!-- TRAVA RÍGIDA DE MODO CLIENTE NO HEAD -->
-    <script>
-        (function() {
-            try {
-                var hash = window.location.hash || '';
-                var href = window.location.href || '';
-                if (hash.indexOf('cadastro') !== -1 || href.indexOf('novo-cadastro=true') !== -1 || href.indexOf('#/cadastro') !== -1) {
-                    document.documentElement.classList.add('mode-cliente-only');
-                }
-            } catch(e) {}
-        })();
-    </script>
-
-    <!-- Suporte a PWA / Instalação no Celular -->
+    <!-- Suporte a PWA / Instalação na Tela Inicial do Celular -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -54,47 +38,56 @@
                     }
                 }
             }
-        };
+        }
     </script>
     <style>
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Oculta o header admin no modo exclusivo de cliente */
-        html.mode-cliente-only #main-header,
-        html.mode-cliente-only #tab-despachante,
-        html.mode-cliente-only #btn-back-despachante {
-            display: none !important;
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
         @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white !important; color: black !important; }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
         }
     </style>
 </head>
 <body class="h-full flex flex-col font-sans text-slate-800 antialiased">
 
-    <!-- HEADER PRINCIPAL (ADMIN / DESPACHANTE) -->
+    <!-- TOP NAVIGATION BAR -->
     <header id="main-header" class="bg-pf-900 text-white border-b border-pf-700 sticky top-0 z-40 shadow-md no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo & Marca -->
+                <!-- Logo & Brand -->
                 <div class="flex items-center space-x-3">
                     <div class="bg-pf-gold text-pf-900 p-2 rounded-lg font-bold flex items-center justify-center">
                         <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <span class="font-bold text-lg tracking-tight block leading-none">Gestor CR <span class="text-xs text-amber-400 font-normal">PF / SINARM</span></span>
-                        <span class="text-xs text-slate-400">Atirador Desportivo &bull; Decreto 11.615/2023</span>
+                        <span class="text-xs text-slate-400">Atirador Desportivo • Decreto 11.615/2023</span>
                     </div>
                 </div>
 
-                <!-- Abas de Navegação -->
-                <div class="flex items-center space-x-2 bg-pf-800 p-1 rounded-xl border border-pf-700">
+                <!-- View Switcher Tabs -->
+                <div id="header-tabs" class="flex items-center space-x-2 bg-pf-800 p-1 rounded-xl border border-pf-700">
                     <button id="tab-despachante" onclick="switchView('despachante')" 
                             class="flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow">
                         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
@@ -107,31 +100,16 @@
                     </button>
                 </div>
 
+                <!-- Action / Quick Info & PWA Install Button -->
                 <div class="hidden md:flex items-center space-x-3">
-                    <button onclick="openNormsModal()" class="text-xs flex items-center space-x-1 text-slate-300 hover:text-amber-400 transition-colors bg-pf-800 px-3 py-1.5 rounded-lg border border-pf-700">
-                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-                        <span>Base Legal IN 311</span>
+                    <button id="btn-install-pwa" onclick="triggerPWAInstall()" class="text-xs flex items-center space-x-1 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Instalar App no Celular</span>
                     </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- HEADER SECUNDÁRIO (MODO EXCLUSIVO DO REQUERENTE) -->
-    <header id="client-only-header" class="bg-pf-900 text-white border-b border-pf-700 sticky top-0 z-40 shadow-md no-print hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-pf-gold text-pf-900 p-2 rounded-lg font-bold flex items-center justify-center">
-                        <i data-lucide="shield" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <span class="font-bold text-lg tracking-tight block leading-none">Portal do Requerente <span class="text-xs text-amber-400 font-normal">PF / SINARM</span></span>
-                        <span class="text-xs text-slate-400">Ficha de Cadastro e Envio de Documentação</span>
-                    </div>
-                </div>
-                <div class="text-xs bg-pf-800 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg font-medium">
-                    Ambiente Seguro de Transmissão
+                    <button onclick="copyAppLink()" class="text-xs flex items-center space-x-1 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors">
+                        <i data-lucide="link" class="w-3.5 h-3.5"></i>
+                        <span>Link de Acesso do App</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -140,9 +118,12 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <!-- VIEW 1: PAINEL DO DESPACHANTE -->
+        <!-- ========================================== -->
+        <!-- VIEW 1: DASHBOARD DO DESPACHANTE           -->
+        <!-- ========================================== -->
         <section id="view-despachante" class="space-y-6">
             
+            <!-- Welcome Header & Stats -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900">Gerenciamento de Processos CR</h1>
@@ -153,63 +134,71 @@
                         <i data-lucide="user-plus" class="w-4 h-4"></i>
                         <span>Novo Processo</span>
                     </button>
-                    <button onclick="copyNewRegistrationLink()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all active:scale-95">
-                        <i data-lucide="link-2" class="w-4 h-4"></i>
+                    <button onclick="copyClientLink()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 border border-slate-300 transition-all">
+                        <i data-lucide="link" class="w-4 h-4"></i>
                         <span>Link de Novo Cadastro</span>
                     </button>
-                    <button onclick="copyAppAccessLink()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all active:scale-95">
-                        <i data-lucide="globe" class="w-4 h-4"></i>
+                    <button onclick="copyAppLink()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition-all">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
                         <span>Link de Acesso do App</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Cards de Métricas -->
+            <!-- Pipeline Metrics Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
                     <div class="flex justify-between items-start">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Processos</span>
                         <span class="p-2 bg-slate-100 text-slate-600 rounded-lg"><i data-lucide="folder" class="w-4 h-4"></i></span>
                     </div>
-                    <div class="mt-2"><span id="stat-total" class="text-2xl sm:text-3xl font-bold text-slate-800">0</span></div>
+                    <div class="mt-2 flex items-baseline">
+                        <span id="stat-total" class="text-2xl sm:text-3xl font-bold text-slate-800">0</span>
+                    </div>
                 </div>
 
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-amber-300 transition-all">
                     <div class="flex justify-between items-start">
                         <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Docs Pendentes</span>
                         <span class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-4 h-4"></i></span>
                     </div>
-                    <div class="mt-2"><span id="stat-pendente" class="text-2xl sm:text-3xl font-bold text-amber-600">0</span></div>
+                    <div class="mt-2 flex items-baseline">
+                        <span id="stat-pendente" class="text-2xl sm:text-3xl font-bold text-amber-600">0</span>
+                    </div>
                 </div>
 
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 transition-all">
                     <div class="flex justify-between items-start">
                         <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Pronto p/ Protocolo</span>
                         <span class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="file-check" class="w-4 h-4"></i></span>
                     </div>
-                    <div class="mt-2"><span id="stat-pronto" class="text-2xl sm:text-3xl font-bold text-blue-600">0</span></div>
+                    <div class="mt-2 flex items-baseline">
+                        <span id="stat-pronto" class="text-2xl sm:text-3xl font-bold text-blue-600">0</span>
+                    </div>
                 </div>
 
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-300 transition-all">
                     <div class="flex justify-between items-start">
                         <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Deferidos / Concluídos</span>
                         <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-4 h-4"></i></span>
                     </div>
-                    <div class="mt-2"><span id="stat-deferido" class="text-2xl sm:text-3xl font-bold text-emerald-600">0</span></div>
+                    <div class="mt-2 flex items-baseline">
+                        <span id="stat-deferido" class="text-2xl sm:text-3xl font-bold text-emerald-600">0</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tabela de Clientes -->
+            <!-- Table Filter & Clients List -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="relative w-full sm:w-80">
                         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <input type="text" id="search-input" onkeyup="filterClients()" placeholder="Buscar cliente por Nome ou CPF..." 
-                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
                     </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
                         <span class="text-xs text-slate-500 font-medium">Filtrar por:</span>
-                        <select id="status-filter" onchange="filterClients()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm rounded-xl p-2">
+                        <select id="status-filter" onchange="filterClients()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="ALL">Todos os Status</option>
                             <option value="Pendente">Documentos Pendentes</option>
                             <option value="Em Análise">Em Análise do Despachante</option>
@@ -219,6 +208,7 @@
                     </div>
                 </div>
 
+                <!-- Clients Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -227,11 +217,11 @@
                                 <th class="py-3 px-4">CPF / Contato</th>
                                 <th class="py-3 px-4">Progresso Checklist</th>
                                 <th class="py-3 px-4">Status Processo</th>
-                                <th class="py-3 px-4 text-right">Ações</th>
+                                <th class="py-3 px-4 text-right">Ações / Minutas</th>
                             </tr>
                         </thead>
                         <tbody id="clients-table-body" class="divide-y divide-slate-100 text-sm">
-                            <!-- Populado via JS -->
+                            <!-- Populated dynamically via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -239,7 +229,9 @@
 
         </section>
 
-        <!-- VIEW 2: PORTAL DO CLIENTE (FORM COMPLETO) -->
+        <!-- ========================================== -->
+        <!-- VIEW 2: PORTAL DO CLIENTE                  -->
+        <!-- ========================================== -->
         <section id="view-cliente" class="space-y-6 hidden">
             
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -248,157 +240,68 @@
                         <i data-lucide="shield" class="w-3.5 h-3.5"></i>
                         <span>Solicitação de CR - Atirador Desportivo (PF)</span>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-900">Ficha de Cadastro e Envio de Documentos</h2>
-                    <p class="text-sm text-slate-500 mt-0.5">Preencha seus dados pessoais completos e anexe a documentação necessária.</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Envio de Dados e Documentação</h2>
+                    <p class="text-sm text-slate-500 mt-0.5">Preencha suas informações pessoais e anexe os documentos exigidos pela Polícia Federal.</p>
                 </div>
                 <div class="bg-slate-100 p-3 rounded-xl flex items-center space-x-3 text-xs text-slate-600">
                     <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-base" id="client-avatar">
-                        AD
+                        MM
                     </div>
                     <div>
-                        <div class="font-bold text-slate-800" id="current-client-name">Novo Cadastro</div>
-                        <div id="current-client-cpf" class="text-slate-500">CPF: ---.---.---</div>
+                        <div class="font-bold text-slate-800" id="current-client-name">Manioel Messias do Espirito Santo</div>
+                        <div id="current-client-cpf" class="text-slate-500">CPF: 055.131.656-00</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Form Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Coluna Esquerda: Formulario Completo -->
+                <!-- Left Column: Personal Data Form -->
                 <div class="lg:col-span-1 space-y-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                         <h3 class="text-lg font-bold text-slate-900 border-b pb-3 flex items-center space-x-2">
                             <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
-                            <span>Dados Cadastrais Completo</span>
+                            <span>Dados Cadastrais</span>
                         </h3>
 
                         <form id="client-data-form" class="space-y-3 text-xs sm:text-sm" onsubmit="event.preventDefault(); saveClientData();">
                             <div>
-                                <label class="block font-medium text-slate-700 mb-1">Nome Completo *</label>
-                                <input type="text" id="form-fullname" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="Ex: Manioel Messias do Espírito Santo">
+                                <label class="block font-medium text-slate-700 mb-1">Nome Completo</label>
+                                <input type="text" id="form-fullname" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" value="Manioel Messias do Espirito Santo">
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block font-medium text-slate-700 mb-1">CPF *</label>
-                                    <input type="text" id="form-cpf" required oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="000.000.000-00">
+                                    <label class="block font-medium text-slate-700 mb-1">CPF</label>
+                                    <input type="text" id="form-cpf" oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" value="055.131.656-00">
                                 </div>
                                 <div>
-                                    <label class="block font-medium text-slate-700 mb-1">E-mail *</label>
-                                    <input type="email" id="form-email" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="messiassanto78@gmail.com">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-2">
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">RG</label>
-                                    <input type="text" id="form-rg" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="9143092">
-                                </div>
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Órgão Emissor</label>
-                                    <input type="text" id="form-rg-issuer" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="PC MG">
-                                </div>
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Emissão RG</label>
-                                    <input type="text" id="form-rg-date" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="01/04/2024">
+                                    <label class="block font-medium text-slate-700 mb-1">RG / Órgão</label>
+                                    <input type="text" id="form-rg" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" value="9143092 PC MG">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Data Nascimento</label>
-                                    <input type="date" id="form-birthdate" onchange="validateAgeRules()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500">
+                                    <input type="date" id="form-birthdate" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" value="1978-03-09">
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Telefone / WhatsApp</label>
-                                    <input type="text" id="form-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="33999250819">
-                                </div>
-                            </div>
-
-                            <div id="age-warning" class="hidden p-3 rounded-xl text-xs space-y-1"></div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Município Natal</label>
-                                    <input type="text" id="form-birth-city" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="TARUMIRIM">
-                                </div>
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Estado Natal (UF)</label>
-                                    <input type="text" id="form-birth-state" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="MINAS GERAIS">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Estado Civil</label>
-                                    <select id="form-civil-status" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500">
-                                        <option value="SOLTEIRO(A)">SOLTEIRO(A)</option>
-                                        <option value="CASADO(A)" selected>CASADO(A)</option>
-                                        <option value="DIVORCIADO(A)">DIVORCIADO(A)</option>
-                                        <option value="VIÚVO(A)">VIÚVO(A)</option>
-                                        <option value="UNIÃO ESTÁVEL">UNIÃO ESTÁVEL</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block font-medium text-slate-700 mb-1">Profissão</label>
-                                    <input type="text" id="form-profession" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="VIGILANTE">
+                                    <input type="text" id="form-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" value="33999250819">
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block font-medium text-slate-700 mb-1">Título de Eleitor</label>
-                                <input type="text" id="form-voter-card" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="144442090248">
-                            </div>
-
-                            <!-- Filiação -->
-                            <div class="border-t pt-3 space-y-2">
-                                <span class="font-bold text-slate-800 text-xs block">Filiação</span>
-                                <div>
-                                    <label class="block text-[11px] text-slate-600 mb-0.5">Nome da Mãe</label>
-                                    <input type="text" id="form-mother-name" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="MARIA AMBROSIA VIANA">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] text-slate-600 mb-0.5">Nome do Pai</label>
-                                    <input type="text" id="form-father-name" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="VIVALDO OLIMPIO DO ESPIRITO SANTO">
-                                </div>
-                            </div>
-
-                            <!-- Endereço -->
-                            <div class="border-t pt-3 space-y-2">
-                                <span class="font-bold text-slate-800 text-xs block">Endereço Principal</span>
-                                <div>
-                                    <label class="block text-[11px] text-slate-600 mb-0.5">Logradouro / Rua e Número</label>
-                                    <input type="text" id="form-address-street" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="TRAVESSA AUGUSTO DE LIMA, 25">
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="block text-[11px] text-slate-600 mb-0.5">Bairro</label>
-                                        <input type="text" id="form-address-district" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="CENTRO">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] text-slate-600 mb-0.5">CEP</label>
-                                        <input type="text" id="form-address-cep" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="35140000">
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="block text-[11px] text-slate-600 mb-0.5">Cidade</label>
-                                        <input type="text" id="form-address-city" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="TARUMIRIM">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] text-slate-600 mb-0.5">Estado (UF)</label>
-                                        <input type="text" id="form-address-state" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="MG">
-                                    </div>
-                                </div>
+                                <label class="block font-medium text-slate-700 mb-1">Profissão / Ocupação Lícita</label>
+                                <input type="text" id="form-profession" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" value="VIGILANTE">
                             </div>
 
                             <div>
-                                <label class="block font-medium text-slate-700 mb-1">Número do CR (Se houver)</label>
-                                <input type="text" id="form-cr-number" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500" placeholder="N/A">
+                                <label class="block font-medium text-slate-700 mb-1">Endereço Residencial</label>
+                                <input type="text" id="form-address" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" value="TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG, CEP: 35140000">
                             </div>
 
-                            <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
+                            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
                                 <i data-lucide="save" class="w-4 h-4"></i>
                                 <span>Salvar Informações Cadastrais</span>
                             </button>
@@ -406,10 +309,9 @@
                     </div>
                 </div>
 
-                <!-- Coluna Direita: Checklist de Documentos -->
+                <!-- Right Column: Interactive Checklist -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                        
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
@@ -420,7 +322,7 @@
                             </div>
                             <div class="text-right w-full sm:w-auto bg-slate-50 p-3 rounded-xl border border-slate-100">
                                 <span class="text-xs text-slate-500 block font-medium">Status dos Anexos</span>
-                                <span id="checklist-counter" class="text-xl font-bold text-blue-600">0 / 16 Concluídos</span>
+                                <span id="checklist-counter" class="text-xl font-bold text-blue-600">0 / 12 Concluídos</span>
                             </div>
                         </div>
 
@@ -429,12 +331,11 @@
                         </div>
 
                         <div id="checklist-items-container" class="space-y-3">
-                            <!-- Populado via JS -->
+                            <!-- Populated via JS -->
                         </div>
 
-                        <!-- Botões de Ação -->
                         <div class="pt-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <button id="btn-back-despachante" onclick="switchView('despachante')" class="text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-medium flex items-center space-x-1">
+                            <button onclick="switchView('despachante')" class="text-slate-600 hover:text-slate-900 text-xs sm:text-sm font-medium flex items-center space-x-1">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                                 <span>Voltar ao Painel</span>
                             </button>
@@ -445,81 +346,131 @@
                                 </button>
                                 <button onclick="submitProcessForReview()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center space-x-2 shadow-sm transition-all">
                                     <i data-lucide="send" class="w-4 h-4"></i>
-                                    <span>Finalizar e Enviar Cadastro</span>
+                                    <span>Finalizar e Enviar</span>
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
+            </div>
+        </section>
 
+        <!-- ========================================== -->
+        <!-- VIEW 3: CENTRAL EXCLUSIVA DE MINUTAS (PDF) -->
+        <!-- ========================================== -->
+        <section id="view-despachante-docs" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center space-x-2 bg-amber-50 text-amber-800 text-xs px-3 py-1 rounded-full font-semibold mb-2">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                        <span>Área Restrita do Despachante &bull; Geração de Minutas Oficiais</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900" id="docs-client-title">Documentos e Requerimentos</h2>
+                    <p class="text-sm text-slate-500 mt-0.5">Selecione o documento desejado para gerar instantaneamente preenchido com os dados do cliente.</p>
+                </div>
+                <button onclick="switchView('despachante')" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-medium flex items-center space-x-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Voltar ao Painel</span>
+                </button>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl w-fit mb-3"><i data-lucide="file-text" class="w-6 h-6"></i></div>
+                        <h3 class="font-bold text-slate-900 text-base">Requerimento Padrão SINARM (Anexo I)</h3>
+                        <p class="text-xs text-slate-500 mt-1">Formulário oficial preenchido com dados pessoais e filiação.</p>
+                    </div>
+                    <button onclick="generateOfficialDoc('requerimento_sinarm')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center justify-center space-x-2">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Gerar PDF / Imprimir</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl w-fit mb-3"><i data-lucide="file-signature" class="w-6 h-6"></i></div>
+                        <h3 class="font-bold text-slate-900 text-base">Instrumento de Procuração</h3>
+                        <p class="text-xs text-slate-500 mt-1">Procuração outorgando poderes ao despachante Wagner Lima.</p>
+                    </div>
+                    <button onclick="generateOfficialDoc('procuracao')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center justify-center space-x-2">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Gerar PDF / Imprimir</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl w-fit mb-3"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
+                        <h3 class="font-bold text-slate-900 text-base">Declaração de Idoneidade</h3>
+                        <p class="text-xs text-slate-500 mt-1">Declaração formal de ausência de inquéritos ou processos criminais.</p>
+                    </div>
+                    <button onclick="generateOfficialDoc('idoneidade')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center justify-center space-x-2">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Gerar PDF / Imprimir</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl w-fit mb-3"><i data-lucide="home" class="w-6 h-6"></i></div>
+                        <h3 class="font-bold text-slate-900 text-base">Declaração de Residência Atual</h3>
+                        <p class="text-xs text-slate-500 mt-1">Declaração de terceiro autorizando residência e guarda de acervo.</p>
+                    </div>
+                    <button onclick="generateOfficialDoc('residencia_atual')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center justify-center space-x-2">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Gerar PDF / Imprimir</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="p-2.5 bg-purple-50 text-purple-600 rounded-xl w-fit mb-3"><i data-lucide="calendar" class="w-6 h-6"></i></div>
+                        <h3 class="font-bold text-slate-900 text-base">Residência (Últimos 5 Anos)</h3>
+                        <p class="text-xs text-slate-500 mt-1">Histórico detalhado de endereços referentes aos últimos 5 anos.</p>
+                    </div>
+                    <button onclick="generateOfficialDoc('residencia_5anos')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center justify-center space-x-2">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Gerar PDF / Imprimir</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="p-2.5 bg-rose-50 text-rose-600 rounded-xl w-fit mb-3"><i data-lucide="gift" class="w-6 h-6"></i></div>
+                        <h3 class="font-bold text-slate-900 text-base">Termo de Doação de Arma</h3>
+                        <p class="text-xs text-slate-500 mt-1">Minuta de doação de arma de fogo entre particulares.</p>
+                    </div>
+                    <button onclick="generateOfficialDoc('termo_doacao')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center justify-center space-x-2">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Gerar PDF / Imprimir</span>
+                    </button>
+                </div>
+            </div>
         </section>
 
     </main>
 
-    <!-- MODAIS E COMPONENTES -->
-    <div id="norms-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-2xl w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-            <div class="p-5 bg-pf-900 text-white flex justify-between items-center">
-                <h3 class="font-bold text-base">Legislação e Portarias Aplicáveis</h3>
-                <button onclick="closeNormsModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-6 space-y-4 overflow-y-auto text-xs sm:text-sm text-slate-600">
-                <p><strong>Decreto nº 11.615/2023:</strong> Regulamenta o Estatuto do Desarmamento para concessão de CR.</p>
-                <p><strong>Instrução Normativa DG/PF nº 311:</strong> Define o rito administrativo e os documentos necessários perante o SINARM / Polícia Federal.</p>
-            </div>
-            <div class="p-4 bg-slate-100 border-t text-right">
-                <button onclick="closeNormsModal()" class="px-4 py-2 bg-slate-800 text-white text-xs font-medium rounded-xl">Entendi</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL NOVO CLIENTE -->
-    <div id="new-client-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-            <div class="p-5 bg-slate-900 text-white flex justify-between items-center">
-                <h3 class="font-bold text-base">Cadastrar Novo Cliente</h3>
-                <button onclick="closeNewClientModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block font-medium text-xs text-slate-700 mb-1">Nome Completo</label>
-                    <input type="text" id="modal-name" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm" placeholder="Ex: Manioel Messias">
-                </div>
-                <div>
-                    <label class="block font-medium text-xs text-slate-700 mb-1">CPF</label>
-                    <input type="text" id="modal-cpf" oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm" placeholder="000.000.000-00">
-                </div>
-                <div>
-                    <label class="block font-medium text-xs text-slate-700 mb-1">Telefone / WhatsApp</label>
-                    <input type="text" id="modal-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm" placeholder="(33) 99999-9999">
-                </div>
-            </div>
-            <div class="p-4 bg-slate-100 border-t flex justify-end space-x-2">
-                <button onclick="closeNewClientModal()" class="px-4 py-2 border text-slate-700 text-xs font-medium rounded-xl">Cancelar</button>
-                <button onclick="saveNewClientModal()" class="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl">Cadastrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL SHARE LINK -->
-    <div id="share-link-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-            <div class="p-5 bg-pf-900 text-white flex justify-between items-center">
-                <h3 class="font-bold text-base">Link do Formulário</h3>
-                <button onclick="closeShareModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-6 space-y-4 text-xs sm:text-sm">
-                <p id="modal-share-desc">Envie o link de cadastro abaixo:</p>
+    <!-- MODAL: MODELO / MINUTA DE DECLARAÇÃO -->
+    <div id="declaration-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-3xl w-full rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+            <div class="p-4 bg-pf-900 text-white flex justify-between items-center no-print">
                 <div class="flex items-center space-x-2">
-                    <input type="text" id="modal-share-input" readonly class="w-full p-2.5 bg-slate-100 border rounded-xl text-xs font-mono">
-                    <button onclick="copyModalInput()" class="px-3 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-medium shrink-0">Copiar</button>
+                    <i data-lucide="file-signature" class="w-5 h-5 text-pf-gold"></i>
+                    <h3 class="font-bold text-base" id="decl-modal-title">Modelo de Declaração</h3>
                 </div>
-                <button onclick="sendViaWhatsApp()" class="w-full py-3 bg-emerald-600 text-white font-medium rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i>
-                    <span>Enviar no WhatsApp</span>
+                <button onclick="closeDeclarationModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div id="decl-modal-body" class="p-8 space-y-6 overflow-y-auto text-sm text-slate-800 font-serif leading-relaxed">
+                <!-- Conteúdo -->
+            </div>
+
+            <div class="p-4 bg-slate-100 border-t flex justify-end space-x-3 no-print">
+                <button onclick="closeDeclarationModal()" class="px-4 py-2 border border-slate-300 text-slate-700 text-xs font-medium rounded-xl hover:bg-slate-200">Fechar</button>
+                <button onclick="printDeclaration()" class="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700 flex items-center space-x-2 shadow-sm">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Imprimir Declaração</span>
                 </button>
             </div>
         </div>
@@ -527,266 +478,246 @@
 
     <!-- NOTIFICATION TOAST -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center space-x-3 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-xs sm:text-sm">
-        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+        <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
         <span id="toast-message">Ação realizada com sucesso!</span>
     </div>
 
+    <!-- SCRIPT DO APLICATIVO -->
     <script>
-        var REQUIRED_DOCUMENTS = [
-            { id: 'doc_requerimento', name: 'Requerimento de Concessão de CR (PF)', desc: 'Requerimento formal dirigido à Polícia Federal com qualificação.' },
-            { id: 'doc_id', name: 'Documento de Identificação Oficial (RG/CNH)', desc: 'Documento legível com foto recente e CPF.' },
-            { id: 'doc_residencia', name: 'Comprovante de Residência Fixa', desc: 'Conta de água, luz ou telefone fixo dos últimos 90 dias.' },
-            { id: 'doc_decl_endereco', name: 'Declaração de Residência / Endereço', desc: 'Caso o comprovante não esteja no nome do requerente.' },
-            { id: 'doc_ocupacao', name: 'Comprovante de Ocupação Lícita', desc: 'Holerite, Contrato Social, IRPF ou Carteira de Trabalho.' },
-            { id: 'doc_idoneidade', name: 'Declaração de Idoneidade Moral', desc: 'Declaração sob as penas da lei de ausência de inquéritos.' },
-            { id: 'doc_fed', name: 'Certidão Negativa - Justiça Federal', desc: 'Emitida pelo TRF da sua região.' },
-            { id: 'doc_est', name: 'Certidão Negativa - Justiça Estadual', desc: 'Emitida pelo Tribunal de Justiça do seu Estado.' },
-            { id: 'doc_eleitoral', name: 'Certidão Negativa - Justiça Eleitoral', desc: 'Quitação e Crimes Eleitorais emitidas pelo TSE.' },
-            { id: 'doc_militar', name: 'Certidão Negativa - Justiça Militar', desc: 'Emitida pelo Superior Tribunal Militar (STM).' },
-            { id: 'doc_psico', name: 'Laudo de Aptidão Psicológica', desc: 'Emitido por psicólogo credenciado ativo na Polícia Federal.' },
-            { id: 'doc_tecnica', name: 'Laudo de Capacidade Técnica (Tiro)', desc: 'Emitido por IAT credenciado na Polícia Federal.' },
-            { id: 'doc_clube', name: 'Comprovante de Filiação a Clube de Tiro', desc: 'Declaração de filiação ativa em entidade autorizada.' },
-            { id: 'doc_habitualidade', name: 'Termo de Compromisso de Habitualidade', desc: 'Compromisso de mínimo 8 treinos por ano/calibre.' },
-            { id: 'doc_dsa', name: 'Declaração de Segurança do Acervo (DSA)', desc: 'Declaração de posse de cofre ou local seguro com tranca.' },
-            { id: 'doc_gru', name: 'Comprovante de Pagamento da Taxa GRU', desc: 'Guia no valor de R$ 100,00 paga.' }
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btnInstall = document.getElementById('btn-install-pwa');
+            if (btnInstall) {
+                btnInstall.classList.add('animate-pulse', 'bg-amber-500', 'text-pf-900');
+            }
+        });
+
+        function triggerPWAInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast('Aplicativo instalado com sucesso!');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                showToast('Para instalar, use o menu do navegador e selecione "Adicionar à Tela Inicial".');
+            }
+        }
+
+        const REQUIRED_DOCUMENTS = [
+            { id: 'doc_requerimento', name: 'Requerimento de Concessão de CR (PF)', desc: 'Requerimento formal dirigido à Polícia Federal.', hasTemplate: true, templateType: 'requerimento' },
+            { id: 'doc_id', name: 'Documento de Identificação Oficial (RG/CNH)', desc: 'Documento original legível com foto recente.', hasTemplate: false },
+            { id: 'doc_residencia', name: 'Comprovante de Residência Fixa', desc: 'Conta de água, luz ou telefone recente.', hasTemplate: false },
+            { id: 'doc_decl_endereco', name: 'Declaração de Residência / Endereço', desc: 'Requerida caso o comprovante não esteja no nome.', hasTemplate: true, templateType: 'endereco' },
+            { id: 'doc_ocupacao', name: 'Comprovante de Ocupação Lícita', desc: 'Holerite, Contrato Social ou Carteira de Trabalho.', hasTemplate: false },
+            { id: 'doc_idoneidade', name: 'Declaração de Idoneidade Moral', desc: 'Declaração formal sob as penas da lei.', hasTemplate: true, templateType: 'idoneidade' },
+            { id: 'doc_fed', name: 'Certidão Negativa - Justiça Federal', desc: 'Emitida pelo portal TRF.', hasTemplate: false },
+            { id: 'doc_est', name: 'Certidão Negativa - Justiça Estadual', desc: 'Emitida pelo Tribunal de Justiça.', hasTemplate: false },
+            { id: 'doc_eleitoral', name: 'Certidão Negativa - Justiça Eleitoral', desc: 'Certidão de Quitação e Crimes Eleitorais.', hasTemplate: false },
+            { id: 'doc_militar', name: 'Certidão Negativa - Justiça Militar', desc: 'Emitida pelo STM.', hasTemplate: false },
+            { id: 'doc_psico', name: 'Laudo de Aptidão Psicológica', desc: 'Emitido por psicólogo credenciado na PF.', hasTemplate: false },
+            { id: 'doc_tecnica', name: 'Laudo de Capacidade Técnica (Tiro)', desc: 'Emitido por Instrutor credenciado na PF.', hasTemplate: false },
+            { id: 'doc_clube', name: 'Comprovante de Filiação a Clube de Tiro', desc: 'Declaração de filiação ativa.', hasTemplate: false },
+            { id: 'doc_habitualidade', name: 'Termo de Compromisso de Habitualidade', desc: 'Termo declarando frequência de treinos.', hasTemplate: true, templateType: 'habitualidade' },
+            { id: 'doc_dsa', name: 'Declaração de Segurança do Acervo (DSA)', desc: 'Declaração de cofre ou local seguro.', hasTemplate: true, templateType: 'dsa' },
+            { id: 'doc_gru', name: 'Comprovante de Pagamento da Taxa GRU', desc: 'Guia de Recolhimento da União paga.', hasTemplate: false }
         ];
 
-        var clientsData = [
+        let clientsData = [
             {
                 id: '1',
-                fullname: 'MANIOEL MESSIAS DO ESPIRITO SANTO',
+                fullname: 'Manioel Messias do Espirito Santo',
                 cpf: '055.131.656-00',
-                email: 'messiassanto78@gmail.com',
-                phone: '33999250819',
-                birthdate: '1978-03-09',
-                birthCity: 'TARUMIRIM',
-                birthState: 'MINAS GERAIS',
                 rg: '9143092',
                 rgIssuer: 'PC MG',
-                rgDate: '01/04/2024',
-                civilStatus: 'CASADO(A)',
+                birthdate: '1978-03-09',
+                phone: '33999250819',
                 profession: 'VIGILANTE',
-                voterCard: '144442090248',
+                civilStatus: 'CASADO',
                 motherName: 'MARIA AMBROSIA VIANA',
                 fatherName: 'VIVALDO OLIMPIO DO ESPIRITO SANTO',
-                street: 'TRAVESSA AUGUSTO DE LIMA, 25',
-                district: 'CENTRO',
-                city: 'TARUMIRIM',
-                state: 'MG',
-                cep: '35140000',
-                crNumber: 'N/A',
+                address: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG, CEP: 35140000',
+                safeAddress: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
                 status: 'Em Análise',
                 docs: {}
             }
         ];
 
-        var activeClientId = '1';
+        let activeClientId = '1';
 
         window.onload = function() {
-            loadFromLocalStorage();
-            checkUrlMode();
-            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
-        };
-
-        function saveToLocalStorage() {
             try {
-                localStorage.setItem('gestor_cr_pf_clients', JSON.stringify(clientsData));
-            } catch(e) {}
-        }
-
-        function loadFromLocalStorage() {
-            try {
-                var stored = localStorage.getItem('gestor_cr_pf_clients');
-                if (stored) {
-                    clientsData = JSON.parse(stored);
+                if (window.lucide) {
+                    lucide.createIcons();
                 }
             } catch(e) {}
-        }
-
-        function checkUrlMode() {
-            var hash = window.location.hash || '';
-            var href = window.location.href || '';
             
-            if (hash.indexOf('cadastro') !== -1 || href.indexOf('novo-cadastro=true') !== -1 || href.indexOf('#/cadastro') !== -1) {
-                document.documentElement.classList.add('mode-cliente-only');
-                var mH = document.getElementById('main-header');
-                var cH = document.getElementById('client-only-header');
-                var bB = document.getElementById('btn-back-despachante');
+            clientsData.forEach(c => {
+                if (!c.docs) c.docs = {};
+                REQUIRED_DOCUMENTS.forEach(d => {
+                    if (!c.docs[d.id]) c.docs[d.id] = { uploaded: false, fileName: '' };
+                });
+            });
 
-                if (mH) mH.classList.add('hidden');
-                if (cH) cH.classList.remove('hidden');
-                if (bB) bB.classList.add('hidden');
-                
-                prepareBlankRegistration();
+            // Verificar se foi aberto via link de novo cadastro
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('novo-cadastro') || window.location.hash.includes('cadastro')) {
+                createNewClient();
+                const headerEl = document.getElementById('main-header');
+                if (headerEl) headerEl.style.display = 'none';
                 switchView('cliente');
             } else {
-                document.documentElement.classList.remove('mode-cliente-only');
-                var mH2 = document.getElementById('main-header');
-                var cH2 = document.getElementById('client-only-header');
-                var bB2 = document.getElementById('btn-back-despachante');
-
-                if (mH2) mH2.classList.remove('hidden');
-                if (cH2) cH2.classList.add('hidden');
-                if (bB2) bB2.classList.add('hidden');
-                
                 renderDashboard();
-                if (clientsData.length > 0) loadClientIntoForm(clientsData[0].id);
-                switchView('despachante');
+                loadClientIntoForm(activeClientId);
             }
-        }
+        };
 
         function switchView(viewName) {
-            var vDesp = document.getElementById('view-despachante');
-            var vCli = document.getElementById('view-cliente');
-            var tDesp = document.getElementById('tab-despachante');
-            var tCli = document.getElementById('tab-cliente');
+            const viewDespachante = document.getElementById('view-despachante');
+            const viewCliente = document.getElementById('view-cliente');
+            const viewDocs = document.getElementById('view-despachante-docs');
+            const tabDespachante = document.getElementById('tab-despachante');
+            const tabCliente = document.getElementById('tab-cliente');
+
+            if (viewDespachante) viewDespachante.classList.add('hidden');
+            if (viewCliente) viewCliente.classList.add('hidden');
+            if (viewDocs) viewDocs.classList.add('hidden');
 
             if (viewName === 'despachante') {
-                if (vDesp) vDesp.classList.remove('hidden');
-                if (vCli) vCli.classList.add('hidden');
-                if (tDesp) tDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
-                if (tCli) tCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
+                if (viewDespachante) viewDespachante.classList.remove('hidden');
+                if (tabDespachante) tabDespachante.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
+                if (tabCliente) tabCliente.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
                 renderDashboard();
-            } else {
-                if (vDesp) vDesp.classList.add('hidden');
-                if (vCli) vCli.classList.remove('hidden');
-                if (tCli) tCli.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
-                if (tDesp) tDesp.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
+            } else if (viewName === 'cliente') {
+                if (viewCliente) viewCliente.classList.remove('hidden');
+                if (tabCliente) tabCliente.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-pf-700 text-white shadow";
+                if (tabDespachante) tabDespachante.className = "flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-300 hover:text-white";
                 renderChecklist();
+            } else if (viewName === 'despachante-docs') {
+                if (viewDocs) viewDocs.classList.remove('hidden');
+                const client = clientsData.find(c => c.id === activeClientId);
+                const titleEl = document.getElementById('docs-client-title');
+                if (client && titleEl) {
+                    titleEl.innerText = `Documentos e Minutas de: ${client.fullname}`;
+                }
             }
         }
 
         function renderDashboard() {
-            var tbody = document.getElementById('clients-table-body');
+            const tbody = document.getElementById('clients-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            var total = clientsData.length;
-            var pendentes = 0, prontos = 0, deferidos = 0;
+            let total = clientsData.length;
+            let pendentes = 0;
+            let prontos = 0;
+            let deferidos = 0;
 
-            var sInp = document.getElementById('search-input');
-            var filterText = (sInp ? sInp.value : '').toLowerCase();
-            var sFlt = document.getElementById('status-filter');
-            var filterStatus = sFlt ? sFlt.value : 'ALL';
+            const searchEl = document.getElementById('search-input');
+            const statusEl = document.getElementById('status-filter');
+            const filterText = searchEl ? searchEl.value.toLowerCase() : '';
+            const filterStatus = statusEl ? statusEl.value : 'ALL';
 
-            clientsData.forEach(function(client) {
-                var docsCount = Object.keys(client.docs || {}).filter(function(k) { return client.docs[k].uploaded; }).length;
+            clientsData.forEach(client => {
+                if (!client.docs) client.docs = {};
+                const docsCount = Object.values(client.docs).filter(d => d.uploaded).length;
                 if (client.status === 'Deferido') deferidos++;
                 else if (docsCount === REQUIRED_DOCUMENTS.length || client.status === 'Pronto') prontos++;
                 else pendentes++;
 
-                var matchesSearch = (client.fullname || '').toLowerCase().indexOf(filterText) !== -1 || (client.cpf || '').indexOf(filterText) !== -1;
-                if (!matchesSearch) return;
+                const matchesSearch = client.fullname.toLowerCase().includes(filterText) || client.cpf.includes(filterText);
+                let matchesStatus = true;
+                if (filterStatus === 'Pendente') matchesStatus = docsCount < REQUIRED_DOCUMENTS.length;
+                else if (filterStatus === 'Pronto') matchesStatus = client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length;
+                else if (filterStatus !== 'ALL') matchesStatus = client.status === filterStatus;
 
-                var badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
-                if (client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length) badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
-                else if (client.status === 'Deferido') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                if (!matchesSearch || !matchesStatus) return;
 
-                var pct = Math.round((docsCount / REQUIRED_DOCUMENTS.length) * 100);
+                let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+                if (client.status === 'Pronto' || docsCount === REQUIRED_DOCUMENTS.length) {
+                    badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                } else if (client.status === 'Deferido') {
+                    badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                }
 
-                var tr = document.createElement('tr');
+                const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100";
-                tr.innerHTML = '<td class="py-3 px-4 sm:px-6">' +
-                    '<div class="font-bold text-slate-900">' + (client.fullname || 'Sem nome') + '</div>' +
-                    '<div class="text-xs text-slate-400">ID: #' + client.id + '</div>' +
-                    '</td>' +
-                    '<td class="py-3 px-4">' +
-                    '<div class="text-slate-700 font-mono text-xs">' + (client.cpf || '---') + '</div>' +
-                    '<div class="text-xs text-slate-500">' + (client.phone || 'Sem telefone') + '</div>' +
-                    '</td>' +
-                    '<td class="py-3 px-4">' +
-                    '<div class="flex items-center space-x-2">' +
-                    '<div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">' +
-                    '<div class="bg-blue-600 h-full" style="width: ' + pct + '%"></div>' +
-                    '</div>' +
-                    '<span class="text-xs font-semibold text-slate-600">' + docsCount + '/' + REQUIRED_DOCUMENTS.length + '</span>' +
-                    '</div>' +
-                    '</td>' +
-                    '<td class="py-3 px-4">' +
-                    '<span class="px-2.5 py-1 text-xs font-semibold rounded-full border ' + badgeClass + '">' +
-                    (client.status || 'Pendente') +
-                    '</span>' +
-                    '</td>' +
-                    '<td class="py-3 px-4 text-right space-x-1">' +
-                    '<button onclick="openClientPortal(\'' + client.id + '\')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg">' +
-                    '<i data-lucide="folder-open" class="w-4 h-4"></i>' +
-                    '</button>' +
-                    '<button onclick="markAsDeferido(\'' + client.id + '\')" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg">' +
-                    '<i data-lucide="check-circle" class="w-4 h-4"></i>' +
-                    '</button>' +
-                    '</td>';
+                tr.innerHTML = `
+                    <td class="py-3 px-4 sm:px-6">
+                        <div class="font-bold text-slate-900">${client.fullname || 'Sem nome'}</div>
+                        <div class="text-xs text-slate-400">ID: #${client.id}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="text-slate-700 font-mono text-xs">${client.cpf || '---'}</div>
+                        <div class="text-xs text-slate-500">${client.phone || 'Sem telefone'}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full" style="width: ${(docsCount / REQUIRED_DOCUMENTS.length) * 100}%"></div>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-600">${docsCount}/${REQUIRED_DOCUMENTS.length}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full border ${badgeClass}">
+                            ${docsCount === REQUIRED_DOCUMENTS.length && client.status !== 'Deferido' ? 'Pronto p/ Protocolo' : client.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1">
+                        <button onclick="openClientPortal('${client.id}')" title="Abrir Documentos" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                            <i data-lucide="folder-open" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="openDespachanteDocs('${client.id}')" title="Central de Minutas PDF" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                            <i data-lucide="file-signature" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="markAsDeferido('${client.id}')" title="Marcar Deferido" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="deleteClient('${client.id}')" title="Excluir Cadastro" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
                 tbody.appendChild(tr);
             });
 
-            var eTot = document.getElementById('stat-total');
-            var ePen = document.getElementById('stat-pendente');
-            var ePro = document.getElementById('stat-pronto');
-            var eDef = document.getElementById('stat-deferido');
-
-            if (eTot) eTot.innerText = total;
-            if (ePen) ePen.innerText = pendentes;
-            if (ePro) ePro.innerText = prontos;
-            if (eDef) eDef.innerText = deferidos;
+            if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
+            if (document.getElementById('stat-pendente')) document.getElementById('stat-pendente').innerText = pendentes;
+            if (document.getElementById('stat-pronto')) document.getElementById('stat-pronto').innerText = prontos;
+            if (document.getElementById('stat-deferido')) document.getElementById('stat-deferido').innerText = deferidos;
 
             try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
+        function openDespachanteDocs(clientId) {
+            activeClientId = clientId;
+            switchView('despachante-docs');
+        }
+
         function loadClientIntoForm(clientId) {
             activeClientId = clientId;
-            var client = clientsData.find(function(c) { return c.id === clientId; }) || clientsData[0];
+            const client = clientsData.find(c => c.id === clientId);
             if (!client) return;
 
-            var eNam = document.getElementById('current-client-name');
-            var eCpf = document.getElementById('current-client-cpf');
-            var eAva = document.getElementById('client-avatar');
+            if (document.getElementById('current-client-name')) document.getElementById('current-client-name').innerText = client.fullname || 'Cliente';
+            if (document.getElementById('current-client-cpf')) document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf || '---'}`;
+            if (document.getElementById('client-avatar')) document.getElementById('client-avatar').innerText = getInitials(client.fullname);
 
-            if (eNam) eNam.innerText = client.fullname || 'Sem nome';
-            if (eCpf) eCpf.innerText = 'CPF: ' + (client.cpf || '---');
-            if (eAva) eAva.innerText = getInitials(client.fullname);
-
-            setInputValue('form-fullname', client.fullname);
-            setInputValue('form-cpf', client.cpf);
-            setInputValue('form-email', client.email);
-            setInputValue('form-phone', client.phone);
-            setInputValue('form-birthdate', client.birthdate);
-            setInputValue('form-birth-city', client.birthCity);
-            setInputValue('form-birth-state', client.birthState);
-            setInputValue('form-rg', client.rg);
-            setInputValue('form-rg-issuer', client.rgIssuer);
-            setInputValue('form-rg-date', client.rgDate);
-            setInputValue('form-civil-status', client.civilStatus || 'CASADO(A)');
-            setInputValue('form-profession', client.profession);
-            setInputValue('form-voter-card', client.voterCard);
-            setInputValue('form-mother-name', client.motherName);
-            setInputValue('form-father-name', client.fatherName);
-            setInputValue('form-address-street', client.street);
-            setInputValue('form-address-district', client.district);
-            setInputValue('form-address-city', client.city);
-            setInputValue('form-address-state', client.state);
-            setInputValue('form-address-cep', client.cep);
-            setInputValue('form-cr-number', client.crNumber || 'N/A');
+            if (document.getElementById('form-fullname')) document.getElementById('form-fullname').value = client.fullname || '';
+            if (document.getElementById('form-cpf')) document.getElementById('form-cpf').value = client.cpf || '';
+            if (document.getElementById('form-rg')) document.getElementById('form-rg').value = client.rg || '';
+            if (document.getElementById('form-birthdate')) document.getElementById('form-birthdate').value = client.birthdate || '';
+            if (document.getElementById('form-phone')) document.getElementById('form-phone').value = client.phone || '';
+            if (document.getElementById('form-profession')) document.getElementById('form-profession').value = client.profession || '';
+            if (document.getElementById('form-address')) document.getElementById('form-address').value = client.address || '';
 
             renderChecklist();
-        }
-
-        function setInputValue(id, val) {
-            var el = document.getElementById(id);
-            if (el) el.value = val || '';
-        }
-
-        function prepareBlankRegistration() {
-            activeClientId = 'new_' + Date.now();
-            var newClient = {
-                id: activeClientId,
-                fullname: '',
-                cpf: '',
-                email: '',
-                phone: '',
-                status: 'Pendente',
-                docs: {}
-            };
-            clientsData.push(newClient);
-            loadClientIntoForm(activeClientId);
         }
 
         function openClientPortal(clientId) {
@@ -794,286 +725,270 @@
             switchView('cliente');
         }
 
-        function saveClientData() {
-            var client = clientsData.find(function(c) { return c.id === activeClientId; });
-            if (!client) {
-                client = { id: activeClientId, docs: {} };
-                clientsData.push(client);
-            }
-
-            client.fullname = getVal('form-fullname');
-            client.cpf = getVal('form-cpf');
-            client.email = getVal('form-email');
-            client.phone = getVal('form-phone');
-            client.birthdate = getVal('form-birthdate');
-            client.birthCity = getVal('form-birth-city');
-            client.birthState = getVal('form-birth-state');
-            client.rg = getVal('form-rg');
-            client.rgIssuer = getVal('form-rg-issuer');
-            client.rgDate = getVal('form-rg-date');
-            client.civilStatus = getVal('form-civil-status');
-            client.profession = getVal('form-profession');
-            client.voterCard = getVal('form-voter-card');
-            client.motherName = getVal('form-mother-name');
-            client.fatherName = getVal('form-father-name');
-            client.street = getVal('form-address-street');
-            client.district = getVal('form-address-district');
-            client.city = getVal('form-address-city');
-            client.state = getVal('form-address-state');
-            client.cep = getVal('form-address-cep');
-            client.crNumber = getVal('form-cr-number');
-
-            saveToLocalStorage();
-            showToast('Informações Cadastrais Salvas com Sucesso!');
-        }
-
-        function getVal(id) {
-            var el = document.getElementById(id);
-            return el ? el.value : '';
-        }
-
-        function submitProcessForReview() {
-            saveClientData();
-            var client = clientsData.find(function(c) { return c.id === activeClientId; });
-            if (client) {
-                client.status = 'Em Análise';
-                saveToLocalStorage();
-                showToast('Cadastro e Documentos Enviados com Sucesso!');
-                
-                if (!document.documentElement.classList.contains('mode-cliente-only')) {
-                    switchView('despachante');
-                }
-            }
-        }
-
         function renderChecklist() {
             const container = document.getElementById('checklist-items-container');
             if (!container) return;
             container.innerHTML = '';
 
-            const client = clientsData.find(function(c) { return c.id === activeClientId; }) || { docs: {} };
-            var uploadedCount = 0;
+            const client = clientsData.find(c => c.id === activeClientId);
+            if (!client) return;
+            if (!client.docs) client.docs = {};
 
-            REQUIRED_DOCUMENTS.forEach(function(doc, index) {
-                var docState = client.docs[doc.id] || { uploaded: false, fileName: '' };
+            let uploadedCount = 0;
+
+            REQUIRED_DOCUMENTS.forEach((doc, index) => {
+                const docState = client.docs[doc.id] || { uploaded: false, fileName: '' };
                 if (docState.uploaded) uploadedCount++;
 
-                var docCard = document.createElement('div');
-                docCard.className = 'p-4 rounded-xl border transition-all ' + (docState.uploaded ? 'bg-emerald-50/60 border-emerald-200' : 'bg-slate-50 border-slate-200');
+                const docCard = document.createElement('div');
+                docCard.className = `p-4 rounded-xl border transition-all ${
+                    docState.uploaded ? 'bg-emerald-50/60 border-emerald-200' : 'bg-slate-50 border-slate-200'
+                }`;
 
-                var btnAction = docState.uploaded ? 
-                    '<button onclick="removeDocument(\'' + doc.id + '\')" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium border border-red-200">Remover</button>' :
-                    '<button onclick="document.getElementById(\'file-' + doc.id + '\').click()" class="px-3 py-1.5 bg-white text-blue-600 border border-slate-300 rounded-lg text-xs font-medium shadow-sm flex items-center space-x-1"><i data-lucide="upload" class="w-3.5 h-3.5"></i><span>Anexar</span></button>';
+                docCard.innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 rounded-lg ${docState.uploaded ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'} mt-0.5">
+                                <i data-lucide="${docState.uploaded ? 'check' : 'file'}" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-xs sm:text-sm">${index + 1}. ${doc.name}</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">${doc.desc}</p>
+                                ${docState.uploaded ? `<span class="inline-flex items-center text-[11px] text-emerald-700 font-medium mt-1"><i data-lucide="paperclip" class="w-3 h-3 mr-1"></i> ${docState.fileName}</span>` : ''}
+                            </div>
+                        </div>
 
-                var fileTag = docState.uploaded ? '<span class="inline-flex items-center text-[11px] text-emerald-700 font-medium mt-1"><i data-lucide="paperclip" class="w-3 h-3 mr-1"></i> ' + docState.fileName + '</span>' : '';
+                        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end flex-wrap gap-y-1">
+                            ${doc.hasTemplate ? `
+                                <button onclick="generateDeclarationTemplate('${doc.templateType}')" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-lg text-xs font-medium shadow-sm transition-all flex items-center space-x-1" title="Gerar Minuta Pronta">
+                                    <i data-lucide="file-signature" class="w-3.5 h-3.5"></i>
+                                    <span>Gerar Modelo</span>
+                                </button>
+                            ` : ''}
 
-                docCard.innerHTML = '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">' +
-                    '<div class="flex items-start space-x-3">' +
-                    '<div class="p-2 rounded-lg ' + (docState.uploaded ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600') + ' mt-0.5">' +
-                    '<i data-lucide="' + (docState.uploaded ? 'check' : 'file') + '" class="w-4 h-4"></i>' +
-                    '</div>' +
-                    '<div>' +
-                    '<h4 class="font-bold text-slate-800 text-xs sm:text-sm">' + (index + 1) + '. ' + doc.name + '</h4>' +
-                    '<p class="text-xs text-slate-500 mt-0.5">' + doc.desc + '</p>' +
-                    fileTag +
-                    '</div>' +
-                    '</div>' +
-                    '<div class="flex items-center space-x-2">' +
-                    '<input type="file" id="file-' + doc.id + '" class="hidden" onchange="handleFileUpload(\'' + doc.id + '\', this)">' +
-                    btnAction +
-                    '</div>' +
-                    '</div>';
+                            <input type="file" id="file-${doc.id}" class="hidden" onchange="handleFileUpload('${doc.id}', this)">
+                            
+                            ${docState.uploaded ? `
+                                <button onclick="removeDocument('${doc.id}')" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-medium border border-red-200 transition-colors">
+                                    Remover
+                                </button>
+                            ` : `
+                                <button onclick="document.getElementById('file-${doc.id}').click()" class="px-3 py-1.5 bg-white hover:bg-blue-50 text-blue-600 border border-slate-300 rounded-lg text-xs font-medium shadow-sm transition-all flex items-center space-x-1">
+                                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                                    <span>Anexar Arquivo</span>
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
                 container.appendChild(docCard);
             });
 
-            var counterEl = document.getElementById('checklist-counter');
-            if (counterEl) counterEl.innerText = uploadedCount + ' / ' + REQUIRED_DOCUMENTS.length + ' Concluídos';
-            
-            var progressBar = document.getElementById('checklist-progress-bar');
-            if (progressBar) progressBar.style.width = ((uploadedCount / REQUIRED_DOCUMENTS.length) * 100) + '%';
+            if (document.getElementById('checklist-counter')) {
+                document.getElementById('checklist-counter').innerText = `${uploadedCount} / ${REQUIRED_DOCUMENTS.length} Concluídos`;
+            }
+            if (document.getElementById('checklist-progress-bar')) {
+                const progressPercent = (uploadedCount / REQUIRED_DOCUMENTS.length) * 100;
+                document.getElementById('checklist-progress-bar').style.width = `${progressPercent}%`;
+            }
 
             try { if (window.lucide) lucide.createIcons(); } catch(e) {}
         }
 
-        // COPIAR LINK DO CLIENTE
-        function copyClientLink() {
+        function generateOfficialDoc(docType) {
             const client = clientsData.find(c => c.id === activeClientId);
-            const clientName = client ? client.fullname : 'Cliente';
-            const clientPhone = client ? client.phone.replace(/\D/g, '') : '';
-            
-            const baseUrl = window.location.href.split('#')[0].split('?')[0];
-            const link = baseUrl + '?novo-cadastro=true';
-            
-            const inputEl = document.getElementById('modal-share-input');
-            if (inputEl) {
-                inputEl.value = link;
-                inputEl.dataset.phone = clientPhone;
-                inputEl.dataset.clientName = clientName;
+            if (!client) return;
+
+            const today = '04 de novembro de 2026';
+            let title = '';
+            let content = '';
+
+            if (docType === 'requerimento_sinarm') {
+                title = 'REQUERIMENTO PADRÃO SINARM (ANEXO I)';
+                content = `
+                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">MINISTÉRIO DA JUSTIÇA E SEGURANÇA PÚBLICA<br>POLÍCIA FEDERAL - SINARM</div>
+                    <p class="mb-4"><strong>1- TIPO DE REQUERIMENTO:</strong> (X) CONCESSÃO DE CR / REGISTRO</p>
+                    <p class="mb-2"><strong>Nome Completo:</strong> ${client.fullname || '---'}</p>
+                    <p class="mb-2"><strong>CPF:</strong> ${client.cpf || '---'} &nbsp;|&nbsp; <strong>RG:</strong> ${client.rg || '---'}</p>
+                    <p class="mb-2"><strong>Data de Nascimento:</strong> ${client.birthdate || '---'} &nbsp;|&nbsp; <strong>Profissão:</strong> ${client.profession || '---'}</p>
+                    <p class="mb-4"><strong>Endereço Residencial:</strong> ${client.address || ''}</p>
+                `;
+            } else if (docType === 'procuracao') {
+                title = 'INSTRUMENTO DE PROCURAÇÃO';
+                content = `
+                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">INSTRUMENTO DE PROCURAÇÃO</div>
+                    <p class="mb-4 text-justify"><strong>OUTORGANTE:</strong> ${client.fullname || '---'}, brasileiro(a), portador(a) do RG nº ${client.rg || '---'} e CPF nº ${client.cpf || '---'}, residente à ${client.address || ''}.</p>
+                    <p class="mb-4 text-justify"><strong>OUTORGADO:</strong> WAGNER LIMA CONSULTORIA BÉLICA, representado por WAGNER SANTOS LIMA, despachante documental com escritório na Rua Afonso Pena, 2701, Sala 107, Centro - Governador Valadares - MG.</p>
+                `;
+            } else if (docType === 'idoneidade') {
+                title = 'DECLARAÇÃO DE IDONEIDADE';
+                content = `
+                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">DECLARAÇÃO DE IDONEIDADE</div>
+                    <p class="mb-4 text-justify">Eu, <strong>${client.fullname || '---'}</strong>, CPF nº <strong>${client.cpf || '---'}</strong>, RG nº <strong>${client.rg || '---'}</strong>, residente à ${client.address || ''}, DECLARO para os devidos fins de direito, sob as penas da Lei, que não respondo a inquérito policial ou processo criminal.</p>
+                `;
+            } else if (docType === 'residencia_atual') {
+                title = 'DECLARAÇÃO DE RESIDÊNCIA ATUAL (TERCEIROS)';
+                content = `
+                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">DECLARAÇÃO DE RESIDÊNCIA ATUAL (TERCEIROS)</div>
+                    <p class="mb-4 text-justify">Eu, JOSE CARLOS ANDRADE, portador da identidade nº 63135825604 (PC MG), CPF nº 552.705.146-72, declaro para os devidos fins que o(a) senhor(a) <strong>${client.fullname || '---'}</strong>, CPF nº <strong>${client.cpf || '---'}</strong>, reside no endereço de minha titularidade localizado à ${client.address || ''}.</p>
+                `;
+            } else if (docType === 'residencia_5anos') {
+                title = 'DECLARAÇÃO DE RESIDÊNCIA (ÚLT. 5 ANOS)';
+                content = `
+                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">DECLARAÇÃO DE RESIDÊNCIA (ÚLTIMOS 5 ANOS)</div>
+                    <p class="mb-4 text-justify">Eu, ROSILENE GONÇALVES PEREIRA, portadora do RG M168211 e CPF 552.705.146-72, declaro que o(a) Sr(a). <strong>${client.fullname || '---'}</strong> residiu nos endereços indicados nos últimos 5 anos.</p>
+                `;
+            } else if (docType === 'termo_doacao') {
+                title = 'TERMO DE DOAÇÃO DE ARMA DE FOGO';
+                content = `
+                    <div class="text-center font-bold text-base mb-6 uppercase border-b pb-2">TERMO DE DOAÇÃO DE ARMA DE FOGO</div>
+                    <p class="mb-4 text-justify">Alienante: ADILSON BATISTA DA SILVA JUNIOR, CPF 119.047.096-99.<br>Adquirente: <strong>${client.fullname || '---'}</strong>, CPF <strong>${client.cpf || '---'}</strong>.</p>
+                `;
             }
 
-            const clientNameSpan = document.getElementById('modal-share-client-name');
-            if (clientNameSpan) clientNameSpan.innerText = clientName;
+            const footer = `
+                <div class="mt-12 text-center space-y-8">
+                    <p>TARUMIRIM - MG, ${today}</p>
+                    <div class="pt-8 border-t border-black max-w-md mx-auto">
+                        <p class="font-bold">${client.fullname || 'Assinatura'}</p>
+                        <p class="text-xs">CPF: ${client.cpf || ''}</p>
+                    </div>
+                </div>
+            `;
 
-            const modal = document.getElementById('share-link-modal');
-            if (modal) modal.classList.remove('hidden');
-            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+            if (document.getElementById('decl-modal-title')) document.getElementById('decl-modal-title').innerText = title;
+            if (document.getElementById('decl-modal-body')) document.getElementById('decl-modal-body').innerHTML = content + footer;
+            if (document.getElementById('declaration-modal')) document.getElementById('declaration-modal').classList.remove('hidden');
         }
 
-        function copyAppAccessLink() {
-            // URL oficial principal do App no GitHub Pages para acesso administrativo
-            const link = 'https://waglima01-bit.github.io/gestor-cr-pf/';
-            
-            const inputEl = document.getElementById('modal-share-input');
-            if (inputEl) {
-                inputEl.value = link;
-                inputEl.dataset.phone = '';
-                inputEl.dataset.clientName = 'Painel Administrativo do Despachante';
-            }
-
-            const clientNameSpan = document.getElementById('modal-share-client-name');
-            if (clientNameSpan) clientNameSpan.innerText = 'Painel do Despachante (Acesso Geral)';
-
-            const modal = document.getElementById('share-link-modal');
-            if (modal) modal.classList.remove('hidden');
-            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+        function closeDeclarationModal() {
+            if (document.getElementById('declaration-modal')) document.getElementById('declaration-modal').classList.add('hidden');
         }
 
-        function copyNewRegistrationLink() {
-            const link = 'https://waglima01-bit.github.io/gestor-cr-pf/#/cadastro';
-            
-            const inputEl = document.getElementById('modal-share-input');
-            if (inputEl) {
-                inputEl.value = link;
-                inputEl.dataset.phone = '';
-                inputEl.dataset.clientName = 'Novo Requerente';
-            }
-
-            const clientNameSpan = document.getElementById('modal-share-client-name');
-            if (clientNameSpan) clientNameSpan.innerText = 'Novo Requerente (Cadastro em Branco)';
-
-            const modal = document.getElementById('share-link-modal');
-            if (modal) modal.classList.remove('hidden');
-            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+        function printDeclaration() {
+            window.print();
         }
 
-        function copyAppAccessLink() {
-            const link = 'https://waglima01-bit.github.io/gestor-cr-pf/';
-            
-            const inputEl = document.getElementById('modal-share-input');
-            if (inputEl) {
-                inputEl.value = link;
-                inputEl.dataset.phone = '';
-                inputEl.dataset.clientName = 'Painel Administrativo do Despachante';
-            }
-
-            const clientNameSpan = document.getElementById('modal-share-client-name');
-            if (clientNameSpan) clientNameSpan.innerText = 'Acesso ao Painel do Despachante';
-
-            const modal = document.getElementById('share-link-modal');
-            if (modal) modal.classList.remove('hidden');
-            try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+        function generateDeclarationTemplate(type) {
+            generateOfficialDoc(type === 'requerimento' ? 'requerimento_sinarm' : type === 'endereco' ? 'residencia_atual' : type === 'idoneidade' ? 'idoneidade' : type === 'habitualidade' ? 'requerimento_sinarm' : 'requerimento_sinarm');
         }
 
-        function closeShareModal() {
-            var mSh = document.getElementById('share-link-modal');
-            if (mSh) mSh.classList.add('hidden');
-        }
-
-        function copyModalInput() {
-            const inputEl = document.getElementById('modal-share-input');
-            if (!inputEl) return;
-            inputEl.select();
-            inputEl.setSelectionRange(0, 99999);
-
-            try {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(inputEl.value).then(function() {
-                        showToast('Link copiado com sucesso!');
-                    }).catch(function() {
-                        fallbackCopy(inputEl);
-                    });
-                } else {
-                    fallbackCopy(inputEl);
+        function handleFileUpload(docId, inputElement) {
+            if (inputElement.files && inputElement.files[0]) {
+                const fileName = inputElement.files[0].name;
+                const client = clientsData.find(c => c.id === activeClientId);
+                if (client) {
+                    if (!client.docs) client.docs = {};
+                    client.docs[docId] = { uploaded: true, fileName: fileName };
+                    renderChecklist();
+                    showToast(`Documento "${fileName}" anexado!`);
                 }
-            } catch (err) {
-                fallbackCopy(inputEl);
             }
         }
 
-        function fallbackCopy(inputEl) {
-            try {
-                inputEl.focus();
-                inputEl.select();
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showToast('Link copiado para a área de transferência!');
-                } else {
-                    showToast('Pressione Ctrl+C para copiar o link.');
-                }
-            } catch (err) {
-                showToast('Pressione Ctrl+C para copiar o link.');
+        function removeDocument(docId) {
+            const client = clientsData.find(c => c.id === activeClientId);
+            if (client && client.docs) {
+                client.docs[docId] = { uploaded: false, fileName: '' };
+                renderChecklist();
+                showToast('Documento removido.');
             }
         }
 
-        function sendViaWhatsApp() {
-            var inputEl = document.getElementById('modal-share-input');
-            var link = inputEl ? inputEl.value : '';
-            var text = encodeURIComponent('Olá, segue o link para preenchimento da sua ficha de cadastro de Concessão de CR (Polícia Federal):\n\n' + link);
-            window.open('https://wa.me/?text=' + text, '_blank');
+        function saveClientData() {
+            const client = clientsData.find(c => c.id === activeClientId);
+            if (client) {
+                if (document.getElementById('form-fullname')) client.fullname = document.getElementById('form-fullname').value;
+                if (document.getElementById('form-cpf')) client.cpf = document.getElementById('form-cpf').value;
+                if (document.getElementById('form-rg')) client.rg = document.getElementById('form-rg').value;
+                if (document.getElementById('form-birthdate')) client.birthdate = document.getElementById('form-birthdate').value;
+                if (document.getElementById('form-phone')) client.phone = document.getElementById('form-phone').value;
+                if (document.getElementById('form-profession')) client.profession = document.getElementById('form-profession').value;
+                if (document.getElementById('form-address')) client.address = document.getElementById('form-address').value;
+
+                if (document.getElementById('current-client-name')) document.getElementById('current-client-name').innerText = client.fullname;
+                if (document.getElementById('current-client-cpf')) document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf}`;
+                showToast('Informações cadastradas salvas com sucesso!');
+            }
+        }
+
+        function submitProcessForReview() {
+            saveClientData();
+            const client = clientsData.find(c => c.id === activeClientId);
+            if (client) {
+                client.status = 'Pronto';
+                showToast('Processo finalizado e enviado para o painel!');
+                switchView('despachante');
+            }
         }
 
         function markAsDeferido(clientId) {
-            var client = clientsData.find(function(c) { return c.id === clientId; });
+            const client = clientsData.find(c => c.id === clientId);
             if (client) {
                 client.status = 'Deferido';
-                saveToLocalStorage();
                 renderDashboard();
-                showToast('Processo de ' + client.fullname + ' marcado como DEFERIDO!');
+                showToast(`Processo de ${client.fullname} marcado como DEFERIDO!`);
             }
         }
 
+        function deleteClient(clientId) {
+            const index = clientsData.findIndex(c => c.id === clientId);
+            if (index !== -1) {
+                const clientName = clientsData[index].fullname;
+                clientsData.splice(index, 1);
+                renderDashboard();
+                showToast(`Cadastro de "${clientName}" excluído com sucesso!`);
+            }
+        }
+
+        function printSummary() {
+            window.print();
+        }
+
         function createNewClient() {
-            var mNew = document.getElementById('new-client-modal');
-            if (mNew) mNew.classList.remove('hidden');
-        }
-
-        function closeNewClientModal() {
-            var mNew = document.getElementById('new-client-modal');
-            if (mNew) mNew.classList.add('hidden');
-        }
-
-        function saveNewClientModal() {
-            var name = getVal('modal-name');
-            var cpf = getVal('modal-cpf');
-            var phone = getVal('modal-phone');
-
-            var newId = Date.now().toString();
-            var newClient = {
+            const newId = (clientsData.length + 1).toString();
+            const newClient = {
                 id: newId,
-                fullname: name,
-                cpf: cpf,
-                phone: phone,
+                fullname: 'Novo Cliente',
+                cpf: '',
+                rg: '',
+                phone: '',
                 status: 'Pendente',
                 docs: {}
             };
             clientsData.push(newClient);
-            saveToLocalStorage();
-            closeNewClientModal();
+            renderDashboard();
             openClientPortal(newId);
+            showToast('Novo processo criado!');
         }
 
-        function openNormsModal() {
-            var mNr = document.getElementById('norms-modal');
-            if (mNr) mNr.classList.remove('hidden');
+        function copyClientLink() {
+            const baseUrl = window.location.href.split('?')[0].split('#')[0];
+            const link = baseUrl + '?novo-cadastro=true';
+            try {
+                navigator.clipboard.writeText(link);
+                showToast('Link de novo cadastro copiado para o WhatsApp!');
+            } catch(e) {
+                showToast('Link: ' + link);
+            }
         }
-        function closeNormsModal() {
-            var mNr = document.getElementById('norms-modal');
-            if (mNr) mNr.classList.add('hidden');
+
+        function copyAppLink() {
+            const baseUrl = window.location.href.split('?')[0].split('#')[0];
+            try {
+                navigator.clipboard.writeText(baseUrl);
+                showToast('Link de acesso do app copiado com sucesso!');
+            } catch(e) {
+                showToast('Link: ' + baseUrl);
+            }
         }
-        function filterClients() { renderDashboard(); }
+
+        function filterClients() {
+            renderDashboard();
+        }
 
         function formatCPF(input) {
-            var v = input.value.replace(/\D/g, '');
+            let v = input.value.replace(/\D/g, '');
             if (v.length > 11) v = v.substring(0, 11);
             v = v.replace(/(\d{3})(\d)/, '$1.$2');
             v = v.replace(/(\d{3})(\d)/, '$1.$2');
@@ -1082,19 +997,22 @@
         }
 
         function getInitials(name) {
-            if (!name) return 'AD';
-            var parts = name.trim().split(' ');
-            return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
+            if (!name) return 'MM';
+            const parts = name.trim().split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
         }
 
         function showToast(message) {
-            var toast = document.getElementById('toast');
-            var toastMsg = document.getElementById('toast-message');
-            if (toastMsg) toastMsg.innerText = message;
-            if (toast) {
-                toast.classList.remove('translate-y-20', 'opacity-0');
-                setTimeout(function() { toast.classList.add('translate-y-20', 'opacity-0'); }, 3500);
-            }
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
         }
     </script>
 </body>
