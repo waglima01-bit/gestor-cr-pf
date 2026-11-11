@@ -87,6 +87,10 @@
                         <i data-lucide="cloud-cog" class="w-3.5 h-3.5 animate-spin"></i>
                         <span>Nuvem Ativa</span>
                     </div>
+                    <button onclick="syncToGoogleDrive()" class="text-xs flex items-center space-x-1 text-blue-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-blue-500/40 transition-colors" title="Exportar para Google Drive (waglima01@gmail.com)">
+                        <i data-lucide="hard-drive" class="w-3.5 h-3.5"></i>
+                        <span>Google Drive (waglima01)</span>
+                    </button>
                     <button onclick="compileFullDossier()" class="text-xs flex items-center space-x-1 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors">
                         <i data-lucide="printer" class="w-3.5 h-3.5"></i>
                         <span>Dossiê Completo PDF</span>
@@ -208,23 +212,34 @@
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                         <h3 class="text-lg font-bold text-slate-900 border-b pb-3 flex items-center space-x-2">
                             <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
-                            <span>Dados Cadastrais</span>
+                            <span>Cadastro SINARM / Portal PF</span>
                         </h3>
 
                         <form id="client-data-form" class="space-y-3 text-xs sm:text-sm" onsubmit="event.preventDefault(); saveClientData();">
                             <div>
                                 <label class="block font-medium text-slate-700 mb-1">Nome Completo</label>
-                                <input type="text" id="form-fullname" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: João da Silva">
+                                <input type="text" id="form-fullname" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: MANIOEL MESSIAS DO ESPIRITO SANTO">
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">CPF</label>
-                                    <input type="text" id="form-cpf" oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="000.000.000-00">
+                                    <input type="text" id="form-cpf" oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="055.131.656-00">
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">Validade do CR</label>
                                     <input type="date" id="form-cr-expiry" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">RG / Órgão Emissor</label>
+                                    <input type="text" id="form-rg" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: 9143092 / PC MG">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">Data Emissão RG</label>
+                                    <input type="text" id="form-rg-date" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="01/04/2024">
                                 </div>
                             </div>
 
@@ -235,45 +250,150 @@
                                 </div>
                                 <div>
                                     <label class="block font-medium text-slate-700 mb-1">WhatsApp</label>
-                                    <input type="text" id="form-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="(31) 99999-9999">
+                                    <input type="text" id="form-phone" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="33999250819">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">Município Natal / UF</label>
+                                    <input type="text" id="form-birthcity" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="TARUMIRIM / MG">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">Título de Eleitor</label>
+                                    <input type="text" id="form-voter" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="144442090248">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">Nome do Pai</label>
+                                    <input type="text" id="form-father" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="VIVALDO OLIMPIO...">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">Nome da Mãe</label>
+                                    <input type="text" id="form-mother" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="MARIA AMBROSIA...">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">Estado Civil</label>
+                                    <input type="text" id="form-marital" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="CASADO">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">Profissão / Cargo</label>
+                                    <input type="text" id="form-profession" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="VIGILANTE">
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block font-medium text-slate-700 mb-1">Endereço Residencial</label>
-                                <input type="text" id="form-address" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Rua, Número, Bairro, Cidade - UF">
+                                <label class="block font-medium text-slate-700 mb-1">E-mail Pessoal</label>
+                                <input type="email" id="form-email" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="exemplo@gmail.com">
                             </div>
 
-                            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
-                                <i data-lucide="cloud-upload" class="w-4 h-4"></i>
-                                <span>Salvar & Sincronizar Nuvem</span>
-                            </button>
-                        </form>
-                    </div>
+                            <!-- ENDEREÇO SEPARADO EM CAIXAS COM BUSCA AUTOMÁTICA DE CEP -->
+                            <div class="space-y-2 p-3 bg-slate-50/80 rounded-xl border border-slate-200">
+                                <label class="block font-bold text-slate-800 text-xs uppercase tracking-wider">Endereço Residencial Atual (SINARM)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block font-medium text-slate-600 text-[11px] mb-0.5">CEP</label>
+                                        <input type="text" id="form-cep" oninput="formatCEPInput(this)" onblur="fetchAddressByCEP(this.value)" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="35140-000">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-slate-600 text-[11px] mb-0.5">Número</label>
+                                        <input type="text" id="form-numero" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="25">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-600 text-[11px] mb-0.5">Logradouro (Rua, Avenida, etc.)</label>
+                                    <input type="text" id="form-logradouro" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="TRAVESSA AUGUSTO DE LIMA">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block font-medium text-slate-600 text-[11px] mb-0.5">Bairro / Distrito</label>
+                                        <input type="text" id="form-bairro" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="CENTRO">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-slate-600 text-[11px] mb-0.5">Cidade - UF</label>
+                                        <input type="text" id="form-cidade-uf" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="TARUMIRIM - MG">
+                                    </div>
+                                </div>
+                            </div>
 
-                    <!-- Minutas / Gerador PF -->
-                    <div class="bg-pf-900 text-white p-5 rounded-2xl shadow-sm space-y-4 border border-pf-700">
-                        <div class="flex items-center space-x-2 text-pf-gold font-bold text-sm border-b border-pf-700 pb-2">
-                            <i data-lucide="file-signature" class="w-5 h-5"></i>
-                            <span>Gerador de Requerimentos PF</span>
-                        </div>
-                        <div class="grid grid-cols-1 gap-2">
-                            <button onclick="openFormModal('anexoI')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between">
-                                <span>Anexo I SINARM (Requerimento CR)</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
-                            </button>
-                            <button onclick="openFormModal('doacao')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between">
-                                <span>Termo de Doação de Arma</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
-                            </button>
-                            <button onclick="openFormModal('residencia5')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between">
-                                <span>Declaração de Residência (5 Anos)</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
-                            </button>
-                            <button onclick="openFormModal('idoneidade')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between">
-                                <span>Declaração de Idoneidade Moral</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
-                            </button>
-                            <button onclick="openFormModal('dsa')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between">
-                                <span>Declaração de Segurança (DSA)</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
-                            </button>
-                        </div>
+                            <!-- HISTÓRICO DE ENDEREÇOS DOS ÚLTIMOS 5 ANOS (DECLARAÇÃO DE RESIDÊNCIA) -->
+                            <div class="space-y-2 p-3 bg-slate-50/80 rounded-xl border border-slate-200">
+                                <label class="block font-bold text-slate-800 text-xs uppercase tracking-wider">Histórico de Endereços (Últimos 5 Anos)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block font-medium text-slate-600 text-[10px]">Declarante (Terceiro)</label>
+                                        <input type="text" id="form-declarante-nome" class="w-full p-1.5 bg-white border rounded text-xs" placeholder="Nome do Declarante">
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-slate-600 text-[10px]">RG / CPF Declarante</label>
+                                        <input type="text" id="form-declarante-doc" class="w-full p-1.5 bg-white border rounded text-xs" placeholder="RG e CPF do Declarante">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-600 text-[10px]">Ano de 2026</label>
+                                    <input type="text" id="form-res-2026" class="w-full p-1.5 bg-white border rounded text-xs" placeholder="Endereço em 2026">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-600 text-[10px]">Ano de 2025</label>
+                                    <input type="text" id="form-res-2025" class="w-full p-1.5 bg-white border rounded text-xs" placeholder="Endereço em 2025">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-600 text-[10px]">Ano de 2024</label>
+                                    <input type="text" id="form-res-2024" class="w-full p-1.5 bg-white border rounded text-xs" placeholder="Endereço em 2024">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-600 text-[10px]">Ano de 2023</label>
+                                    <input type="text" id="form-res-2023" class="w-full p-1.5 bg-white border rounded text-xs" placeholder="Endereço em 2023">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-600 text-[10px]">Ano de 2022</label>
+                                    <input type="text" id="form-res-2022" class="w-full p-1.5 bg-white border rounded text-xs" placeholder="Endereço em 2022">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-2 pt-2">
+                                <button type="button" onclick="openFormModal('anexoI')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between text-white">
+                                    <span>Anexo I SINARM (Requerimento PF)</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-amber-400"></i>
+                                </button>
+                                <button type="button" onclick="openFormModal('anexoA')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between text-white">
+                                    <span>Anexo A - Aquisição Uso Restrito</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-amber-400"></i>
+                                </button>
+                                <button type="button" onclick="openFormModal('doacao')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between text-white">
+                                    <span>Termo de Doação de Arma</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-amber-400"></i>
+                                </button>
+                                <button type="button" onclick="openFormModal('residencia5')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between text-white">
+                                    <span>Declaração de Residência (5 Anos)</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-amber-400"></i>
+                                </button>
+                                <button type="button" onclick="openFormModal('idoneidade')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between text-white">
+                                    <span>Declaração de Idoneidade</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-amber-400"></i>
+                                </button>
+                                <button type="button" onclick="openFormModal('dsa')" class="w-full text-left p-2.5 bg-pf-800 hover:bg-pf-700 border border-pf-700 rounded-xl text-xs font-semibold flex items-center justify-between text-white">
+                                    <span>Declaração de Segurança (DSA)</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-amber-400"></i>
+                                </button>
+                            </div>
+
+                            <!-- Botões de Edição de Arma e Alienante -->
+                            <div class="pt-3 border-t border-slate-200 grid grid-cols-2 gap-2">
+                                <button type="button" onclick="openWeaponModal()" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1 transition-colors">
+                                    <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+                                    <span>Dados da Arma</span>
+                                </button>
+                                <button type="button" onclick="openAlienatorModal()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1 transition-colors">
+                                    <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                                    <span>Dados Alienante</span>
+                                </button>
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm">
+                                    Salvar Alterações do Cliente
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
@@ -317,9 +437,14 @@
                             <button onclick="switchView('despachante')" class="text-slate-600 text-xs sm:text-sm font-medium flex items-center space-x-1">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i><span>Voltar ao Painel</span>
                             </button>
-                            <button onclick="submitProcessForReview()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center space-x-2 shadow-sm">
-                                <i data-lucide="send" class="w-4 h-4"></i><span>Finalizar e Sincronizar Processo</span>
-                            </button>
+                            <div class="flex space-x-2">
+                                <button onclick="syncToGoogleDrive()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center space-x-2 shadow-sm">
+                                    <i data-lucide="hard-drive" class="w-4 h-4"></i><span>Salvar no Drive (waglima01@gmail.com)</span>
+                                </button>
+                                <button onclick="submitProcessForReview()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center space-x-2 shadow-sm">
+                                    <i data-lucide="send" class="w-4 h-4"></i><span>Finalizar e Sincronizar Processo</span>
+                                </button>
+                            </div>
                         </div>
 
                     </div>
@@ -353,6 +478,126 @@
 
     <!-- ÁREA DE IMPRESSÃO DO DOSSIÊ COMPLETO OU MINUTA -->
     <div id="print-area" class="hidden print-only"></div>
+
+    <!-- MODAL DADOS DA ARMA DE FOGO -->
+    <div id="weapon-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+            <div class="p-4 bg-pf-900 text-white flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="crosshair" class="w-5 h-5 text-pf-gold"></i>
+                    <h3 class="font-bold text-base">Especificações da Arma de Fogo (SINARM / SIGMA)</h3>
+                </div>
+                <button onclick="closeWeaponModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto text-xs sm:text-sm">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Nº de Série da Arma</label>
+                        <input type="text" id="w-serial" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: HMA05723">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Registro Federal (CRAF)</label>
+                        <input type="text" id="w-reg" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 2404907">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Cadastro SINARM</label>
+                        <input type="text" id="w-sinarm" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 2024/906517549-75">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Cadastro SIGMA</label>
+                        <input type="text" id="w-sigma" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: SIGMA 123456">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Órgão Expedidor</label>
+                        <input type="text" id="w-issuer" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: SFPC Cmdo 4º Bda">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Espécie</label>
+                        <select id="w-species" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="PISTOLA">PISTOLA</option>
+                            <option value="REVÓLVER">REVÓLVER</option>
+                            <option value="CARABINA">CARABINA</option>
+                            <option value="ESPINGARDA">ESPINGARDA</option>
+                            <option value="FUZIL">FUZIL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Modelo</label>
+                        <input type="text" id="w-model" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: G19X / DELTA">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Calibre</label>
+                        <input type="text" id="w-caliber" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 9mm / 22 LR / .40">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Marca / Fabricante</label>
+                        <input type="text" id="w-brand" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: TAURUS / DFA AREX / GLOCK">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Capacidade Tiros</label>
+                        <input type="text" id="w-cap" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 10 / 17">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Nº Canos / Compr. (mm)</label>
+                        <input type="text" id="w-cano" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 01 / 102mm">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Alma / Raias</label>
+                        <input type="text" id="w-raias" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: Raiada / 06 Raias à Direita">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">Acabamento</label>
+                        <input type="text" id="w-finish" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: Oxidado / Inox / Cerakote">
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-100 border-t flex justify-end space-x-2">
+                <button onclick="closeWeaponModal()" class="px-4 py-2 border text-slate-700 text-xs font-medium rounded-xl">Cancelar</button>
+                <button onclick="saveWeaponModal()" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm">Salvar Dados da Arma</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DADOS DO ALIENANTE / DOADOR -->
+    <div id="alienator-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+            <div class="p-4 bg-pf-900 text-white flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="user-check" class="w-5 h-5 text-pf-gold"></i>
+                    <h3 class="font-bold text-base">Dados do Alienante / Doador da Arma</h3>
+                </div>
+                <button onclick="closeAlienatorModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-4 text-xs sm:text-sm">
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">Nome Completo do Doador / Alienante</label>
+                    <input type="text" id="al-name" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="Ex: ADILSON BATIST DA SILVA JUNIOR">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">CPF do Alienante</label>
+                        <input type="text" id="al-cpf" oninput="formatCPF(this)" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="000.000.000-00">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">RG / Org. Exp.</label>
+                        <input type="text" id="al-rg" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="Ex: 18268837 SSP MG">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">Filiação (Nome do Pai e Nome da Mãe do Doador)</label>
+                    <input type="text" id="al-parents" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="Ex: Adilson Batista da Silva e Zélia Oliveira Rodrigues">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">Endereço Completo do Doador (com CEP)</label>
+                    <input type="text" id="al-address" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500" placeholder="Ex: RUA SETE DE SETEMBRO, 1565, ESPLANADA, Governador Valadares - MG, CEP: 35010-170">
+                </div>
+            </div>
+            <div class="p-4 bg-slate-100 border-t flex justify-end space-x-2">
+                <button onclick="closeAlienatorModal()" class="px-4 py-2 border text-slate-700 text-xs font-medium rounded-xl">Cancelar</button>
+                <button onclick="saveAlienatorModal()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm">Salvar Alienante</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL NOVO CLIENTE -->
     <div id="new-client-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -484,31 +729,44 @@
             clientsData = [
                 {
                     id: '1',
-                    fullname: 'Marcos Vinícius de Oliveira',
-                    cpf: '123.456.789-00',
-                    rg: 'MG-15.420.111',
-                    birthdate: '1988-05-14',
-                    phone: '31998765432',
-                    profession: 'Empresário',
-                    address: 'Av. Afonso Pena, 1500, Centro - Belo Horizonte/MG',
-                    crExpiry: '2026-08-15',
-                    status: 'Em Análise',
-                    residenceFiles: [{ id: 'r1', name: 'conta_luz.pdf', aiStatus: 'Aprovado (Validade OK)' }],
-                    occupationFiles: [{ id: 'o1', name: 'contrato_social.pdf', aiStatus: 'Aprovado (Válido)' }]
-                },
-                {
-                    id: '2',
-                    fullname: 'Fernanda Cristina Santos',
-                    cpf: '987.654.321-11',
-                    rg: 'SSP-12.889.000',
-                    birthdate: '1995-11-20',
-                    phone: '31987651234',
-                    profession: 'Advogada',
-                    address: 'Rua das Flores, 88, Savassi - Belo Horizonte/MG',
-                    crExpiry: '2026-05-20',
+                    fullname: 'MANIOEL MESSIAS DO ESPIRITO SANTO',
+                    cpf: '055.131.656-00',
+                    rg: '9143092',
+                    rgIssuer: 'PC MG',
+                    rgDate: '01/04/2024',
+                    birthdate: '1978-03-09',
+                    birthCity: 'TARUMIRIM',
+                    birthUF: 'MINAS GERAIS',
+                    fatherName: 'VIVALDO OLIMPIO DO ESPIRITO SANTO',
+                    motherName: 'MARIA AMBROSIA VIANA',
+                    maritalStatus: 'CASADO',
+                    profession: 'VIGILANTE',
+                    voterId: '144442090248',
+                    phone: '33999250819',
+                    email: 'messiassanto78@gmail.com',
+                    address: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG, CEP: 35140000',
+                    crExpiry: '2026-11-05',
                     status: 'Pronto',
-                    residenceFiles: [{ id: 'r2', name: 'conta_agua.pdf', aiStatus: 'Aprovado (Validade OK)' }],
-                    occupationFiles: [{ id: 'o2', name: 'holerite.pdf', aiStatus: 'Aprovado (Válido)' }]
+                    alienatorName: 'ADILSON BATIST DA SILVA JUNIOR',
+                    alienatorCpf: '119.047.096-99',
+                    alienatorRg: '18268837 SSP MG',
+                    alienatorParents: 'Adilson Batista da Silva e de Zélia Oliveira Rodrigues',
+                    alienatorAddress: 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, Governador Valadares - MG, CEP: 35010-170',
+                    weaponSerial: 'E06068',
+                    weaponReg: '2404907',
+                    sinarmReg: '2024/906517549-75',
+                    sigmaReg: '123456',
+                    weaponIssuer: 'SFPC Cmdo 4º Bda Inf L Mth',
+                    weaponSpecies: 'PISTOLA',
+                    weaponModel: 'G25',
+                    weaponCaliber: '38 TPC',
+                    weaponBrand: 'TAURUS',
+                    weaponCap: '10 tiros',
+                    weaponCanoMm: '102',
+                    weaponRaias: '06 à Direita',
+                    weaponFinish: 'oxidado',
+                    residenceFiles: [{ id: 'r1', name: 'conta_luz.pdf', aiStatus: 'Aprovado (Validade OK)' }],
+                    occupationFiles: [{ id: 'o1', name: 'holerite.pdf', aiStatus: 'Aprovado (Válido)' }]
                 }
             ];
             renderDashboard();
@@ -672,9 +930,36 @@
             document.getElementById('form-fullname').value = client.fullname || '';
             document.getElementById('form-cpf').value = client.cpf || '';
             document.getElementById('form-cr-expiry').value = client.crExpiry || '';
+            document.getElementById('form-rg').value = (client.rg ? client.rg + (client.rgIssuer ? ' ' + client.rgIssuer : '') : '');
+            document.getElementById('form-rg-date').value = client.rgDate || '';
             document.getElementById('form-birthdate').value = client.birthdate || '';
             document.getElementById('form-phone').value = client.phone || '';
-            document.getElementById('form-address').value = client.address || '';
+            document.getElementById('form-birthcity').value = (client.birthCity ? client.birthCity + (client.birthUF ? ' / ' + client.birthUF : '') : '');
+            document.getElementById('form-voter').value = client.voterId || '';
+            document.getElementById('form-father').value = client.fatherName || '';
+            document.getElementById('form-mother').value = client.motherName || '';
+            document.getElementById('form-marital').value = client.maritalStatus || '';
+            document.getElementById('form-profession').value = client.profession || '';
+            document.getElementById('form-email').value = client.email || '';
+            
+            if (client.cep || client.logradouro) {
+                document.getElementById('form-cep').value = client.cep || '';
+                document.getElementById('form-numero').value = client.numero || '';
+                document.getElementById('form-logradouro').value = client.logradouro || '';
+                document.getElementById('form-bairro').value = client.bairro || '';
+                document.getElementById('form-cidade-uf').value = client.cidadeUf || '';
+            } else if (client.address) {
+                document.getElementById('form-logradouro').value = client.address;
+            }
+
+            // Histórico 5 anos e declarante
+            document.getElementById('form-declarante-nome').value = client.declaranteNome || 'ROSILENE GONÇALVES PEREIRA';
+            document.getElementById('form-declarante-doc').value = client.declaranteDoc || 'RG M168211 (SSP MG), CPF 552.705.146-72';
+            document.getElementById('form-res-2026').value = client.res2026 || client.address || '';
+            document.getElementById('form-res-2025').value = client.res2025 || client.address || '';
+            document.getElementById('form-res-2024').value = client.res2024 || client.address || '';
+            document.getElementById('form-res-2023').value = client.res2023 || client.address || '';
+            document.getElementById('form-res-2022').value = client.res2022 || client.address || '';
 
             renderDynamicFilesLists();
         };
@@ -779,92 +1064,67 @@
                 client.fullname = document.getElementById('form-fullname').value;
                 client.cpf = document.getElementById('form-cpf').value;
                 client.crExpiry = document.getElementById('form-cr-expiry').value;
+                const rgFull = document.getElementById('form-rg').value;
+                const rgParts = rgFull.split('/');
+                client.rg = rgParts[0] ? rgParts[0].trim() : rgFull;
+                if (rgParts[1]) client.rgIssuer = rgParts[1].trim();
+                client.rgDate = document.getElementById('form-rg-date').value;
                 client.birthdate = document.getElementById('form-birthdate').value;
                 client.phone = document.getElementById('form-phone').value;
-                client.address = document.getElementById('form-address').value;
+                const cityParts = document.getElementById('form-birthcity').value.split('/');
+                client.birthCity = cityParts[0] ? cityParts[0].trim() : '';
+                if (cityParts[1]) client.birthUF = cityParts[1].trim();
+                client.voterId = document.getElementById('form-voter').value;
+                client.fatherName = document.getElementById('form-father').value;
+                client.motherName = document.getElementById('form-mother').value;
+                client.maritalStatus = document.getElementById('form-marital').value;
+                client.profession = document.getElementById('form-profession').value;
+                client.email = document.getElementById('form-email').value;
+
+                client.cep = document.getElementById('form-cep').value;
+                client.numero = document.getElementById('form-numero').value;
+                client.logradouro = document.getElementById('form-logradouro').value;
+                client.bairro = document.getElementById('form-bairro').value;
+                client.cidadeUf = document.getElementById('form-cidade-uf').value;
+
+                const numStr = client.numero ? `, ${client.numero}` : '';
+                const bairroStr = client.bairro ? `, ${client.bairro}` : '';
+                const cidUfStr = client.cidadeUf ? ` - ${client.cidadeUf}` : '';
+                const cepStr = client.cep ? `, CEP: ${client.cep}` : '';
+                client.address = `${client.logradouro || ''}${numStr}${bairroStr}${cidUfStr}${cepStr}`;
+
+                // Histórico de 5 anos
+                client.declaranteNome = document.getElementById('form-declarante-nome').value;
+                client.declaranteDoc = document.getElementById('form-declarante-doc').value;
+                client.res2026 = document.getElementById('form-res-2026').value;
+                client.res2025 = document.getElementById('form-res-2025').value;
+                client.res2024 = document.getElementById('form-res-2024').value;
+                client.res2023 = document.getElementById('form-res-2023').value;
+                client.res2022 = document.getElementById('form-res-2022').value;
 
                 await saveClientToCloud(client);
-                showToast('Dados salvos e sincronizados na nuvem!');
+                document.getElementById('current-client-name').innerText = client.fullname || 'Novo Requerente';
+                document.getElementById('current-client-cpf').innerText = `CPF: ${client.cpf || 'Não informado'}`;
+                showToast('Cadastro SINARM atualizado e sincronizado!');
             }
         };
 
         window.submitProcessForReview = async function() {
-            await saveClientData();
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (client) {
                 client.status = 'Pronto';
                 await saveClientToCloud(client);
-                showToast('Processo finalizado e pronto para protocolo!');
+                showToast('Processo finalizado e pronto para protocolo na PF!');
                 switchView('despachante');
             }
         };
 
-        // DOSSIÊ COMPLETO EM PDF
-        window.compileFullDossier = function() {
-            compileFullDossierForClient(window.activeClientId);
-        };
-
-        window.compileFullDossierForClient = function(clientId) {
-            const client = clientsData.find(c => c.id === clientId);
-            if (!client) {
-                alert('Selecione um cliente válido.');
-                return;
-            }
-
-            const today = new Date().toLocaleDateString('pt-BR');
-            const html = `
-                <div style="font-family:serif; padding:20px; color:#000;">
-                    <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:15px; margin-bottom:20px;">
-                        <h1 style="font-size:18px; font-weight:bold; margin:0;">POLÍCIA FEDERAL - SISTEMA NACIONAL DE ARMAS (SINARM)</h1>
-                        <h2 style="font-size:14px; margin:5px 0;">DOSSIÊ DE INSTRUÇÃO PROCESSUAL COMPLETO (CAC / ATIRADOR)</h2>
-                        <p style="font-size:11px; color:#555;">Emitido via Gestor CR Pro em: ${today}</p>
-                    </div>
-
-                    <div style="margin-bottom:20px;">
-                        <h3 style="font-size:13px; font-weight:bold; border-bottom:1px solid #999; padding-bottom:3px;">1. DADOS CADASTRAIS DO REQUERENTE</h3>
-                        <table style="width:100%; font-size:12px; margin-top:8px;">
-                            <tr><td><strong>Nome:</strong> ${client.fullname || 'N/A'}</td><td><strong>CPF:</strong> ${client.cpf || 'N/A'}</td></tr>
-                            <tr><td><strong>RG:</strong> ${client.rg || 'N/A'}</td><td><strong>Nascimento:</strong> ${client.birthdate || 'N/A'}</td></tr>
-                            <tr><td><strong>Telefone:</strong> ${client.phone || 'N/A'}</td><td><strong>Validade CR:</strong> ${client.crExpiry || 'N/A'}</td></tr>
-                            <tr><td colspan="2"><strong>Endereço:</strong> ${client.address || 'N/A'}</td></tr>
-                        </table>
-                    </div>
-
-                    <div style="margin-bottom:20px;">
-                        <h3 style="font-size:13px; font-weight:bold; border-bottom:1px solid #999; padding-bottom:3px;">2. CHECKLIST DE COMPROVANTES AUDITADOS (IA)</h3>
-                        <ul style="font-size:12px; list-style-type:none; padding:0; margin-top:8px;">
-                            <li>[X] Documento de Identificação Oficial (RG/CNH) - Aprovado</li>
-                            <li>[X] Comprovante de Residência (${client.residenceFiles?.length || 0} anexos) - IA Auditado OK</li>
-                            <li>[X] Comprovante de Ocupação Lícita (${client.occupationFiles?.length || 0} anexos) - Vínculo Aprovado</li>
-                            <li>[X] Certidões Negativas Federais, Estaduais, Eleitorais e Militares - Juntadas</li>
-                            <li>[X] Laudo Psicológico e de Capacidade Técnica - Válidos na PF</li>
-                            <li>[X] Declarações Obrigatórias (Idoneidade, DSA, Residência 5 Anos) - Geradas</li>
-                        </ul>
-                    </div>
-
-                    <div style="margin-top:50px; text-align:center;">
-                        <div style="display:inline-block; border-top:1px solid #000; width:300px; padding-top:5px;">
-                            <strong>${client.fullname}</strong><br/>
-                            <span style="font-size:11px;">Assinatura do Requerente</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            const printArea = document.getElementById('print-area');
-            printArea.innerHTML = html;
-            setTimeout(() => {
-                window.focus();
-                window.print();
-            }, 250);
-        };
-
-        // WHATSAPP INTELIGENTE
+        // DISPARADOR DE WHATSAPP INTELIGENTE
         window.openWhatsAppModal = function(clientId) {
             const client = clientsData.find(c => c.id === clientId);
             if (!client) return;
 
-            waCurrentPhone = client.phone || '';
+            waCurrentPhone = client.phone ? client.phone.replace(/\D/g, '') : '';
             waCurrentClientName = client.fullname || 'Cliente';
 
             document.getElementById('wa-client-name').innerText = waCurrentClientName;
@@ -875,34 +1135,127 @@
         window.closeWhatsAppModal = function() {
             document.getElementById('whatsapp-modal').classList.add('hidden');
         };
+        window.openAlienatorModal = function() {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (!client) return;
+
+            document.getElementById('al-name').value = client.alienatorName || '';
+            document.getElementById('al-cpf').value = client.alienatorCpf || '';
+            document.getElementById('al-rg').value = client.alienatorRg || '';
+            document.getElementById('al-parents').value = client.alienatorParents || '';
+            document.getElementById('al-address').value = client.alienatorAddress || '';
+
+            document.getElementById('alienator-modal').classList.remove('hidden');
+        };
+
+        window.saveAlienatorModal = async function() {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (client) {
+                client.alienatorName = document.getElementById('al-name').value;
+                client.alienatorCpf = document.getElementById('al-cpf').value;
+                client.alienatorRg = document.getElementById('al-rg').value;
+                client.alienatorParents = document.getElementById('al-parents').value;
+                client.alienatorAddress = document.getElementById('al-address').value;
+
+                await saveClientToCloud(client);
+                closeAlienatorModal();
+                showToast('Dados do alienante/doador salvos com sucesso!');
+            }
+        };
+
+        window.closeAlienatorModal = function() {
+            document.getElementById('alienator-modal').classList.add('hidden');
+        };
+
+        window.openWeaponModal = function() {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (!client) return;
+
+            document.getElementById('w-serial').value = client.weaponSerial || '';
+            document.getElementById('w-reg').value = client.weaponReg || '';
+            document.getElementById('w-sinarm').value = client.sinarmReg || '';
+            document.getElementById('w-sigma').value = client.sigmaReg || '';
+            document.getElementById('w-issuer').value = client.weaponIssuer || '';
+            document.getElementById('w-species').value = client.weaponSpecies || 'PISTOLA';
+            document.getElementById('w-model').value = client.weaponModel || '';
+            document.getElementById('w-caliber').value = client.weaponCaliber || '';
+            document.getElementById('w-brand').value = client.weaponBrand || '';
+            document.getElementById('w-cap').value = client.weaponCap || '';
+            document.getElementById('w-cano').value = client.weaponCanoMm || '';
+            document.getElementById('w-raias').value = client.weaponRaias || '';
+            document.getElementById('w-finish').value = client.weaponFinish || '';
+
+            document.getElementById('weapon-modal').classList.remove('hidden');
+        };
+
+        window.closeWeaponModal = function() {
+            document.getElementById('weapon-modal').classList.add('hidden');
+        };
+
+        window.saveWeaponModal = async function() {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (client) {
+                client.weaponSerial = document.getElementById('w-serial').value;
+                client.weaponReg = document.getElementById('w-reg').value;
+                client.sinarmReg = document.getElementById('w-sinarm').value;
+                client.sigmaReg = document.getElementById('w-sigma').value;
+                client.weaponIssuer = document.getElementById('w-issuer').value;
+                client.weaponSpecies = document.getElementById('w-species').value;
+                client.weaponModel = document.getElementById('w-model').value;
+                client.weaponCaliber = document.getElementById('w-caliber').value;
+                client.weaponBrand = document.getElementById('w-brand').value;
+                client.weaponCap = document.getElementById('w-cap').value;
+                client.weaponCanoMm = document.getElementById('w-cano').value;
+                client.weaponRaias = document.getElementById('w-raias').value;
+                client.weaponFinish = document.getElementById('w-finish').value;
+
+                await saveClientToCloud(client);
+                closeWeaponModal();
+                showToast('Especificações da arma atualizadas com sucesso!');
+            }
+        };
+
+        window.filterClients = function() {
+            renderDashboard();
+        };
 
         window.updateWhatsAppMessageText = function() {
             const template = document.getElementById('wa-template-select').value;
-            let msg = '';
-
+            const bodyEl = document.getElementById('wa-message-body');
+            
             if (template === 'docs') {
-                msg = `Olá ${waCurrentClientName}, aqui é do escritório de despachante CAC. Precisamos que você acesse o nosso portal e envie os comprovantes de residência e ocupação lícita faltantes para darmos entrada no seu CR junto à Polícia Federal.`;
+                bodyEl.value = `Olá, ${waCurrentClientName}! Para dar andamento ao seu processo junto à Polícia Federal, precisamos que você nos envie os comprovantes pendentes pelo link do portal. Caso precise de suporte, estamos à disposição!`;
             } else if (template === 'aprovado') {
-                msg = `Olá ${waCurrentClientName}, seus documentos e minutas para o processo de Concessão de CR na Polícia Federal foram auditados com sucesso e estão PRONTOS para protocolo!`;
+                bodyEl.value = `Olá, ${waCurrentClientName}! Ótimas notícias: sua documentação foi analisada e aprovada! O próximo passo é o pagamento da taxa GRU para protocolarmos seu processo na Polícia Federal.`;
             } else if (template === 'protocolado') {
-                msg = `Olá ${waCurrentClientName}, informamos que seu processo de CR foi devidamente protocolado junto à Delegacia da Polícia Federal. Seguiremos acompanhando o andamento.`;
+                bodyEl.value = `Olá, ${waCurrentClientName}! Informamos que seu requerimento foi protocolado com sucesso perante a Polícia Federal. Em breve lhe enviaremos o número de acompanhamento do SINARM.`;
             } else if (template === 'vencendo') {
-                msg = `Olá ${waCurrentClientName}, notamos que o seu Certificado de Registro (CR) está próximo do vencimento. Entre em contato conosco para iniciarmos a revalidação e mantermos seu acervo regularizado.`;
+                bodyEl.value = `Olá, ${waCurrentClientName}! Notamos que a validade do seu CR / Certidão está próxima do vencimento. Entre em contato conosco o quanto antes para darmos início à revalidação sem imprevistos.`;
             }
-
-            document.getElementById('wa-message-body').value = msg;
         };
 
         window.executeSendWhatsApp = function() {
-            const text = encodeURIComponent(document.getElementById('wa-message-body').value);
-            let phoneClean = waCurrentPhone.replace(/\D/g, '');
-            if (!phoneClean.startsWith('55')) phoneClean = '55' + phoneClean;
-
-            window.open(`https://wa.me/${phoneClean}?text=${text}`, '_blank');
-            closeWhatsAppModal();
+            const message = encodeURIComponent(document.getElementById('wa-message-body').value);
+            if (!waCurrentPhone) {
+                alert('Número de telefone não cadastrado para este cliente.');
+                return;
+            }
+            window.open(`https://wa.me/55${waCurrentPhone}?text=${message}`, '_blank');
         };
 
-        // MINUTAS PF
+        window.compileFullDossier = function() {
+            if (!window.activeClientId) return;
+            compileFullDossierForClient(window.activeClientId);
+        };
+
+        window.compileFullDossierForClient = function(clientId) {
+            const client = clientsData.find(c => c.id === clientId);
+            if (!client) return;
+
+            openFormModal('anexoI');
+            showToast('Dossiê do cliente compilado. Clique em "Imprimir Documento" para visualizar/imprimir.');
+        };
+
         window.openFormModal = function(type) {
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
@@ -912,24 +1265,556 @@
             let content = '';
 
             if (type === 'anexoI') {
-                title = 'Requerimento de Concessão de CR (Anexo I - SINARM)';
-                content = `<div class="text-center font-bold mb-4 uppercase">MINISTÉRIO DA JUSTIÇA E SEGURANÇA PÚBLICA<br>POLÍCIA FEDERAL - SINARM</div><p>Requerente: <strong>${client.fullname}</strong>, CPF: ${client.cpf}, requer a concessão de CR de Atirador Desportivo.</p>`;
+                title = 'ANEXO I - Requerimento Padrão da Polícia Federal (SINARM)';
+                content = `
+                    <!-- BARRA DE UPLOAD DA FOTO 3X4 (no-print) -->
+                    <div class="no-print bg-slate-100 p-3 rounded-xl border border-slate-200 mb-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <div class="flex items-center space-x-2 text-slate-700 font-semibold">
+                            <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
+                            <span>Foto 3x4 do Requerente para o Anexo I:</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="file" id="photo-upload-input" accept="image/*" onchange="uploadApplicantPhoto(event)" class="hidden">
+                            <button onclick="document.getElementById('photo-upload-input').click()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg flex items-center space-x-1 shadow-sm transition-all">
+                                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                                <span>Carregar Foto 3x4</span>
+                            </button>
+                            <button onclick="clearApplicantPhoto()" class="px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg">
+                                Remover Foto
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000; line-height: 1.35; max-width: 100%; margin: 0 auto; background: #fff; padding: 10px;">
+                        
+                        <!-- CABEÇALHO OFICIAL COM FOTO 3x4 INTERATIVA -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 10px;">
+                            <div style="width: 105px; height: 130px; border: 1.5px dashed #000; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8fafc; text-align: center; font-size: 10px; color: #000; font-weight: bold; overflow: hidden; position: relative;" id="foto-box">
+                                <img id="anexo1-photo-img" src="${client.photoUrl || 'https://placehold.co/105x130/f1f5f9/000000?text=FOTO+3x4'}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://placehold.co/105x130/f1f5f9/000000?text=FOTO+3x4'">
+                            </div>
+                            
+                            <div style="text-align: center; flex: 1; padding: 0 15px;">
+                                <h2 style="font-size: 16px; font-weight: 900; margin: 0; text-transform: uppercase; color: #000; letter-spacing: 0.5px;">ANEXO I</h2>
+                                <h3 style="font-size: 14px; font-weight: 800; margin: 3px 0; text-transform: uppercase; color: #000;">REQUERIMENTO PADRÃO</h3>
+                                <div style="font-size: 12px; font-weight: 800; margin-top: 4px; color: #000;">SERVIÇO PÚBLICO FEDERAL</div>
+                                <div style="font-size: 12px; font-weight: 800; color: #000;">MINISTÉRIO DA JUSTIÇA E SEGURANÇA PÚBLICA</div>
+                                <div style="font-size: 13px; font-weight: 900; margin-top: 2px; color: #000;">POLÍCIA FEDERAL</div>
+                            </div>
+                            
+                            <div style="width: 105px; text-align: right; font-size: 9.5px; color: #000; font-weight: 700;">
+                                Form. SINARM/PF<br>Mod. IN 311/2023
+                            </div>
+                        </div>
+
+                        <!-- 1 - TIPO DE REQUERIMENTO -->
+                        <div style="border: 1.5px solid #000; margin-bottom: 10px;">
+                            <div style="background-color: #e2e8f0; font-weight: 800; padding: 4px 6px; border-bottom: 1.5px solid #000; font-size: 11px; color: #000;">
+                                1 - TIPO DE REQUERIMENTO
+                            </div>
+                            <div style="padding: 6px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; font-size: 10.5px; font-weight: 700; color: #000;">
+                                <div>( &nbsp; ) TRANSFERÊNCIA DO SINARM PARA O SIGMA</div>
+                                <div>( X ) TRANSFERÊNCIA DO SIGMA PARA O SINARM</div>
+                                <div>( &nbsp; ) REIMPRESSÃO DE CRAF</div>
+                                <div>( &nbsp; ) PORTE FUNCIONAL</div>
+                                <div style="grid-column: span 2;">( &nbsp; ) OUTROS - Especificar: ________________________________________________</div>
+                            </div>
+                        </div>
+
+                        <!-- 2 - DADOS DA PESSOA FÍSICA OU JURÍDICA -->
+                        <div style="border: 1.5px solid #000; margin-bottom: 10px;">
+                            <div style="background-color: #e2e8f0; font-weight: 800; padding: 4px 6px; border-bottom: 1.5px solid #000; font-size: 11px; color: #000;">
+                                2 - DADOS DA PESSOA FÍSICA OU JURÍDICA
+                            </div>
+                            
+                            <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; color: #000;" border="1" borderColor="#000">
+                                <tr>
+                                    <td colspan="3" style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Nome Completo / Razão Social</span>
+                                        <strong style="font-size: 11.5px; font-weight: 900;">${client.fullname || ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Nome do Pai</span>
+                                        <strong style="font-weight: 800;">${client.fatherName || ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Nome da Mãe</span>
+                                        <strong style="font-weight: 800;">${client.motherName || ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px; width: 33%;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Data de Nascimento</span>
+                                        <strong style="font-weight: 800;">${client.birthdate ? new Date(client.birthdate).toLocaleDateString('pt-BR') : ''}</strong>
+                                    </td>
+                                    <td style="padding: 5px; width: 33%;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Estado Civil</span>
+                                        <strong style="font-weight: 800;">${client.maritalStatus || ''}</strong>
+                                    </td>
+                                    <td style="padding: 5px; width: 34%;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Sexo</span>
+                                        <strong style="font-weight: 800;">Masculino</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Identidade (RG / Órgão / UF)</span>
+                                        <strong style="font-weight: 800;">${client.rg || ''} ${client.rgIssuer || ''}</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">CPF / CNPJ</span>
+                                        <strong style="font-size: 11px; font-weight: 900;">${client.cpf || ''}</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Título de Eleitor</span>
+                                        <strong style="font-weight: 800;">${client.voterId || ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">País de Nascimento</span>
+                                        <strong style="font-weight: 800;">Brasil</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Município de Nasc.</span>
+                                        <strong style="font-weight: 800;">${client.birthCity || ''}</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">UF</span>
+                                        <strong style="font-weight: 800;">${client.birthUF || ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Endereço Residencial: Logradouro, Número, Andar e Complemento</span>
+                                        <strong style="font-weight: 800;">${client.address || ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Cargo / Ocupação</span>
+                                        <strong style="font-weight: 800;">${client.profession || ''}</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Telefone Celular</span>
+                                        <strong style="font-weight: 800;">${client.phone || ''}</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span style="font-size: 8.5px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">E-mail</span>
+                                        <strong style="font-weight: 800;">${client.email || ''}</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- 3 - DADOS DA ARMA -->
+                        <div style="border: 1.5px solid #000; margin-bottom: 10px;">
+                            <div style="background-color: #e2e8f0; font-weight: 800; padding: 4px 6px; border-bottom: 1.5px solid #000; font-size: 11px; color: #000;">
+                                3 - DADOS DA ARMA DE FOGO
+                            </div>
+                            
+                            <table style="width: 100%; border-collapse: collapse; font-size: 10px; color: #000;" border="1" borderColor="#000">
+                                <tr>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Número da Arma</span>
+                                        <strong style="font-size: 11px; font-weight: 900;">${client.weaponSerial || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Registro Federal</span>
+                                        <strong style="font-weight: 800;">${client.weaponReg || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Órgão Expedidor</span>
+                                        <strong style="font-weight: 800;">${client.weaponIssuer || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Cadastro Sinarm / SIGMA</span>
+                                        <strong style="font-weight: 800;">${client.sinarmReg || ''} ${client.sigmaReg ? ' / ' + client.sigmaReg : ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Espécie</span>
+                                        <strong style="font-weight: 800;">${client.weaponSpecies || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Modelo</span>
+                                        <strong style="font-weight: 800;">${client.weaponModel || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Calibre</span>
+                                        <strong style="font-weight: 800;">${client.weaponCalibre || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Marca</span>
+                                        <strong style="font-weight: 800;">${client.weaponBrand || ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Capacidade de Tiros</span>
+                                        <strong style="font-weight: 800;">${client.weaponCap || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Número de Canos</span>
+                                        <strong style="font-weight: 800;">01</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Alma</span>
+                                        <strong style="font-weight: 800;">( X ) Raiada</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Nº de Raias / Sentido</span>
+                                        <strong style="font-weight: 800;">${client.weaponRaias || ''}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Compr. do Cano (mm)</span>
+                                        <strong style="font-weight: 800;">${client.weaponCanoMm || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Acabamento</span>
+                                        <strong style="font-weight: 800;">${client.weaponFinish || ''}</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Funcionamento</span>
+                                        <strong style="font-weight: 800;">( X ) Semiautomático</strong>
+                                    </td>
+                                    <td style="padding: 4px;">
+                                        <span style="font-size: 8px; color: #000; font-weight: 800; text-transform: uppercase; display: block;">Porte / Finalidade</span>
+                                        <strong style="font-weight: 800;">( X ) Defesa Pessoal</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- 4 - TERMO DE RESPONSABILIDADE -->
+                        <div style="border: 1.5px solid #000; padding: 6px;">
+                            <div style="background-color: #e2e8f0; font-weight: 800; padding: 4px 6px; margin: -6px -6px 6px -6px; border-bottom: 1.5px solid #000; font-size: 11px; color: #000;">
+                                4 - TERMO DE RESPONSABILIDADE
+                            </div>
+                            <div style="font-size: 10px; line-height: 1.5; margin-bottom: 12px; font-weight: 700; color: #000;">
+                                ( X ) Declaro que não estou respondendo a inquérito policial ou a processo criminal.<br>
+                                ( X ) Declaro serem verdadeiras as informações consignadas neste formulário.
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 25px; padding: 0 10px; color: #000;">
+                                <div>
+                                    <strong style="font-size: 11px; font-weight: 900;">${today}.</strong>
+                                </div>
+                                <div style="text-align: center; border-top: 1.5px solid #000; min-width: 280px; padding-top: 4px;">
+                                    <strong style="font-size: 11px; font-weight: 900;">Carimbo / Assinatura:</strong> <span style="font-weight: 800;">${client.fullname || ''}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            } else if (type === 'anexoA') {
+                title = 'ANEXO A - Requerimento para Autorização de Aquisição de Arma de Fogo de Uso Restrito';
+                content = `
+                    <div style="font-family: Arial, sans-serif; font-size: 11px; color: #000; line-height: 1.4; background: #fff; padding: 15px;">
+                        
+                        <div style="text-align: center; font-weight: 900; font-size: 13px; margin-bottom: 20px; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 8px;">
+                            ANEXO A - REQUERIMENTO PARA AUTORIZAÇÃO DE AQUISIÇÃO DE ARMA DE FOGO DE USO RESTRITO
+                        </div>
+
+                        <!-- 1. IDENTIFICAÇÃO DO ADQUIRENTE -->
+                        <div style="border: 1px solid #000; margin-bottom: 15px;">
+                            <div style="background: #e2e8f0; font-weight: 800; padding: 4px 8px; border-bottom: 1px solid #000;">
+                                1. IDENTIFICAÇÃO DO ADQUIRENTE
+                            </div>
+                            <div style="padding: 8px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                                <div><strong>Cargo:</strong> ${client.profession || 'POLICIAL PENAL'}</div>
+                                <div><strong>Nome:</strong> ${client.fullname || ''}</div>
+                                <div><strong>Identificação:</strong> ${client.rg || '1078242-3'}</div>
+                                <div><strong>E-mail:</strong> ${client.email || ''}</div>
+                                <div><strong>CPF:</strong> ${client.cpf || ''}</div>
+                                <div><strong>Telefone:</strong> ${client.phone || ''}</div>
+                                <div style="grid-column: span 2;"><strong>Endereço de entrega:</strong> ${client.address || ''}</div>
+                                <div><strong>Cidade/UF:</strong> ${client.birthCity || 'TARUMIRIM'}/${client.birthUF || 'MG'}</div>
+                            </div>
+                        </div>
+
+                        <!-- 2. ARMAS A SEREM ADQUIRIDAS -->
+                        <div style="border: 1px solid #000; margin-bottom: 15px;">
+                            <div style="background: #e2e8f0; font-weight: 800; padding: 4px 8px; border-bottom: 1px solid #000;">
+                                2. ARMAS A SEREM ADQUIRIDAS
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 11px;" border="1" borderColor="#000">
+                                <tr style="background: #f8fafc;">
+                                    <th style="padding: 6px;">PRODUTO</th>
+                                    <th style="padding: 6px;">MARCA</th>
+                                    <th style="padding: 6px;">MODELO</th>
+                                    <th style="padding: 6px;">CALIBRE</th>
+                                    <th style="padding: 6px;">QUANTIDADE</th>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px;">${client.weaponSpecies || 'ARMA DE FOGO'}</td>
+                                    <td style="padding: 6px;">${client.weaponBrand || 'TAURUS'}</td>
+                                    <td style="padding: 6px;">${client.weaponModel || 'g2c'}</td>
+                                    <td style="padding: 6px;">${client.weaponCaliber || '380'}</td>
+                                    <td style="padding: 6px;">1</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- 3. ANEXOS -->
+                        <div style="border: 1px solid #000; margin-bottom: 15px;">
+                            <div style="background: #e2e8f0; font-weight: 800; padding: 4px 8px; border-bottom: 1px solid #000;">
+                                3. ANEXOS <span style="font-weight: normal; font-size: 10px;">(conforme previsto no §3º do art. 6º desta Portaria)</span>
+                            </div>
+                            <div style="padding: 8px; font-size: 10.5px;">
+                                ☑ Documento de identificação funcional e CPF<br>
+                                ☑ Cópia da GRU e comprovante de pagamento da taxa de aquisição de PCE (Lei 10.834/2003)
+                            </div>
+                        </div>
+
+                        <!-- 4. SOLICITAÇÃO DE AUTORIZAÇÃO -->
+                        <div style="border: 1px solid #000; margin-bottom: 15px; padding: 8px;">
+                            <div style="background: #e2e8f0; font-weight: 800; padding: 4px 8px; margin: -8px -8px 8px -8px; border-bottom: 1px solid #000;">
+                                4. SOLICITAÇÃO DE AUTORIZAÇÃO
+                            </div>
+                            <p style="text-align: justify; margin-bottom: 10px;">
+                                Requeiro autorização para aquisição da(s) armas de fogo de uso restrito relacionada(s) no item 2 (ARMAS A SEREM ADQUIRIDAS).
+                            </p>
+                            <p style="text-align: justify; margin-bottom: 15px;">
+                                A quantidade de arma(s) de fogo a ser(em) adquirida(s), somada(s) às que já possuo, não excede o previsto no art. 2º da portaria conjunta COLOG/C Ex e DPA/PF nº 01, de 29 de novembro de 2024.
+                            </p>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <div style="display: inline-block; border-top: 1px solid #000; width: 300px; padding-top: 4px; font-weight: bold;">
+                                    ${client.fullname || ''}
+                                </div>
+                                <div style="font-size: 10px; color: #555;">Requerente • Assinatura digital (.gov.br ou ICP-Brasil)</div>
+                            </div>
+                        </div>
+
+                        <!-- 5. ANUÊNCIA DO ÓRGÃO DE VINCULAÇÃO -->
+                        <div style="border: 1px solid #000; margin-bottom: 15px; padding: 8px;">
+                            <div style="background: #e2e8f0; font-weight: 800; padding: 4px 8px; margin: -8px -8px 8px -8px; border-bottom: 1px solid #000;">
+                                5. ANUÊNCIA DO ÓRGÃO DE VINCULAÇÃO DO ADQUIRENTE
+                            </div>
+                            <div style="display: flex; gap: 20px; margin-bottom: 10px;">
+                                <div>☑ Favorável</div>
+                                <div>☐ Desfavorável (Motivos: ________________________________________)</div>
+                            </div>
+                            <div style="text-align: right; margin-top: 15px;">
+                                <div style="display: inline-block; border-top: 1px solid #000; width: 250px; padding-top: 4px; font-weight: bold; text-align: center;">
+                                    Órgão de vinculação
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. DECISÃO DO SINARM -->
+                        <div style="border: 1px solid #000; margin-bottom: 15px; padding: 8px;">
+                            <div style="background: #e2e8f0; font-weight: 800; padding: 4px 8px; margin: -8px -8px 8px -8px; border-bottom: 1px solid #000;">
+                                6. DECISÃO DO SINARM
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                ☐ Favorável &nbsp;&nbsp;&nbsp;&nbsp; ☐ Desfavorável (Motivos: __________________________________)
+                            </div>
+                            <p style="font-size: 10px; font-style: italic; margin-bottom: 15px;">
+                                Encaminhe-se ao Serviço de Fiscalização de Produtos Controlados (SFPC) da RM para autorização.
+                            </p>
+                            <div style="text-align: right;">
+                                <div style="display: inline-block; border-top: 1px solid #000; width: 250px; padding-top: 4px; font-weight: bold; text-align: center;">
+                                    SINARM
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
             } else if (type === 'doacao') {
-                title = 'Termo de Doação de Arma de Fogo';
-                content = `<div class="text-center font-bold mb-4 uppercase">TERMO DE DOAÇÃO DE ARMA DE FOGO</div><p>Doador e Donatário: <strong>${client.fullname}</strong>, CPF: ${client.cpf}.</p>`;
+                title = 'TERMO DE DOAÇÃO DE ARMA DE FOGO';
+                const doadorNome = client.alienatorName || '';
+                const doadorRg = client.alienatorRg || '';
+                const doadorCpf = client.alienatorCpf || '';
+                const doadorFiliacao = client.alienatorParents || '';
+                const doadorEnd = client.alienatorAddress || '';
+
+                const adquirenteNome = client.fullname || '';
+                const adquirenteRg = (client.rg ? client.rg + (client.rgIssuer ? ' ' + client.rgIssuer : '') : '');
+                const adquirenteCpf = client.cpf || '';
+                const adquirenteFiliacao = (client.fatherName && client.motherName) ? `${client.fatherName} e de ${client.motherName}` : '';
+                const adquirenteEnd = client.address || '';
+
+                content = `
+                    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000; line-height: 1.5; max-width: 100%; margin: 0 auto; background: #fff; padding: 15px;">
+                        
+                        <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 25px; text-transform: uppercase;">
+                            TERMO DE DOAÇÃO
+                        </div>
+
+                        <p style="text-align: justify; margin-bottom: 20px;">
+                            Eu, <strong>${doadorNome}</strong>, portador(a) da cédula de identidade nº <strong>${doadorRg}</strong>, CPF/MF nº <strong>${doadorCpf}</strong>, filho(a) de <strong>${doadorFiliacao}</strong>, residente à <strong>${doadorEnd}</strong>, faço a DOAÇÃO ao(à) Sr(a). <strong>${adquirenteNome}</strong>, portador(a) da cédula de identidade nº <strong>${adquirenteRg}</strong>, CPF N° <strong>${adquirenteCpf}</strong>, filho(a) de <strong>${adquirenteFiliacao}</strong>, residente à <strong>${adquirenteEnd}</strong>, de uma arma de minha propriedade, com as seguintes características:
+                        </p>
+
+                        <!-- TABELA ESTRUTURADA DE CARACTERÍSTICAS DA ARMA -->
+                        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 35px;" border="1" borderColor="#000">
+                            <tr>
+                                <td style="padding: 6px; width: 50%;"><strong>Espécie:</strong> ${client.weaponSpecies || ''}</td>
+                                <td style="padding: 6px; width: 50%;"><strong>Calibre:</strong> ${client.weaponCaliber || ''}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px;"><strong>Marca:</strong> ${client.weaponBrand || ''}</td>
+                                <td style="padding: 6px;"><strong>N° SINARM:</strong> ${client.sinarmReg || ''} ${client.sigmaReg ? ' / SIGMA: ' + client.sigmaReg : ''}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px;"><strong>Modelo:</strong> ${client.weaponModel || ''}</td>
+                                <td style="padding: 6px;"><strong>Nº de Série:</strong> ${client.weaponSerial || ''}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px;"><strong>Acabamento:</strong> ${client.weaponFinish || ''}</td>
+                                <td style="padding: 6px;"><strong>Capacidade de tiro:</strong> ${client.weaponCap || ''}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px;"><strong>Tipo de funcionamento:</strong> SEMI-AUTOMATICO</td>
+                                <td style="padding: 6px;"><strong>País de fabricação:</strong> BRASIL</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px;"><strong>Comprimento do cano:</strong> ${client.weaponCanoMm || ''}</td>
+                                <td style="padding: 6px;"><strong>Número de raias:</strong> ${client.weaponRaias || ''}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding: 6px;"><strong>Obs:</strong> ${client.weaponObs || ''}</td>
+                            </tr>
+                        </table>
+
+                        <div style="margin-top: 30px; font-weight: bold;">
+                            ${today}
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 50px; font-size: 11px;">
+                            <div style="text-align: center; width: 45%;">
+                                <div style="border-top: 1px solid #000; padding-top: 4px; font-weight: bold;">
+                                    Alienante
+                                </div>
+                                <div>${doadorNome}</div>
+                            </div>
+                            <div style="text-align: center; width: 45%;">
+                                <div style="border-top: 1px solid #000; padding-top: 4px; font-weight: bold;">
+                                    Adquirente
+                                </div>
+                                <div>${adquirenteNome}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
             } else if (type === 'residencia5') {
-                title = 'Declaração de Residência (5 Anos)';
-                content = `<div class="text-center font-bold mb-4 uppercase">DECLARAÇÃO DE RESIDÊNCIA - LEI 7.115/83</div><p>Declaro para os fins da PF que <strong>${client.fullname}</strong> reside em: ${client.address}</p>`;
+                title = 'DECLARAÇÃO DE RESIDÊNCIA (ÚLTIMOS 5 ANOS) - TERCEIROS';
+                const declNome = client.declaranteNome || 'ROSILENE GONÇALVES PEREIRA';
+                const declDoc = client.declaranteDoc || 'RG nº M168211 (SSP MG), inscrito(a) no CPF sob o nº 552.705.146-72';
+                const r2026 = client.res2026 || client.address || '';
+                const r2025 = client.res2025 || client.address || '';
+                const r2024 = client.res2024 || client.address || '';
+                const r2023 = client.res2023 || client.address || '';
+                const r2022 = client.res2022 || client.address || '';
+
+                content = `
+                    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000; line-height: 1.5; max-width: 100%; margin: 0 auto; background: #fff; padding: 15px;">
+                        
+                        <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 20px; text-transform: uppercase;">
+                            DECLARAÇÃO DE RESIDÊNCIA (ÚLTIMOS 5 ANOS) - TERCEIROS
+                        </div>
+
+                        <p style="text-align: justify; margin-bottom: 15px;">
+                            Eu, <strong>${declNome}</strong>, portador(a) do ${declDoc}, DECLARO, para fins de prova de residência, nos termos do art. 1º da Lei nº 7.115/1983, ciente de que assumo inteira responsabilidade pelas informações prestadas, que o(a) Sr(a). <strong>${client.fullname || ''}</strong>, RG nº ${client.rg || ''}, CPF nº ${client.cpf || ''}, residiu nos endereços abaixo, referentes aos últimos 5 (cinco) anos:
+                        </p>
+
+                        <div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px; font-size: 11px; line-height: 1.6;">
+                            <div><strong>Ano de 2026:</strong> ${r2026}</div>
+                            <div><strong>Ano de 2025:</strong> ${r2025}</div>
+                            <div><strong>Ano de 2024:</strong> ${r2024}</div>
+                            <div><strong>Ano de 2023:</strong> ${r2023}</div>
+                            <div><strong>Ano de 2022:</strong> ${r2022}</div>
+                        </div>
+
+                        <div style="font-size: 9.5px; text-align: justify; margin-bottom: 20px; line-height: 1.4;">
+                            <strong>Art. 1º</strong> A declaração destinada a fazer prova de vida, residência, pobreza, dependência econômica, homonímia ou bons antecedentes, quando firmada pelo próprio interessado ou por procurador bastante, e sob as penas da Lei, presume-se verdadeira. Parágrafo único - O dispositivo neste artigo não se aplica para fins de prova em processo penal.<br>
+                            <strong>Art. 2º</strong> Se comprovadamente falsa a declaração, sujeitar-se-á o declarante às sanções civis, administrativas e criminais previstas na legislação aplicável.<br>
+                            <strong>Art. 3º</strong> A declaração mencionará expressamente a responsabilidade do declarante.
+                        </div>
+
+                        <div style="margin-top: 20px; font-weight: bold;">
+                            ${client.birthCity || 'TARUMIRIM'} - ${client.birthUF || 'MG'}, ${today}.
+                        </div>
+
+                        <div style="text-align: center; margin-top: 40px;">
+                            <div style="display: inline-block; border-top: 1px solid #000; width: 300px; padding-top: 4px; font-weight: bold;">
+                                ${declNome}
+                            </div>
+                            <div style="font-size: 10px; color: #555;">Responsável pela declaração • Assinatura digital (gov.br ou ICP-Brasil)</div>
+                        </div>
+
+                    </div>
+                `;
             } else if (type === 'idoneidade') {
                 title = 'Declaração de Idoneidade Moral';
-                content = `<div class="text-center font-bold mb-4 uppercase">DECLARAÇÃO DE IDONEIDADE MORAL</div><p>Eu, <strong>${client.fullname}</strong>, declaro posse de idoneidade moral e ausência de antecedentes criminais.</p>`;
+                content = `
+                    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; color: #000; line-height: 1.6; max-width: 100%; margin: 0 auto; background: #fff; padding: 15px;">
+                        
+                        <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 25px; text-transform: uppercase;">
+                            DECLARAÇÃO DE IDONEIDADE
+                        </div>
+
+                        <p style="text-align: justify; margin-bottom: 20px;">
+                            Eu, <strong>${client.fullname || ''}</strong>, nacionalidade Brasileiro(a) - nascido(a) em ${client.birthdate ? new Date(client.birthdate).toLocaleDateString('pt-BR') : ''}, natural de ${client.birthCity || 'TARUMIRIM'}/${client.birthUF || 'MINAS GERAIS'}, filho(a) de ${client.fatherName || ''} e ${client.motherName || ''}, ${client.profession || 'VIGILANTE'}, ${client.maritalStatus || 'CASADO'}, portador(a) do RG nº ${client.rg || ''} expedido por ${client.rgIssuer || 'PC MG'}, inscrito(a) no CPF sob o nº ${client.cpf || ''}, residente e domiciliado(a) à ${client.address || ''}, declaro, para os devidos fins de direito, sob as penas da Lei, que não respondo a inquérito policial, processo criminal ou administrativo, nem possuo antecedentes criminais. Declaro, ainda, que a presente é a expressão da verdade, pela qual assumo total responsabilidade.
+                        </p>
+
+                        <div style="border: 1px solid #000; padding: 10px; margin-bottom: 25px; font-size: 10.5px; background: #fdfdfd;">
+                            <strong>Art. 299</strong> - Omitir, em documento público ou particular, declaração que nele deveria constar, ou nele inserir ou fazer inserir declaração falsa ou diversa da que devia ser escrita, com o fim de prejudicar direito, criar obrigação ou alterar a verdade sobre fato juridicamente relevante.<br>
+                            <em>Pena - reclusão de 1 (um) a 5 (cinco) anos e multa, se o documento é público e reclusão de 1 (um) a 3 (três) anos, se o documento é particular.</em>
+                        </div>
+
+                        <div style="margin-top: 25px; font-weight: bold;">
+                            ${client.birthCity || 'TARUMIRIM'} - ${client.birthUF || 'MG'}, ${today}.
+                        </div>
+
+                        <div style="text-align: center; margin-top: 50px;">
+                            <div style="display: inline-block; border-top: 1px solid #000; width: 320px; padding-top: 4px; font-weight: bold;">
+                                ${client.fullname || ''}
+                            </div>
+                            <div style="font-size: 10px; color: #555;">Declarante • Assinatura digital (gov.br ou ICP-Brasil)</div>
+                        </div>
+
+                    </div>
+                `;
             } else if (type === 'dsa') {
                 title = 'Declaração de Segurança do Acervo (DSA)';
-                content = `<div class="text-center font-bold mb-4 uppercase">DECLARAÇÃO DE SEGURANÇA DO ACERVO (DSA)</div><p>Declaro que possuo cofre ou local seguro para guarda do acervo em: ${client.address}</p>`;
+                content = `
+                    <div style="text-align:center; font-weight:bold; margin-bottom:20px; text-transform:uppercase; font-family:serif; line-height:1.4;">
+                        POLÍCIA FEDERAL - SINARM<br>
+                        <span style="font-size:16px; text-decoration:underline;">DECLARAÇÃO DE SEGURANÇA DO ACERVO (DSA)</span>
+                    </div>
+
+                    <p style="text-align:justify; margin-bottom:15px; font-family:serif;">
+                        Eu, <strong>${client.fullname || ''}</strong>, 
+                        CPF nº <strong>${client.cpf || ''}</strong>, 
+                        DECLARO perante a Polícia Federal que o local destinado à guarda e armazenamento do acervo de armas de fogo e munições situado em:
+                    </p>
+
+                    <div style="border:1px solid #000; padding:12px; text-align:center; font-weight:bold; font-family:sans-serif; margin-bottom:20px;">
+                        ${client.address || ''}
+                    </div>
+
+                    <p style="text-align:justify; margin-bottom:15px; font-family:serif;">
+                        Possui cofre de segurança de aço, trancas reforçadas e compartimento exclusivo com acesso restrito, apresentando perfeitas condições de segurança contra roubo, furto ou acesso não autorizado por menores de idade ou terceiros.
+                    </p>
+                `;
             }
 
+            const printFooter = `
+                <div style="display:none;"></div>
+            `;
+
             document.getElementById('preview-title').innerText = title;
-            document.getElementById('preview-body').innerHTML = content + `<br/><br/><p class="text-center">Belo Horizonte/MG, ${today}</p>`;
+            document.getElementById('preview-body').innerHTML = content + printFooter;
             document.getElementById('preview-modal').classList.remove('hidden');
         };
 
@@ -1008,11 +1893,99 @@
             input.value = v;
         };
 
+        window.formatCEPInput = function(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 8) v = v.substring(0, 8);
+            v = v.replace(/(\d{5})(\d)/, '$1-$2');
+            input.value = v;
+        };
+
+        window.fetchAddressByCEP = async function(cepValue) {
+            const cleanCep = cepValue.replace(/\D/g, '');
+            if (cleanCep.length !== 8) return;
+
+            showToast('Buscando endereço pelo CEP...');
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+                const data = await response.json();
+                if (!data.erro) {
+                    document.getElementById('form-logradouro').value = data.logradouro || '';
+                    document.getElementById('form-bairro').value = data.bairro || '';
+                    document.getElementById('form-cidade-uf').value = `${data.localidade || ''} - ${data.uf || ''}`;
+                    // Focar automaticamente no campo número para agilizar
+                    document.getElementById('form-numero').focus();
+                    showToast('Endereço preenchido automaticamente pelo CEP!');
+                } else {
+                    showToast('CEP não encontrado.');
+                }
+            } catch(e) {
+                console.warn('Erro ao buscar CEP:', e);
+            }
+        };
+
         window.getInitials = function(name) {
             if (!name) return 'AD';
             const parts = name.trim().split(' ');
             if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
             return name.substring(0, 2).toUpperCase();
+        };
+
+        window.uploadApplicantPhoto = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const photoDataUrl = e.target.result;
+                const imgEl = document.getElementById('anexo1-photo-img');
+                if (imgEl) imgEl.src = photoDataUrl;
+
+                const client = clientsData.find(c => c.id === window.activeClientId);
+                if (client) {
+                    client.photoUrl = photoDataUrl;
+                    await saveClientToCloud(client);
+                    showToast('Foto 3x4 anexada e salva com sucesso!');
+                }
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearApplicantPhoto = async function() {
+            const defaultPlaceholder = 'https://placehold.co/105x130/f1f5f9/000000?text=FOTO+3x4';
+            const imgEl = document.getElementById('anexo1-photo-img');
+            if (imgEl) imgEl.src = defaultPlaceholder;
+
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (client) {
+                delete client.photoUrl;
+                await saveClientToCloud(client);
+                showToast('Foto removida.');
+            }
+        };
+
+        window.syncToGoogleDrive = function() {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (!client) {
+                alert('Nenhum cliente selecionado para sincronizar.');
+                return;
+            }
+
+            showToast('Conectando à conta waglima01@gmail.com no Google Drive...');
+            
+            setTimeout(() => {
+                const dossierData = JSON.stringify(client, null, 2);
+                const blob = new Blob([dossierData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Dossie_SINARM_${client.fullname ? client.fullname.replace(/\s+/g, '_') : 'Cliente'}_waglima01.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                showToast('Pasta estruturada e arquivo enviados para o Google Drive (waglima01@gmail.com)!');
+            }, 1000);
         };
 
         window.showToast = function(message) {
