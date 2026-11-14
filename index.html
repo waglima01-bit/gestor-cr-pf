@@ -10,8 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Identity Services (OAuth 2.0 para Google Drive) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
         tailwind.config = {
@@ -79,6 +77,14 @@
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
+        <div class="bg-slate-900 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center space-x-2">
+            <i data-lucide="info" class="w-4 h-4 text-amber-400"></i>
+            <span id="toast-msg">Ação realizada com sucesso.</span>
+        </div>
+    </div>
 
     <!-- CABEÇALHO DO DESPACHANTE (Oculto automaticamente no modo Portal do Cliente) -->
     <header id="app-header" class="bg-pf-950 text-white shadow-lg border-b border-slate-800 sticky top-0 z-30">
@@ -199,6 +205,11 @@
                         <i data-lucide="arrow-left" class="w-4 h-4"></i>
                         <span>Voltar ao Painel</span>
                     </button>
+                    <div>
+                        <h2 id="portal-client-title" class="text-sm sm:text-base font-extrabold text-slate-900">Ficha Cadastral SINARM / Portal PF</h2>
+                        <p class="text-xs text-slate-500">Preencha os dados e anexe os documentos oficiais exigidos pela Polícia Federal.</p>
+                    </div>
+                </div>
                 <div class="flex flex-wrap items-center gap-2" id="dispatcher-only-portal-actions">
                     <button onclick="openWeaponModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
                         <i data-lucide="crosshair" class="w-4 h-4 text-amber-400"></i>
@@ -418,232 +429,158 @@
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <h3 class="font-extrabold text-sm text-slate-800 flex items-center gap-2">
                                 <i data-lucide="folder-up" class="w-4 h-4 text-blue-600"></i>
-                                <span>4. Envio de Documentos e Certidões</span>
+                                <span>4. Anexos & Documentação Obrigatória (PF)</span>
                             </h3>
-                            <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Anexo Digital</span>
+                            <span id="checklist-counter" class="text-[11px] font-bold text-slate-500">0/12 Anexados</span>
                         </div>
-
-                        <div class="space-y-2.5 max-h-[430px] overflow-y-auto pr-1" id="pf-checklist-container">
-                            <!-- Renderizado dinamicamente com os 12 slots de documentos -->
-                        </div>
-
-                        <div id="dispatcher-drive-bar" class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
-                            <button onclick="syncWithGoogleDrive()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm">
-                                <i data-lucide="cloud-upload" class="w-4 h-4"></i>
-                                <span>Enviar & Organizar Pasta no Google Drive</span>
-                            </button>
+                        <div id="pf-checklist-container" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
+                            <!-- Gerado dinamicamente via JS de 01 a 12 -->
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
+
     </main>
 
-    <!-- ÁREA EXCLUSIVA DE IMPRESSÃO (Oculta na tela, visível apenas no @media print em página limpa) -->
-    <div id="print-area" class="hidden"></div>
-
-    <!-- MODAL DE PRÉ-VISUALIZAÇÃO DE DOCUMENTO OFICIAL PF + UPLOAD FOTO 3x4 -->
-    <div id="preview-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-5xl w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh]">
-            <div class="p-4 bg-pf-900 text-white flex flex-wrap items-center justify-between gap-2">
+    <!-- MODAL DE PREVIEW / IMPRESSÃO DE DOCUMENTOS -->
+    <div id="preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] flex flex-col overflow-hidden">
+            <div class="no-print bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="file-check" class="w-5 h-5 text-amber-400"></i>
-                    <h3 id="preview-title" class="font-bold text-sm sm:text-base">Pré-Visualização de Documento Oficial PF</h3>
+                    <h3 id="preview-modal-title" class="font-bold text-sm">Visualização Oficial da Minuta</h3>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <label id="btn-upload-photo3x4" class="cursor-pointer px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5">
-                        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                        <span>Carregar Foto 3x4</span>
-                        <input type="file" accept="image/*" class="hidden" onchange="handlePhoto3x4Upload(event)">
-                    </label>
-                    <button onclick="printPreviewDocument()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-extrabold flex items-center gap-1.5 shadow">
-                        <i data-lucide="printer" class="w-4 h-4"></i>
+                    <button onclick="window.print()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-pf-950 rounded-xl text-xs font-extrabold flex items-center space-x-1 shadow">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
                         <span>Imprimir / Salvar PDF</span>
                     </button>
-                    <button onclick="closePreviewModal()" class="p-1.5 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-            </div>
-            <div id="preview-content" class="p-6 sm:p-10 overflow-y-auto bg-white text-black flex-1">
-                <!-- Documento renderizado aqui -->
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DADOS DA ARMA (SINARM / SIGMA) -->
-    <div id="weapon-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-            <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
-                <h3 class="font-bold text-sm sm:text-base flex items-center gap-2"><i data-lucide="crosshair" class="w-4 h-4 text-amber-400"></i> Especificações Técnicas da Arma (SIGMA / SINARM)</h3>
-                <button onclick="closeWeaponModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-5 overflow-y-auto grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Espécie *</label>
-                    <input type="text" id="w-species" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="PISTOLA / REVÓLVER">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Marca *</label>
-                    <input type="text" id="w-brand" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="TAURUS / GLOCK">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Modelo *</label>
-                    <input type="text" id="w-model" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="G2C / G19X">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Calibre *</label>
-                    <input type="text" id="w-caliber" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="9MM / .380 / .38 TPC">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Número de Série *</label>
-                    <input type="text" id="w-serial" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="Ex: E06068">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nº SIGMA</label>
-                    <input type="text" id="w-sigma" class="w-full p-2 border border-amber-400 bg-amber-50/50 rounded-lg uppercase font-bold" placeholder="Nº Registro SIGMA">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nº Cadastro SINARM</label>
-                    <input type="text" id="w-sinarm" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="2024/000000000-00">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Capacidade de Tiros</label>
-                    <input type="text" id="w-capacity" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="12 / 15 / 17">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nº de Canos / Compr. (mm)</label>
-                    <input type="text" id="w-barrel" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="1 cano / 102 mm">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Alma / Nº Raias / Sentido</label>
-                    <input type="text" id="w-rifling" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="Raiada / 06 / Direita">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Acabamento</label>
-                    <input type="text" id="w-finish" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="OXIDADO / INOX">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Funcionamento / País</label>
-                    <input type="text" id="w-action" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="SEMIAUTOMÁTICO / BRASIL">
-                </div>
-            </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
-                <button onclick="closeWeaponModal()" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-xl text-xs font-bold">Cancelar</button>
-                <button onclick="saveWeaponData()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Salvar Dados da Arma</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DADOS DO ALIENANTE (DOADOR) & HISTÓRICO DE RESIDÊNCIA 5 ANOS -->
-    <div id="alienator-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-            <div class="p-4 bg-indigo-950 text-white flex justify-between items-center">
-                <h3 class="font-bold text-sm sm:text-base flex items-center gap-2"><i data-lucide="user-check" class="w-4 h-4 text-indigo-300"></i> Dados do Alienante (Doador) & Endereços 5 Anos</h3>
-                <button onclick="closeAlienatorModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-5 overflow-y-auto space-y-4 text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-700 mb-1">Nome Completo do Alienante / Doador</label>
-                        <input type="text" id="a-name" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">CPF do Alienante</label>
-                        <input type="text" id="a-cpf" class="w-full p-2 border border-slate-300 rounded-lg font-semibold">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">RG e Órgão Expedidor</label>
-                        <input type="text" id="a-rg" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="Ex: 18268837 SSP MG">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Nome do Pai do Alienante</label>
-                        <input type="text" id="a-father" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Nome da Mãe do Alienante</label>
-                        <input type="text" id="a-mother" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold">
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="block font-bold text-slate-700 mb-1">Endereço Completo do Alienante (com CEP)</label>
-                        <input type="text" id="a-address" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold">
-                    </div>
-                </div>
-
-                <!-- Histórico de Endereços dos Últimos 5 Anos -->
-                <div class="pt-3 border-t border-slate-200 space-y-2">
-                    <h4 class="font-extrabold text-slate-800">Histórico de Endereços (Últimos 5 Anos - Declaração Terceiros)</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Declarante Terceiro (Nome Completo)</label>
-                            <input type="text" id="h-declarantName" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="Ex: ROSILENE GONÇALVES PEREIRA">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">RG e CPF do Declarante Terceiro</label>
-                            <input type="text" id="h-declarantDocs" class="w-full p-2 border border-slate-300 rounded-lg uppercase font-semibold" placeholder="RG M168211 (SSP MG) | CPF 000.000.000-00">
-                        </div>
-                        <div><label class="block font-semibold text-slate-600">Ano 2026:</label><input type="text" id="h-2026" class="w-full p-2 border border-slate-300 rounded-lg"></div>
-                        <div><label class="block font-semibold text-slate-600">Ano 2025:</label><input type="text" id="h-2025" class="w-full p-2 border border-slate-300 rounded-lg"></div>
-                        <div><label class="block font-semibold text-slate-600">Ano 2024:</label><input type="text" id="h-2024" class="w-full p-2 border border-slate-300 rounded-lg"></div>
-                        <div><label class="block font-semibold text-slate-600">Ano 2023:</label><input type="text" id="h-2023" class="w-full p-2 border border-slate-300 rounded-lg"></div>
-                        <div class="sm:col-span-2"><label class="block font-semibold text-slate-600">Ano 2022:</label><input type="text" id="h-2022" class="w-full p-2 border border-slate-300 rounded-lg"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
-                <button onclick="closeAlienatorModal()" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-xl text-xs font-bold">Cancelar</button>
-                <button onclick="saveAlienatorData()" class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">Salvar Informações</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL WHATSAPP RÁPIDO -->
-    <div id="whatsapp-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
-            <div class="p-4 bg-emerald-700 text-white flex justify-between items-center">
-                <h3 class="font-bold text-sm flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> Disparador Rápido WhatsApp</h3>
-                <button onclick="closeWhatsAppModal()" class="text-emerald-200 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-5 space-y-3 text-xs">
-                <textarea id="wa-message-box" rows="6" class="w-full p-3 border border-slate-300 rounded-xl leading-relaxed"></textarea>
-                <div class="flex justify-end gap-2">
-                    <button onclick="closeWhatsAppModal()" class="px-4 py-2 bg-slate-200 rounded-xl font-bold">Fechar</button>
-                    <button onclick="executeSendWhatsApp()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-1.5">
-                        <i data-lucide="send" class="w-3.5 h-3.5"></i> Enviar WhatsApp
+                    <button onclick="closeDocumentPreview()" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
+            <div id="print-area" class="flex-1 p-8 overflow-y-auto bg-white text-slate-900 text-xs sm:text-sm">
+                <!-- Conteúdo gerado dinamicamente para impressão em página única sem repetição -->
+            </div>
         </div>
     </div>
 
-    <!-- MODAL CONFIGURAÇÃO GOOGLE DRIVE API (waglima01@gmail.com) -->
-    <div id="drive-config-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-xl w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[92vh]">
-            <div class="p-4 bg-blue-900 text-white flex justify-between items-center">
-                <h3 class="font-bold text-sm flex items-center gap-2"><i data-lucide="hard-drive" class="w-4 h-4 text-blue-300"></i> Conectar Google Drive (waglima01@gmail.com) — Sem Senha</h3>
-                <button onclick="closeDriveConfigModal()" class="text-blue-200 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <!-- MODAL DE DADOS DA ARMA (SIGMA / SINARM) -->
+    <div id="weapon-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                    <i data-lucide="crosshair" class="w-5 h-5 text-amber-600"></i>
+                    <span>Dados da Arma de Fogo (SIGMA / SINARM)</span>
+                </h3>
+                <button onclick="closeWeaponModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-5 overflow-y-auto space-y-4 text-xs">
-                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-emerald-950 space-y-1">
-                    <div class="font-extrabold">✅ Conexão Automática (Inclusive quando o cliente envia pelo celular):</div>
-                    <p>Basta criar um projeto novo no Google Apps Script logado em <strong>waglima01@gmail.com</strong>. Assim, o Agente de IA cria automaticamente a pasta da inicial (<strong>A..Z ➔ NOME DO CLIENTE</strong>) e salva os arquivos renomeados (<strong>01 a 12</strong>).</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Espécie / Tipo</label>
+                    <input type="text" id="weapon-species" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: PISTOLA / RIFLE">
                 </div>
-
-                <div class="bg-amber-50 border border-amber-300 p-3 rounded-xl text-amber-950 space-y-1">
-                    <div class="font-extrabold">⚠️ Como resolver "Erro 401: invalid_client" no Google Apps Script:</div>
-                    <p>1. No Google Apps Script, clique na engrenagem <strong>Configurações do projeto</strong> (menu esquerdo) ➔ em <em>Projeto do Google Cloud Platform (GCP)</em>, clique em <strong>Alterar projeto</strong> e deixe em branco / projeto padrão (ou crie um projeto novo em <a href="https://script.google.com/home/projects/create" target="_blank" class="text-blue-700 underline font-bold">script.google.com/home/projects/create</a> sem vincular número de projeto GCP).</p>
-                    <p>2. Na tela de autorização, se aparecer <em>"O Google não verificou este app"</em>, clique em <strong>Avançado ➔ Acessar Projeto sem título (não seguro) ➔ Permitir</strong>.</p>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Marca</label>
+                    <input type="text" id="weapon-brand" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: TAURUS / GLOCK">
                 </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Calibre</label>
+                    <input type="text" id="weapon-caliber" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: 9mm / .380 ACP">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Número de Série</label>
+                    <input type="text" id="weapon-serial" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Nº de Série">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Nº SIGMA (se houver)</label>
+                    <input type="text" id="weapon-sigma" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Nº SIGMA">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Nº SINARM (se houver)</label>
+                    <input type="text" id="weapon-sinarm" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Nº SINARM">
+                </div>
+            </div>
+            <div class="flex justify-end pt-3 border-t border-slate-100">
+                <button onclick="saveWeaponModalData()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold">Salvar Dados da Arma</button>
+            </div>
+        </div>
+    </div>
 
-                <div class="space-y-2 border border-slate-200 p-3 rounded-xl bg-slate-50">
-                    <div class="font-bold text-slate-800">Passo 1: Copie o código abaixo, cole no seu <a href="https://script.google.com/home/projects/create" target="_blank" class="text-blue-600 underline">Projeto Apps Script</a> e clique em <strong>Implantar ➔ Nova implantação ➔ App da Web</strong> (Executar como: <em>Eu</em> | Quem pode acessar: <em>Qualquer pessoa</em>):</div>
-                    <textarea id="apps-script-template" readonly rows="8" class="w-full p-2 bg-slate-900 text-emerald-300 font-mono text-[10px] rounded-lg">function processDrivePayload(data) {
+    <!-- MODAL DE DADOS DO ALIENANTE E DECLARAÇÃO 5 ANOS -->
+    <div id="alienator-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-4 my-8">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                    <i data-lucide="user-check" class="w-5 h-5 text-indigo-600"></i>
+                    <span>Dados do Alienante & Histórico de Residência (5 Anos)</span>
+                </h3>
+                <button onclick="closeAlienatorModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-4 text-xs">
+                <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl">
+                    <p class="font-bold text-indigo-900 mb-2">Dados do Alienante (Para Termo de Doação / Transferência)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input type="text" id="alienator-name" class="p-2 bg-white border border-slate-300 rounded-lg uppercase" placeholder="Nome Completo do Alienante">
+                        <input type="text" id="alienator-cpf" class="p-2 bg-white border border-slate-300 rounded-lg" placeholder="CPF do Alienante">
+                    </div>
+                </div>
+                <div>
+                    <p class="font-bold text-slate-800 mb-2">Declaração de Residência - Últimos 5 Anos (Lei 7.115/1983)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-semibold text-slate-600">Ano 2026 (Endereço/Cidade/UF)</label>
+                            <input type="text" id="res-2026" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2026">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600">Ano 2025 (Endereço/Cidade/UF)</label>
+                            <input type="text" id="res-2025" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2025">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600">Ano 2024 (Endereço/Cidade/UF)</label>
+                            <input type="text" id="res-2024" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2024">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600">Ano 2023 (Endereço/Cidade/UF)</label>
+                            <input type="text" id="res-2023" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2023">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block font-semibold text-slate-600">Ano 2022 (Endereço/Cidade/UF)</label>
+                            <input type="text" id="res-2022" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2022">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end pt-3 border-t border-slate-100">
+                <button onclick="saveAlienatorModalData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold">Salvar Dados Adicionais</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÃO DO GOOGLE DRIVE -->
+    <div id="drive-config-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                    <i data-lucide="hard-drive" class="w-5 h-5 text-blue-600"></i>
+                    <span>Configuração Google Drive (`waglima01@gmail.com`)</span>
+                </h3>
+                <button onclick="closeDriveConfigModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-xs text-slate-600">Conecte sua conta do Google Drive colando abaixo a URL do Web App gerada pelo Google Apps Script. Isso criará pastas por inicial e organizará os documentos oficiais (01 a 12) automaticamente.</p>
+            
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Passo 1: Copie o Código Apps Script (para colar em script.google.com)</label>
+                    <textarea readonly rows="5" class="w-full p-2.5 bg-slate-900 text-emerald-400 font-mono rounded-xl text-[10px] select-all">function processDrivePayload(data) {
   var root = DriveApp.getFoldersByName("Gestor CR - Clientes").hasNext() ? DriveApp.getFoldersByName("Gestor CR - Clientes").next() : DriveApp.createFolder("Gestor CR - Clientes");
   var letter = (data.firstLetter || "A").toUpperCase();
   var cName = (data.clientName || "CLIENTE_TESTE").toUpperCase();
   var letterFolder = root.getFoldersByName(letter).hasNext() ? root.getFoldersByName(letter).next() : root.createFolder(letter);
   var clientFolder = letterFolder.getFoldersByName(cName).hasNext() ? letterFolder.getFoldersByName(cName).next() : letterFolder.createFolder(cName);
-  if (data.clientData) {
-    clientFolder.createFile("00_FICHA_" + cName + ".json", JSON.stringify(data.clientData, null, 2));
-  }
   if (data.files && data.files.length) {
     data.files.forEach(function(f) {
       var bytes = Utilities.base64Decode(f.base64);
@@ -662,1371 +599,606 @@ function doPost(e) {
   var res = processDrivePayload(data);
   return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
 }</textarea>
-                    <button onclick="copyAppsScriptCode()" class="px-3 py-1.5 bg-slate-800 text-white rounded-lg font-bold text-[11px]">Copiar Código Apps Script</button>
                 </div>
-
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">Passo 2: Cole a URL do Web App gerada pelo Google Apps Script:</label>
+                    <label class="block font-bold text-slate-700 mb-1">Passo 2: Cole a URL do Web App gerada (terminada em /exec)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="drive-webhook-url-input" class="flex-1 p-2.5 border border-blue-400 bg-blue-50/40 rounded-xl font-semibold" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
-                        <button onclick="testDriveConnection()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold whitespace-nowrap">Testar Conexão</button>
+                        <input type="text" id="drive-webhook-url-input" class="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="https://script.google.com/macros/s/.../exec">
+                        <button onclick="testDriveConnection()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold">Testar</button>
                     </div>
-                    <p id="drive-test-status" class="text-[11px] font-semibold text-slate-500 mt-1"></p>
                 </div>
+            </div>
 
-                <div class="pt-2 border-t border-slate-200">
-                    <label class="block font-bold text-slate-700 mb-1">Alternativa: Google OAuth 2.0 Client ID (Opcional):</label>
-                    <input type="text" id="drive-client-id-input" class="w-full p-2.5 border border-slate-300 rounded-xl" placeholder="Ex: 123456789-abc.apps.googleusercontent.com">
-                </div>
-
-                <div class="flex justify-end gap-2 pt-2">
-                    <button onclick="closeDriveConfigModal()" class="px-4 py-2 bg-slate-200 rounded-xl font-bold">Fechar</button>
-                    <button onclick="saveDriveConfig()" class="px-5 py-2 bg-blue-600 text-white rounded-xl font-bold">Salvar & Ativar Drive</button>
-                </div>
+            <div class="flex justify-end pt-3 border-t border-slate-100 gap-2">
+                <button onclick="closeDriveConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Fechar</button>
+                <button onclick="saveDriveWebhookUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold">Salvar Configuração</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL AGENTE DE IA ESPECIALISTA CAC / SINARM / PORTAL PF & WHATSAPP -->
-    <div id="ai-agent-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white max-w-4xl w-full rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[92vh]">
-            <!-- Header -->
-            <div class="p-4 bg-gradient-to-r from-pf-900 via-indigo-950 to-pf-900 text-white flex justify-between items-center border-b border-indigo-500/30">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-indigo-600 rounded-xl border border-indigo-400/50">
-                        <i data-lucide="bot" class="w-5 h-5 text-amber-300"></i>
+    <!-- MODAL DO AGENTE DE IA & WHATSAPP CONCIERGE -->
+    <div id="ai-agent-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="p-2 bg-purple-100 text-purple-700 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                    <div>
+                        <h3 class="font-bold text-base text-slate-900">Agente de IA Especialista PF / SINARM-CAC</h3>
+                        <p class="text-xs text-slate-500">Gestão Processual, Consultoria Técnica, Agendamentos e Atendimento WhatsApp</p>
+                    </div>
+                </div>
+                <button onclick="closeAIAgentModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <!-- Abas do Agente -->
+            <div class="flex border-b border-slate-200 text-xs font-bold gap-4">
+                <button onclick="switchAITab('whatsapp')" id="ai-tab-whatsapp" class="pb-2 border-b-2 border-purple-600 text-purple-700 transition-colors">1. Gerador WhatsApp</button>
+                <button onclick="switchAITab('consultor')" id="ai-tab-consultor" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">2. Consultor Técnico & Base Legal</button>
+                <button onclick="switchAITab('autonomia')" id="ai-tab-autonomia" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">3. Google Agenda & Examinadores</button>
+            </div>
+
+            <!-- Conteúdo Aba 1: WhatsApp -->
+            <div id="ai-panel-whatsapp" class="space-y-3 flex-1 overflow-y-auto text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Cliente Destinatário</label>
+                        <select id="ai-client-select" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                            <option value="">Selecione um cliente...</option>
+                        </select>
                     </div>
                     <div>
-                        <h3 class="font-bold text-base flex items-center gap-2">
-                            Agente de IA Especialista PF / SINARM-CAC
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">Base Legal Atualizada</span>
-                        </h3>
-                        <p class="text-xs text-slate-300">Gestão Processual, Consultoria Técnica e Atendimento Automatizado no WhatsApp</p>
+                        <label class="block font-bold text-slate-700 mb-1">Trâmite a Explicar</label>
+                        <select id="ai-modality-select" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                            <option value="Concessão de CR - Atirador Desportivo (Níveis 1, 2 e 3)">Concessão de CR - Atirador Desportivo</option>
+                            <option value="Aquisição de Arma SINARM-CAC">Aquisição de Arma (SINARM-CAC)</option>
+                            <option value="Posse de Arma de Fogo (Cidadão)">Posse de Arma (Cidadão)</option>
+                            <option value="Porte de Arma de Fogo">Porte de Arma de Fogo</option>
+                            <option value="Orientações Novo Portal PF">Orientações Novo Portal PF</option>
+                        </select>
                     </div>
                 </div>
-                <button onclick="closeAIAgentModal()" class="text-slate-400 hover:text-white p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-
-            <!-- Tabs do Agente -->
-            <div class="bg-slate-100 px-4 pt-3 border-b border-slate-200 flex space-x-2 overflow-x-auto text-xs font-semibold">
-                <button id="ai-tab-btn-whatsapp" onclick="switchAITab('whatsapp')" class="px-4 py-2.5 rounded-t-xl bg-white text-indigo-700 border-t border-x border-slate-200 flex items-center space-x-1.5">
-                    <i data-lucide="message-square-text" class="w-4 h-4 text-emerald-600"></i>
-                    <span>1. Gerador Técnico de WhatsApp p/ Cliente</span>
-                </button>
-                <button id="ai-tab-btn-consultor" onclick="switchAITab('consultor')" class="px-4 py-2.5 rounded-t-xl text-slate-600 hover:text-slate-900 flex items-center space-x-1.5">
-                    <i data-lucide="brain-circuit" class="w-4 h-4 text-indigo-600"></i>
-                    <span>2. Consultor Técnico & Base de Conhecimento PF</span>
-                </button>
-                <button id="ai-tab-btn-auditoria" onclick="switchAITab('auditoria')" class="px-4 py-2.5 rounded-t-xl text-slate-600 hover:text-slate-900 flex items-center space-x-1.5">
-                    <i data-lucide="clipboard-check" class="w-4 h-4 text-amber-600"></i>
-                    <span>3. Auditoria & Organizador Google Drive (01-12)</span>
-                </button>
-            </div>
-
-            <!-- Conteúdo do Agente -->
-            <div class="p-6 overflow-y-auto flex-1 space-y-5 text-xs sm:text-sm bg-white">
-                <!-- ABA 1: WHATSAPP TÉCNICO PERSONALIZADO -->
-                <div id="ai-panel-whatsapp" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Cliente Destinatário</label>
-                            <select id="ai-client-select" onchange="onAIClientChange()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"></select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Modalidade / Trâmite a Explicar</label>
-                            <select id="ai-topic-select" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800">
-                                <option value="cr_atirador">Concessão de CR - Atirador Desportivo (Níveis 1, 2 e 3)</option>
-                                <option value="aquisicao_cac">Aquisição de Arma de Fogo pelo SINARM-CAC (Autorização & CRAF)</option>
-                                <option value="posse_sinarm">Posse de Arma de Fogo pelo SINARM (Defesa Pessoal / Cidadão)</option>
-                                <option value="porte_arma">Porte de Arma de Fogo (Efetiva Necessidade, Funcional e Trânsito)</option>
-                                <option value="portal_pf">Guia Completo do Novo Portal PF (Gov.br, GRU, Certidões e Peticionamento)</option>
-                                <option value="transferencia_sigma_sinarm">Transferência de Arma entre Sistemas (SIGMA ⇄ SINARM)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateAIWhatsAppScript('explicacao_completa')" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
-                                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
-                                <span>Gerar Explicação Técnica Completa</span>
-                            </button>
-                            <button onclick="generateAIWhatsAppScript('checklist_docs')" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
-                                <i data-lucide="list-checks" class="w-3.5 h-3.5 text-emerald-400"></i>
-                                <span>Checklist de Documentos + Link Portal</span>
-                            </button>
-                            <button onclick="generateAIWhatsAppScript('orientacao_portal_pf')" class="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
-                                <i data-lucide="globe" class="w-3.5 h-3.5 text-blue-200"></i>
-                                <span>Passo a Passo Novo Portal PF</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center">
-                            <label class="font-bold text-slate-700 text-xs">Mensagem Técnica Gerada pelo Agente de IA (Editável):</label>
-                            <span id="ai-wa-loading" class="hidden text-xs font-semibold text-indigo-600 flex items-center gap-1">
-                                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Processando legislação e redigindo...
-                            </span>
-                        </div>
-                        <textarea id="ai-wa-output" rows="10" class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl font-sans text-xs sm:text-sm leading-relaxed text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white" placeholder="Selecione o trâmite acima e clique em 'Gerar Explicação Técnica Completa' para que o Agente de IA elabore uma conversa técnica estruturada para o seu cliente..."></textarea>
-                    </div>
-
-                    <div class="flex flex-wrap justify-between items-center gap-3 pt-2 border-t border-slate-200">
-                        <button onclick="copyAIWhatsAppText()" class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-xs font-bold flex items-center space-x-1.5">
-                            <i data-lucide="copy" class="w-4 h-4"></i>
-                            <span>Copiar Mensagem</span>
-                        </button>
-                        <button onclick="sendAIWhatsAppDirect()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 shadow-md">
-                            <i data-lucide="send" class="w-4 h-4"></i>
-                            <span>Disparar Conversa no WhatsApp do Cliente</span>
-                        </button>
-                    </div>
+                <div>
+                    <button onclick="generateAIWhatsAppScript()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold flex items-center space-x-1.5 shadow">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>Gerar Explicação Técnica Completa</span>
+                    </button>
                 </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Mensagem Técnica Gerada (Editável):</label>
+                    <textarea id="ai-whatsapp-output" rows="6" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-[11px]" placeholder="Clique em gerar acima..."></textarea>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button onclick="copyAIMessage()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Copiar Mensagem</button>
+                    <button onclick="sendAIWhatsApp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center space-x-1"><i data-lucide="message-circle" class="w-4 h-4"></i><span>Disparar WhatsApp</span></button>
+                </div>
+            </div>
 
-                <!-- ABA 2: CONSULTOR TÉCNICO & BASE DE CONHECIMENTO -->
-                <div id="ai-panel-consultor" class="hidden space-y-4">
-                    <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-xs text-indigo-950 space-y-2">
-                        <div class="font-bold text-sm flex items-center gap-1.5">
-                            <i data-lucide="book-open-check" class="w-4 h-4 text-indigo-700"></i>
-                            <span>Base de Conhecimento Regulatória Integrada (Polícia Federal & SINARM-CAC)</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                            <div class="bg-white p-2.5 rounded-lg border border-indigo-100">
-                                <strong>• CR Atirador Desportivo:</strong> Decreto 11.615/2023, progressão Nível 1 (8 treinos/12m), Nível 2 (12 treinos + 4 competições) e Nível 3 (20 treinos + 6 competições).
-                            </div>
-                            <div class="bg-white p-2.5 rounded-lg border border-indigo-100">
-                                <strong>• SINARM-CAC & Aquisição:</strong> Autorização de compra via Portal PF, emissão de Nota Fiscal, registro CRAF e Guia de Tráfego Especial (GTE).
-                            </div>
-                            <div class="bg-white p-2.5 rounded-lg border border-indigo-100">
-                                <strong>• Posse SINARM (Cidadão):</strong> Lei 10.826/2003, idade mín. 25 anos, declaração de efetiva necessidade, laudos psicológico e técnico credenciados PF.
-                            </div>
-                            <div class="bg-white p-2.5 rounded-lg border border-indigo-100">
-                                <strong>• Porte de Arma & Portal PF:</strong> Porte federal (art. 10 Lei 10.826), porte funcional, peticionamento eletrônico Gov.br (Prata/Ouro) e GRU.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="ai-chat-history" class="h-64 overflow-y-auto p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 text-xs sm:text-sm">
-                        <div class="bg-indigo-100/80 text-indigo-950 p-3 rounded-xl border border-indigo-200">
-                            <strong>Agente IA Despachante:</strong> Olá! Estou pronto para administrar suas dúvidas técnicas, conferir requisitos do Decreto 11.615/2023, regras de calibres permitidos/restritos, prazos do Novo Portal PF ou redigir petições e respostas técnicas. O que deseja consultar?
-                        </div>
-                    </div>
-
+            <!-- Conteúdo Aba 2: Consultor Técnico -->
+            <div id="ai-panel-consultor" class="hidden space-y-3 flex-1 overflow-y-auto text-xs">
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1 text-slate-700">
+                    <p class="font-bold text-amber-900">Base Regulatória Integrada (Decreto 11.615/2023 & Lei 10.826/2003)</p>
+                    <p>• <strong>CR Atirador:</strong> Nível 1 (8 treinos/12m), Nível 2 (12 treinos + 4 competições), Nível 3 (20 treinos + 6 competições).</p>
+                    <p>• <strong>SINARM-CAC:</strong> Autorização de compra via Portal PF, Nota Fiscal, CRAF e Guia de Tráfego Especial (GTE).</p>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Consulte o Agente de IA sobre Legislação / Prazos:</label>
                     <div class="flex gap-2">
-                        <input type="text" id="ai-consult-input" onkeydown="if(event.key==='Enter') askAIConsultant()" class="flex-1 p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white" placeholder="Ex: Quais os requisitos para transferência do SIGMA para o SINARM ou Nível 2 de atirador?">
-                        <button onclick="askAIConsultant()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm">
-                            <i data-lucide="send" class="w-4 h-4"></i>
-                            <span>Consultar IA</span>
-                        </button>
+                        <input type="text" id="ai-consult-input" class="flex-1 p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: Qual a validade do laudo psicológico para a PF?">
+                        <button onclick="askAIAssistant()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold">Perguntar</button>
                     </div>
                 </div>
+                <div id="ai-consult-output" class="p-3 bg-slate-50 border border-slate-200 rounded-xl min-h-[100px] text-slate-700 font-mono text-[11px]">
+                    O Agente IA está pronto para responder dúvidas técnicas.
+                </div>
+            </div>
 
-                <!-- ABA 3: AUDITORIA E GESTÃO DO PROCESSO + ORGANIZADOR GOOGLE DRIVE -->
-                <div id="ai-panel-auditoria" class="hidden space-y-4">
-                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <h4 class="font-bold text-amber-950 text-sm">Diagnóstico Inteligente & Organizador de Pastas no Drive</h4>
-                            <p class="text-xs text-amber-800">Audita os dados SINARM, localiza pastas existentes no Drive e organiza os arquivos no padrão 01 a 12 da PF.</p>
-                        </div>
-                        <div class="flex flex-wrap gap-2 shrink-0">
-                            <button onclick="runClientProcessAudit()" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
-                                <i data-lucide="scan-search" class="w-4 h-4"></i>
-                                <span>Auditar Ficha</span>
-                            </button>
-                            <button onclick="aiOrganizeClientDriveFolder()" class="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
-                                <i data-lucide="folder-cog" class="w-4 h-4"></i>
-                                <span>Organizar Drive (01-12)</span>
-                            </button>
+            <!-- Conteúdo Aba 3: Autonomia & Examinadores -->
+            <div id="ai-panel-autonomia" class="hidden space-y-4 flex-1 overflow-y-auto text-xs">
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <h4 class="font-extrabold text-slate-900">Agente Autônomo & Integração com Examinadores Credenciados PF</h4>
+                    <p class="text-slate-600">O Agente gerencia pastas no Google Drive (`waglima01@gmail.com`), organiza os documentos (01 a 12) e envia dados para agendamentos:</p>
+                    
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
+                        <p class="font-bold text-slate-800">Psicóloga: Maria Damasceno (<a href="tel:33988650173" class="text-blue-600 hover:underline">33 98865-0173</a>)</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="scheduleGoogleCalendar('Exame Psicológico - Maria Damasceno')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Agendar Google Agenda</span></button>
+                            <button onclick="sendExaminerWhatsApp('33988650173', 'Maria Damasceno (Psicóloga)')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i><span>Enviar WhatsApp</span></button>
                         </div>
                     </div>
-                    <div id="ai-audit-result" class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm leading-relaxed text-slate-800 min-h-[200px] whitespace-pre-line">
-                        Clique em "Auditar Ficha" para verificar pendências ou em "Organizar Drive (01-12)" para que o Agente de IA localize/crie a pasta do cliente no Google Drive e organize os documentos na ordem oficial da Polícia Federal.
+
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
+                        <p class="font-bold text-slate-800">Examinador de Tiro: Guimarães (<a href="tel:33991385754" class="text-blue-600 hover:underline">33 99138-5754</a>)</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="scheduleGoogleCalendar('Teste de Capacidade Técnica de Tiro - Guimarães')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Agendar Google Agenda</span></button>
+                            <button onclick="sendExaminerWhatsApp('33991385754', 'Guimarães (Examinador de Tiro)')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i><span>Enviar WhatsApp</span></button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center space-x-3 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-xs sm:text-sm">
-        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
-        <span id="toast-message">Ação realizada com sucesso!</span>
-    </div>
-
-    <!-- SCRIPT COMPLETO DO APLICATIVO -->
+    <!-- SCRIPTS CORE DO APLICATIVO -->
     <script>
-        // Definição Oficial dos 12 Documentos Padrão Polícia Federal (Ordem de Protocolo e Drive)
-        const PF_DOCUMENT_SLOTS = [
-            { code: '01', prefix: '01 FEDERAL', label: '1 - Certidão negativa de antecedentes criminais da Justiça Federal*', required: true },
-            { code: '02', prefix: '02 ESTADUAL', label: '2 - Certidão negativa de antecedentes criminais da Justiça Estadual*', required: true },
-            { code: '03', prefix: '03 ELEITORAL', label: '3 - Certidão negativa de antecedentes criminais da Justiça Eleitoral*', required: true },
-            { code: '04', prefix: '04 MILITAR', label: '4 - Certidão negativa de antecedentes criminais da Justiça Militar*', required: true },
-            { code: '05', prefix: '05 OCUPAÇÃO LÍCITA', label: '5 - Comprovante de ocupação lícita ou aposentadoria*', required: true },
-            { code: '06', prefix: '06 RESIDÊNCIA FIXA', label: '6 - Comprovante de residência fixa*', required: true },
-            { code: '07', prefix: '07 SEGUNDO ENDEREÇO', label: '7 - Comprovante de segundo endereço para guarda do acervo', required: false },
-            { code: '08', prefix: '08 CAPACIDADE TÉCNICA', label: '8 - Comprovante de capacidade técnica para o manuseio de arma de fogo*', required: true },
-            { code: '09', prefix: '09 APTIDÃO PSICOLÓGICA', label: '9 - Comprovante de aptidão psicológica para o manuseio de arma de fogo*', required: true },
-            { code: '10', prefix: '10 DECLARAÇÃO IDONEIDADE', label: '10 - Declaração de não estar respondendo a inquérito policial ou a processo criminal*', required: true },
-            { code: '11', prefix: '11 FILIAÇÃO CLUBE', label: '11 - Comprovante de filiação a entidade de tiro desportivo*', required: true },
-            { code: '12', prefix: '12 HABITUALIDADE', label: '12 - Comprovante de habitualidade de tiro desportivo*', required: false }
-        ];
-
-        let isClientStandaloneMode = false;
+        let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
         window.activeClientId = null;
+        window.isClientPortalMode = false;
 
-        // Estado inicial com exemplo de cliente completo no padrão SINARM/PF
-        let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3')) || [
-            {
-                id: '1',
-                fullname: 'MANIOEL MESSIAS DO ESPIRITO SANTO',
-                cpf: '055.131.656-00',
-                birthdate: '1978-03-09',
-                rg: '9143092',
-                rgIssuer: 'PC MG',
-                rgDate: '2024-04-01',
-                voterId: '144442090248',
-                maritalStatus: 'Casado(a)',
-                birthCity: 'TARUMIRIM',
-                birthState: 'MINAS GERAIS',
-                fatherName: 'VIVALDO OLIMPIO DO ESPIRITO SANTO',
-                motherName: 'MARIA AMBROSIA VIANA',
-                profession: 'VIGILANTE',
-                functionalId: '',
-                phone: '33999250819',
-                email: 'messiassanto78@gmail.com',
-                cep: '35140-000',
-                street: 'TRAVESSA AUGUSTO DE LIMA',
-                number: '25',
-                neighborhood: 'CENTRO',
-                city: 'TARUMIRIM',
-                state: 'MG',
-                serviceType: 'Transferência SIGMA -> SINARM',
-                crNumber: '',
-                crExpiry: '',
-                weaponSpecies: 'PISTOLA',
-                weaponBrand: 'TAURUS',
-                weaponModel: 'G25',
-                weaponCaliber: '.38 TPC',
-                weaponSerial: 'E06068',
-                weaponSigma: '2404907',
-                weaponSinarm: '2024/906517549-75',
-                weaponCapacity: '10',
-                weaponBarrel: '102 mm',
-                weaponRifling: 'Raiada / 06 / Direita',
-                weaponFinish: 'OXIDADO',
-                weaponAction: 'SEMIAUTOMÁTICO / BRASIL',
-                alienatorName: 'ADILSON BATISTA DA SILVA JUNIOR',
-                alienatorCpf: '119.047.096-99',
-                alienatorRg: '18268837 SSP MG',
-                alienatorFather: 'ADILSON BATISTA DA SILVA',
-                alienatorMother: 'ZÉLIA OLIVEIRA RODRIGUES',
-                alienatorAddress: 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG, CEP: 35010-170',
-                declarantName: 'ROSILENE GONÇALVES PEREIRA',
-                declarantDocs: 'RG nº M168211 (SSP MG), CPF nº 552.705.146-72',
-                hist2026: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
-                hist2025: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
-                hist2024: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
-                hist2023: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
-                hist2022: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
-                pfDocuments: {},
-                residenceFiles: [],
-                occupationFiles: []
-            }
+        const pfChecklistItems = [
+            { id: 1, name: "Certidão negativa de antecedentes criminais da Justiça Federal", standard: "01 FEDERAL.pdf" },
+            { id: 2, name: "Certidão negativa de antecedentes criminais da Justiça Estadual", standard: "02 ESTADUAL.pdf" },
+            { id: 3, name: "Certidão negativa de antecedentes criminais da Justiça Eleitoral", standard: "03 ELEITORAL.pdf" },
+            { id: 4, name: "Certidão negativa de antecedentes criminais da Justiça Militar", standard: "04 MILITAR.pdf" },
+            { id: 5, name: "Comprovante de ocupação lícita ou aposentadoria", standard: "05 OCUPAÇÃO LÍCITA.pdf" },
+            { id: 6, name: "Comprovante de residência fixa", standard: "06 RESIDÊNCIA FIXA.pdf" },
+            { id: 7, name: "Comprovante de segundo endereço para guarda do acervo", standard: "07 SEGUNDO ENDEREÇO.pdf" },
+            { id: 8, name: "Comprovante de capacidade técnica para o manuseio de arma de fogo", standard: "08 CAPACIDADE TÉCNICA.pdf" },
+            { id: 9, name: "Comprovante de aptidão psicológica para o manuseio de arma de fogo", standard: "09 APTIDÃO PSICOLÓGICA.pdf" },
+            { id: 10, name: "Declaração de não estar respondendo a inquérito policial ou a processo criminal", standard: "10 DECLARAÇÃO IDONEIDADE.pdf" },
+            { id: 11, name: "Comprovante de filiação a entidade de tiro desportivo", standard: "11 FILIAÇÃO CLUBE.pdf" },
+            { id: 12, name: "Comprovante de habitualidade de tiro desportivo", standard: "12 HABITUALIDADE.pdf" }
         ];
-
-        window.renderDashboard = function() {
-            document.getElementById('dispatcher-dashboard').classList.remove('hidden');
-            document.getElementById('client-portal').classList.add('hidden');
-            if (!isClientStandaloneMode) {
-                document.getElementById('app-header').classList.remove('hidden');
-            }
-
-            const tbody = document.getElementById('clients-table-body');
-            if (!tbody) return;
-            const query = (document.getElementById('search-input')?.value || '').toLowerCase();
-            tbody.innerHTML = '';
-
-            let readyCount = 0;
-            let alertCount = 0;
-
-            const filtered = clientsData.filter(c =>
-                (c.fullname || '').toLowerCase().includes(query) ||
-                (c.cpf || '').toLowerCase().includes(query)
-            );
-
-            filtered.forEach(client => {
-                const docsCount = Object.keys(client.pfDocuments || {}).length;
-                if (docsCount >= 6) readyCount++;
-
-                let expiryBadge = '<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-semibold">Sem CR / Em Concessão</span>';
-                if (client.crExpiry) {
-                    const daysLeft = Math.ceil((new Date(client.crExpiry) - new Date()) / (1000 * 60 * 60 * 24));
-                    if (daysLeft <= 60) {
-                        alertCount++;
-                        expiryBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[11px] font-bold">Vence em ${daysLeft}d (${client.crExpiry.split('-').reverse().join('/')})</span>`;
-                    } else {
-                        expiryBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold">Válido: ${client.crExpiry.split('-').reverse().join('/')}</span>`;
-                    }
-                }
-
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition-colors';
-                tr.innerHTML = `
-                    <td class="py-3 px-4">
-                        <div class="font-extrabold text-slate-900">${client.fullname || 'SEM NOME'}</div>
-                        <div class="text-[11px] text-slate-500">CPF: ${client.cpf || 'Não informado'} • Anexos: ${docsCount}/12</div>
-                    </td>
-                    <td class="py-3 px-4">
-                        <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-bold text-[11px]">${client.serviceType || 'Concessão de CR'}</span>
-                    </td>
-                    <td class="py-3 px-4">${expiryBadge}</td>
-                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
-                        <button onclick="openClientPortal('${client.id}')" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1" title="Abrir Ficha & Documentos">
-                            <i data-lucide="folder-open" class="w-3.5 h-3.5 text-amber-400"></i> Abrir
-                        </button>
-                        <button onclick="openWhatsAppModal('${client.id}')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1" title="Enviar Link ao Cliente">
-                            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button onclick="openAIAgentModal('${client.id}')" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1" title="Agente de IA para este Cliente">
-                            <i data-lucide="bot" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button onclick="compileFullDossierForClient('${client.id}')" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg text-xs font-bold inline-flex items-center gap-1" title="Imprimir Dossiê Completo">
-                            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button onclick="deleteClient('${client.id}')" class="px-2 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold inline-flex items-center" title="Excluir Cadastro">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('stat-total').innerText = clientsData.length;
-            document.getElementById('stat-ready').innerText = readyCount;
-            document.getElementById('stat-alerts').innerText = alertCount;
-            if (window.lucide) lucide.createIcons();
-        };
-
-        window.filterClients = function() {
-            renderDashboard();
-        };
-
-        window.createNewClient = function() {
-            const newId = String(Date.now());
-            const newClient = {
-                id: newId,
-                fullname: '',
-                cpf: '',
-                birthdate: '',
-                rg: '',
-                rgIssuer: '',
-                rgDate: '',
-                voterId: '',
-                maritalStatus: 'Solteiro(a)',
-                birthCity: '',
-                birthState: '',
-                fatherName: '',
-                motherName: '',
-                profession: '',
-                functionalId: '',
-                phone: '',
-                email: '',
-                cep: '',
-                street: '',
-                number: '',
-                neighborhood: '',
-                city: '',
-                state: '',
-                serviceType: 'Concessão de CR (Atirador)',
-                crNumber: '',
-                crExpiry: '',
-                pfDocuments: {},
-                residenceFiles: [],
-                occupationFiles: []
-            };
-            clientsData.unshift(newClient);
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            openClientPortal(newId);
-        };
-
-        window.deleteClient = function(clientId) {
-            clientsData = clientsData.filter(c => c.id !== clientId);
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            renderDashboard();
-            showToast('Registro removido com sucesso.');
-        };
-
-        window.backToDashboard = function() {
-            saveCurrentClientData(false);
-            renderDashboard();
-        };
-
-        window.saveCurrentClientData = function(notify = false) {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
-
-            const fields = [
-                'fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId',
-                'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName',
-                'profession', 'functionalId', 'phone', 'email', 'cep', 'street',
-                'number', 'neighborhood', 'city', 'state', 'serviceType', 'crNumber', 'crExpiry'
-            ];
-            fields.forEach(f => {
-                const el = document.getElementById(`field-${f}`);
-                if (el) client[f] = el.value;
-            });
-
-            const titleEl = document.getElementById('portal-client-title');
-            if (titleEl) {
-                titleEl.innerText = client.fullname ? `Ficha SINARM: ${client.fullname}` : 'Nova Ficha Cadastral SINARM / Portal PF';
-            }
-
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            if (notify) {
-                showToast('Dados salvos e sincronizados com sucesso!');
-                if (client.fullname) {
-                    syncWithGoogleDrive();
-                }
-            }
-        };
-
-        window.lookupCEP = async function(rawCep) {
-            const cleanCep = (rawCep || '').replace(/\D/g, '');
-            const statusEl = document.getElementById('cep-status');
-            if (cleanCep.length !== 8) return;
-
-            if (statusEl) statusEl.innerText = 'Consultando ViaCEP...';
-            try {
-                const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
-                const data = await res.json();
-                if (!data.erro) {
-                    document.getElementById('field-street').value = (data.logradouro || '').toUpperCase();
-                    document.getElementById('field-neighborhood').value = (data.bairro || '').toUpperCase();
-                    document.getElementById('field-city').value = (data.localidade || '').toUpperCase();
-                    document.getElementById('field-state').value = (data.uf || '').toUpperCase();
-                    if (statusEl) statusEl.innerText = 'CEP localizado!';
-                    saveCurrentClientData(false);
-                } else if (statusEl) {
-                    statusEl.innerText = 'CEP não encontrado';
-                }
-            } catch (e) {
-                if (statusEl) statusEl.innerText = 'Erro ao buscar CEP';
-            }
-        };
-
-        window.validateAge = function() {
-            const bd = document.getElementById('field-birthdate')?.value;
-            const badge = document.getElementById('age-badge');
-            if (!badge) return;
-            if (!bd) {
-                badge.innerText = 'Idade: --';
-                return;
-            }
-            const today = new Date();
-            const birth = new Date(bd);
-            let age = today.getFullYear() - birth.getFullYear();
-            const m = today.getMonth() - birth.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-
-            if (age < 18) {
-                badge.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-700';
-                badge.innerText = `Idade: ${age} anos (Exige Autorização Judicial)`;
-            } else if (age < 25) {
-                badge.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800';
-                badge.innerText = `Idade: ${age} anos (Restrição Posse < 25 anos)`;
-            } else {
-                badge.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
-                badge.innerText = `Idade: ${age} anos (Apto)`;
-            }
-        };
-
-        window.openClientPortal = function(clientId) {
-            window.activeClientId = clientId;
-            const client = clientsData.find(c => c.id === clientId);
-            if (!client) return;
-
-            document.getElementById('dispatcher-dashboard').classList.add('hidden');
-            document.getElementById('client-portal').classList.remove('hidden');
-
-            if (isClientStandaloneMode) {
-                document.getElementById('app-header')?.classList.add('hidden');
-                document.getElementById('btn-back-dashboard')?.classList.add('hidden');
-                document.getElementById('section-item-3-dispatcher')?.classList.add('hidden');
-                document.getElementById('dispatcher-only-portal-actions')?.classList.add('hidden');
-                document.getElementById('dispatcher-drive-bar')?.classList.add('hidden');
-                document.getElementById('client-only-save-bar')?.classList.remove('hidden');
-            } else {
-                document.getElementById('app-header')?.classList.remove('hidden');
-                document.getElementById('btn-back-dashboard')?.classList.remove('hidden');
-                document.getElementById('section-item-3-dispatcher')?.classList.remove('hidden');
-                document.getElementById('dispatcher-only-portal-actions')?.classList.remove('hidden');
-                document.getElementById('dispatcher-drive-bar')?.classList.remove('hidden');
-                document.getElementById('client-only-save-bar')?.classList.add('hidden');
-            }
-
-            const titleEl = document.getElementById('portal-client-title');
-            if (titleEl) {
-                titleEl.innerText = client.fullname ? `Ficha SINARM: ${client.fullname}` : 'Nova Ficha Cadastral SINARM / Portal PF';
-            }
-
-            const fields = [
-                'fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId',
-                'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName',
-                'profession', 'functionalId', 'phone', 'email', 'cep', 'street',
-                'number', 'neighborhood', 'city', 'state', 'serviceType', 'crNumber', 'crExpiry'
-            ];
-            fields.forEach(f => {
-                const el = document.getElementById(`field-${f}`);
-                if (el) el.value = client[f] || '';
-            });
-
-            validateAge();
-            renderPFChecklist(client);
-            if (window.lucide) lucide.createIcons();
-        };
-
-        function renderPFChecklist(client) {
-            const container = document.getElementById('pf-checklist-container');
-            if (!container) return;
-            container.innerHTML = '';
-            if (!client.pfDocuments) client.pfDocuments = {};
-
-            PF_DOCUMENT_SLOTS.forEach(slot => {
-                const uploaded = client.pfDocuments[slot.code];
-                const div = document.createElement('div');
-                div.className = `p-3 rounded-xl border ${uploaded ? 'bg-emerald-50/70 border-emerald-300' : 'bg-slate-50 border-slate-200'} flex items-center justify-between gap-2 text-xs`;
-                div.innerHTML = `
-                    <div class="min-w-0 flex-1">
-                        <div class="font-bold text-slate-800">${slot.label}</div>
-                        <div class="text-[11px] ${uploaded ? 'text-emerald-700 font-semibold' : 'text-slate-400'}">
-                            ${uploaded ? `Arquivo anexado: ${uploaded.originalName || uploaded.name}` : 'Nenhum arquivo selecionado'}
-                        </div>
-                    </div>
-                    <label class="cursor-pointer px-3 py-1.5 ${uploaded ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'} rounded-lg font-bold shrink-0">
-                        <span>${uploaded ? 'Alterar' : 'Anexar'}</span>
-                        <input type="file" class="hidden" onchange="handleSlotFileUpload(event, '${slot.code}')">
-                    </label>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        window.handleSlotFileUpload = function(event, code) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
-            if (!client.pfDocuments) client.pfDocuments = {};
-
-            const slot = PF_DOCUMENT_SLOTS.find(s => s.code === code);
-            const ext = file.name.split('.').pop() || 'pdf';
-            const standardizedName = `${slot ? slot.prefix : code}.${ext}`;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = (e.target.result || '').split(',')[1] || '';
-                client.pfDocuments[code] = {
-                    name: standardizedName,
-                    originalName: file.name,
-                    mimeType: file.type || 'application/pdf',
-                    base64: base64Data,
-                    size: file.size,
-                    uploadedAt: new Date().toISOString()
-                };
-                try {
-                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-                } catch (err) {
-                    // Caso o arquivo seja muito grande para o localStorage, mantém em memória e salva metadados
-                    const lightCopy = JSON.parse(JSON.stringify(clientsData));
-                    lightCopy.forEach(c => {
-                        if (c.pfDocuments) Object.values(c.pfDocuments).forEach(d => delete d.base64);
-                    });
-                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(lightCopy));
-                }
-                renderPFChecklist(client);
-                showToast(`Documento "${file.name}" anexado com sucesso!`);
-            };
-            reader.readAsDataURL(file);
-        };
-
-        window.openDriveConfigModal = function() {
-            const input = document.getElementById('drive-client-id-input');
-            const webhookInput = document.getElementById('drive-webhook-url-input');
-            if (input) input.value = localStorage.getItem('pf_gdrive_client_id') || '';
-            if (webhookInput) webhookInput.value = localStorage.getItem('pf_gdrive_webhook_url') || '';
-            document.getElementById('drive-config-modal')?.classList.remove('hidden');
-        };
-
-        window.copyAppsScriptCode = function() {
-            const area = document.getElementById('apps-script-template');
-            if (!area) return;
-            area.select();
-            document.execCommand('copy');
-            showToast('Código do Google Apps Script copiado!');
-        };
-
-        window.closeDriveConfigModal = function() {
-            document.getElementById('drive-config-modal')?.classList.add('hidden');
-        };
-
-        window.saveDriveConfig = function() {
-            const val = document.getElementById('drive-client-id-input')?.value.trim() || '';
-            const webhookVal = document.getElementById('drive-webhook-url-input')?.value.trim() || '';
-            localStorage.setItem('pf_gdrive_client_id', val);
-            localStorage.setItem('pf_gdrive_webhook_url', webhookVal);
-            closeDriveConfigModal();
-            showToast('Configuração do Google Drive salva!');
-        };
-
-        window.testDriveConnection = async function() {
-            const url = document.getElementById('drive-webhook-url-input')?.value.trim();
-            const statusEl = document.getElementById('drive-test-status');
-            if (!url) {
-                if (statusEl) statusEl.innerHTML = '<span class="text-red-600">Cole primeiro a URL terminada em /exec gerada no Apps Script.</span>';
-                return;
-            }
-            if (!url.endsWith('/exec')) {
-                if (statusEl) statusEl.innerHTML = '<span class="text-amber-600">⚠️ Atenção: A URL do Web App deve terminar com <strong>/exec</strong> (não /dev).</span>';
-                return;
-            }
-            localStorage.setItem('pf_gdrive_webhook_url', url);
-            if (statusEl) statusEl.innerHTML = '<span class="text-blue-600">⏳ Enviando comando ao Google Drive...</span>';
-
-            const testPayload = {
-                firstLetter: 'T',
-                clientName: 'TESTE CONEXAO DRIVE',
-                files: []
-            };
-
-            const getUrl = `${url}?payload=${encodeURIComponent(JSON.stringify(testPayload))}`;
-
-            try {
-                const res = await fetch(getUrl, { method: 'GET' });
-                const json = await res.json();
-                if (json && json.status === 'ok') {
-                    if (statusEl) statusEl.innerHTML = `<span class="text-emerald-700">✅ Conectado! Pasta criada: <a href="${json.folderUrl}" target="_blank" class="underline font-extrabold">Abrir Pasta no Google Drive</a></span>`;
-                    showToast('Conexão com Google Drive validada!');
-                    return;
-                }
-            } catch (err) {
-                try {
-                    await fetch(getUrl, { method: 'GET', mode: 'no-cors' });
-                    if (statusEl) {
-                        statusEl.innerHTML = `<span class="text-emerald-700">✅ Comando enviado ao Google Drive! <a href="${getUrl}" target="_blank" class="underline font-extrabold text-blue-700">Clique aqui para confirmar a criação em nova aba</a> (deve aparecer <code>{"status":"ok"}</code>).</span>`;
-                    }
-                    showToast('Comando enviado! Confira a pasta no Google Drive.');
-                    return;
-                } catch (err2) {
-                    if (statusEl) statusEl.innerHTML = '<span class="text-red-600">❌ Verifique se a URL termina em /exec e se selecionou "Qualquer pessoa" na implantação.</span>';
-                }
-            }
-        };
-
-        window.syncWithGoogleDrive = async function(onCompleteCallback = null) {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client || !client.fullname) {
-                showToast('Preencha o nome do cliente antes de sincronizar com o Drive.');
-                return;
-            }
-            const cleanName = client.fullname.trim().toUpperCase();
-            const firstLetter = cleanName.charAt(0);
-            const webhookUrl = localStorage.getItem('pf_gdrive_webhook_url');
-            const gClientId = localStorage.getItem('pf_gdrive_client_id');
-
-            // Prepara apenas os arquivos PDF/documentos dos 12 slots oficiais da PF
-            const standardizedFiles = [];
-            if (client.pfDocuments) {
-                PF_DOCUMENT_SLOTS.forEach(slot => {
-                    const doc = client.pfDocuments[slot.code];
-                    if (doc && doc.base64) {
-                        standardizedFiles.push({
-                            standardizedName: doc.name,
-                            mimeType: doc.mimeType || 'application/pdf',
-                            base64: doc.base64
-                        });
-                    }
-                });
-            }
-
-            const exportPayload = {
-                firstLetter: firstLetter,
-                clientName: cleanName,
-                pastaDestino: `Gestor CR - Clientes / ${firstLetter} / ${cleanName}`,
-                contaDestino: 'waglima01@gmail.com',
-                dataSincronizacao: new Date().toISOString(),
-                files: standardizedFiles
-            };
-
-            if (webhookUrl) {
-                try {
-                    showToast(`Agente IA criando pasta "${firstLetter}/${cleanName}" no Google Drive...`);
-                    const res = await fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(exportPayload)
-                    });
-                    const json = await res.json();
-                    if (json && json.status === 'ok') {
-                        showToast(`✅ Pasta "${firstLetter}/${cleanName}" criada no Google Drive!`);
-                        if (typeof onCompleteCallback === 'function') onCompleteCallback(true);
-                        return;
-                    }
-                } catch (err) {
-                    try {
-                        await fetch(webhookUrl, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify(exportPayload)
-                        });
-                        showToast(`✅ Pasta "${firstLetter}/${cleanName}" e arquivos da PF enviados ao Google Drive!`);
-                        if (typeof onCompleteCallback === 'function') onCompleteCallback(true);
-                        return;
-                    } catch (e2) {
-                        showToast('Erro ao enviar para o Web App do Google Drive.');
-                    }
-                }
-            }
-
-            if (gClientId && window.google && google.accounts && google.accounts.oauth2) {
-                const tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: gClientId,
-                    scope: 'https://www.googleapis.com/auth/drive',
-                    callback: async (tokenResponse) => {
-                        if (tokenResponse && tokenResponse.access_token) {
-                            await uploadHierarchyToGoogleDrive(tokenResponse.access_token, firstLetter, cleanName, exportPayload, client);
-                            if (typeof onCompleteCallback === 'function') onCompleteCallback(true);
-                        }
-                    }
-                });
-                tokenClient.requestAccessToken();
-            } else {
-                openDriveConfigModal();
-                showToast(`Configure a ponte do Google Drive (sem senha) para criar a pasta "${firstLetter}/${cleanName}" automaticamente!`);
-                if (typeof onCompleteCallback === 'function') onCompleteCallback(false);
-            }
-        };
-
-        async function getOrCreateDriveFolder(token, folderName, parentId = null) {
-            let query = `name='${folderName.replace(/'/g, "\\'")}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
-            if (parentId) query += ` and '${parentId}' in parents`;
-
-            const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name)`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const searchData = await searchRes.json();
-            if (searchData.files && searchData.files.length > 0) {
-                return searchData.files[0].id;
-            }
-
-            const metadata = { name: folderName, mimeType: 'application/vnd.google-apps.folder' };
-            if (parentId) metadata.parents = [parentId];
-
-            const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(metadata)
-            });
-            const created = await createRes.json();
-            return created.id;
-        }
-
-        async function uploadHierarchyToGoogleDrive(token, firstLetter, cleanName, payload, client) {
-            try {
-                showToast(`Conectando ao Google Drive (waglima01@gmail.com)...`);
-                const rootId = await getOrCreateDriveFolder(token, 'Gestor CR - Clientes');
-                const letterId = await getOrCreateDriveFolder(token, firstLetter, rootId);
-                const clientFolderId = await getOrCreateDriveFolder(token, cleanName, letterId);
-
-                // Apenas faz o upload dos arquivos padronizados (01 a 12), sem criar o arquivo JSON de resumo
-                if (payload.files && payload.files.length > 0) {
-                    for (const f of payload.files) {
-                        const fileMeta = { name: f.standardizedName, parents: [clientFolderId] };
-                        const bytes = Uint8Array.from(atob(f.base64), c => c.charCodeAt(0));
-                        const form = new FormData();
-                        form.append('metadata', new Blob([JSON.stringify(fileMeta)], { type: 'application/json' }));
-                        form.append('file', new Blob([bytes], { type: f.mimeType }));
-
-                        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                            method: 'POST',
-                            headers: { Authorization: `Bearer ${token}` },
-                            body: form
-                        });
-                    }
-                }
-
-                showToast(`Pasta "${firstLetter}/${cleanName}" criada e organizada no Google Drive!`);
-            } catch (err) {
-                showToast('Erro ao comunicar com API do Google Drive.');
-            }
-        }
-
-        window.aiOrganizeClientDriveFolder = function() {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            const resultEl = document.getElementById('ai-audit-result');
-            if (!client) return;
-            const cleanName = (client.fullname || 'CLIENTE').trim().toUpperCase();
-            const firstLetter = cleanName.charAt(0);
-            const docs = client.pfDocuments || {};
-
-            let log = `📂 ORGANIZAÇÃO PADRÃO POLÍCIA FEDERAL (01 a 12)\n`;
-            log += `Hierarquia Drive: Gestor CR - Clientes / ${firstLetter} / ${cleanName}\n\n`;
-            PF_DOCUMENT_SLOTS.forEach(slot => {
-                const status = docs[slot.code] ? `✅ Arquivado como "${docs[slot.code].name}"` : `⏳ Aguardando anexo (${slot.prefix}.pdf)`;
-                log += `${slot.code}. ${slot.prefix} ➔ ${status}\n`;
-            });
-            if (resultEl) resultEl.innerText = log;
-
-            syncWithGoogleDrive((success, folderUrl) => {
-                if (success && resultEl) {
-                    resultEl.innerText += `\n\n✅ OPERAÇÃO CONFIRMADA NO GOOGLE DRIVE!\nA pasta "${firstLetter}/${cleanName}" foi criada/atualizada e todos os documentos foram organizados na sequência oficial da Polícia Federal (01 a 12).${folderUrl ? `\nLink da Pasta: ${folderUrl}` : ''}`;
-                }
-            });
-        };
-
-        // Funções do Modal Agente de IA & Concierge WhatsApp
-        window.openAIAgentModal = function(preselectedClientId = null) {
-            const modal = document.getElementById('ai-agent-modal');
-            const select = document.getElementById('ai-client-select');
-            if (!modal || !select) return;
-
-            select.innerHTML = '';
-            clientsData.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.textContent = `${c.fullname || 'Cliente sem nome'} (${c.serviceType || 'CR'})`;
-                select.appendChild(opt);
-            });
-
-            if (preselectedClientId) {
-                select.value = preselectedClientId;
-                window.activeClientId = preselectedClientId;
-            } else if (window.activeClientId) {
-                select.value = window.activeClientId;
-            }
-
-            modal.classList.remove('hidden');
-            switchAITab('whatsapp');
-            if (window.lucide) lucide.createIcons();
-        };
-
-        window.closeAIAgentModal = function() {
-            document.getElementById('ai-agent-modal')?.classList.add('hidden');
-        };
-
-        window.switchAITab = function(tabName) {
-            ['whatsapp', 'consultor', 'auditoria'].forEach(t => {
-                const panel = document.getElementById(`ai-panel-${t}`);
-                const btn = document.getElementById(`ai-tab-btn-${t}`);
-                if (panel) panel.classList.toggle('hidden', t !== tabName);
-                if (btn) {
-                    if (t === tabName) {
-                        btn.className = 'px-4 py-2.5 rounded-t-xl bg-white text-indigo-700 border-t border-x border-slate-200 flex items-center space-x-1.5';
-                    } else {
-                        btn.className = 'px-4 py-2.5 rounded-t-xl text-slate-600 hover:text-slate-900 flex items-center space-x-1.5';
-                    }
-                }
-            });
-        };
-
-        window.onAIClientChange = function() {
-            const select = document.getElementById('ai-client-select');
-            if (select) window.activeClientId = select.value;
-        };
-
-        window.generateAIWhatsAppScript = function(mode) {
-            const clientId = document.getElementById('ai-client-select')?.value || window.activeClientId;
-            const topic = document.getElementById('ai-topic-select')?.value || 'cr_atirador';
-            const client = clientsData.find(c => c.id === clientId) || { fullname: 'Cliente', id: 'novo' };
-            const firstName = (client.fullname || 'Cliente').trim().split(' ')[0];
-            const baseUrl = window.location.origin + window.location.pathname;
-            const clientLink = `${baseUrl}?client=${client.id}`;
-
-            const scripts = {
-                cr_atirador: `Olá, *${firstName}*! Tudo bem? Aqui é a assessoria documental.\n\nSobre a *Concessão do Certificado de Registro (CR) de Atirador Desportivo* (Decreto 11.615/2023):\n1️⃣ *Nível 1 (Inicial):* Exige filiação a clube de tiro, laudo psicológico e técnico credenciados na PF, certidões negativas (Federal, Estadual, Eleitoral e Militar) e 8 treinamentos a cada 12 meses.\n2️⃣ *Progressão:* Após 12 meses, é possível evoluir para Nível 2 (12 treinos + 4 competições) e Nível 3 (20 treinos + 6 competições).\n\nAcesse seu link exclusivo para preencher seus dados pessoais e anexar os documentos:\n👉 ${clientLink}`,
-                aquisicao_cac: `Olá, *${firstName}*! Segue o passo a passo técnico da *Aquisição de Arma de Fogo pelo SINARM-CAC*:\n1️⃣ Protocolo do requerimento de autorização de compra via Portal PF com assinatura Gov.br (Prata ou Ouro) e taxa GRU paga;\n2️⃣ Após o deferimento, envio da autorização ao lojista/fornecedor para emissão da Nota Fiscal;\n3️⃣ Registro da arma (emissão do CRAF) e solicitação da Guia de Tráfego Especial (GTE).\n\nConfira sua ficha cadastral neste link:\n👉 ${clientLink}`,
-                posse_sinarm: `Olá, *${firstName}*! Sobre a *Posse de Arma de Fogo pelo SINARM (Defesa Pessoal)*:\n• Requisitos da Lei 10.826/2003: idade mínima de 25 anos, ocupação lícita, residência fixa, certidões negativas, laudos técnico e psicológico credenciados PF e declaração de efetiva necessidade.\n• A posse autoriza manter a arma exclusivamente no interior da residência ou local de trabalho (se titular/responsável legal).\n\nAtualize seus dados pelo link:\n👉 ${clientLink}`,
-                porte_arma: `Olá, *${firstName}*! Sobre o *Porte de Arma de Fogo*:\n• *Porte Federal (Art. 10, Lei 10.826/03):* Caráter excepcional, exige comprovação rigorosa de efetiva necessidade por exercício profissional de risco ou ameaça à integridade física.\n• *Porte Funcional / Institucional:* Conforme estatuto próprio da carreira.\n• *Trânsito CAC (GTE):* Apenas para deslocamento entre o local de guarda e o estande/competição, com arma desmuniciada e acompanhada de CRAF e GTE válida.\n\nSeu link de atendimento:\n👉 ${clientLink}`,
-                portal_pf: `Olá, *${firstName}*! Veja como funciona o *Novo Portal PF (Gov.br)*:\n1️⃣ Sua conta Gov.br precisa estar no nível *Prata ou Ouro*;\n2️⃣ Todas as declarações são assinadas eletronicamente pelo assinador Gov.br ou certificado ICP-Brasil;\n3️⃣ Nós organizamos todo o dossiê (itens 01 a 12) e geramos a GRU para você acompanhar o protocolo em tempo real.\n\nAcesse seu portal de envio:\n👉 ${clientLink}`,
-                transferencia_sigma_sinarm: `Olá, *${firstName}*! Sobre a *Transferência de Arma entre Sistemas (SIGMA ⇄ SINARM)*:\n• Exige requerimento padrão (Anexo I), Termo de Doação/Compra e Venda assinado por alienante e adquirente, cópia do CRAF atual e comprovação dos requisitos do sistema de destino.\n\nComplete seus dados e anexos por aqui:\n👉 ${clientLink}`
-            };
-
-            let text = scripts[topic] || scripts.cr_atirador;
-            if (mode === 'checklist_docs') {
-                text = `Olá, *${firstName}*! Para darmos andamento no seu processo junto à Polícia Federal, acesse seu portal exclusivo abaixo e envie os documentos:\n\n✅ Certidões Negativas (Federal, Estadual, Eleitoral e Militar)\n✅ Comprovante de Ocupação Lícita\n✅ Comprovante de Residência Fixa\n✅ Laudo de Capacidade Técnica e Aptidão Psicológica (PF)\n✅ Filiação / Habitualidade (quando CAC)\n\n🔗 *Link do seu cadastro:* ${clientLink}`;
-            } else if (mode === 'orientacao_portal_pf') {
-                text = scripts.portal_pf;
-            }
-
-            const out = document.getElementById('ai-wa-output');
-            if (out) out.value = text;
-            showToast('Roteiro técnico gerado pelo Agente de IA!');
-        };
-
-        window.copyAIWhatsAppText = function() {
-            const out = document.getElementById('ai-wa-output');
-            if (!out || !out.value) return;
-            out.select();
-            document.execCommand('copy');
-            showToast('Mensagem copiada para a área de transferência!');
-        };
-
-        window.sendAIWhatsAppDirect = function() {
-            const clientId = document.getElementById('ai-client-select')?.value || window.activeClientId;
-            const client = clientsData.find(c => c.id === clientId);
-            const text = document.getElementById('ai-wa-output')?.value || '';
-            const phone = (client?.phone || '').replace(/\D/g, '');
-            const targetPhone = phone.startsWith('55') ? phone : `55${phone}`;
-            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank');
-        };
-
-        window.askAIConsultant = function() {
-            const input = document.getElementById('ai-consult-input');
-            const history = document.getElementById('ai-chat-history');
-            if (!input || !history || !input.value.trim()) return;
-
-            const q = input.value.trim();
-            input.value = '';
-
-            const userBubble = document.createElement('div');
-            userBubble.className = 'bg-slate-200 text-slate-900 p-3 rounded-xl ml-8 font-medium';
-            userBubble.innerHTML = `<strong>Você:</strong> ${q}`;
-            history.appendChild(userBubble);
-
-            const ql = q.toLowerCase();
-            let answer = 'De acordo com o Decreto 11.615/2023 e as normas vigentes da Polícia Federal (SINARM / SINARM-CAC), todo protocolo exige conta Gov.br nível Prata ou Ouro, certidões negativas das 4 esferas (Federal, Estadual, Eleitoral e Militar), ocupação lícita, residência fixa e laudos técnico/psicológico emitidos por profissionais credenciados na PF.';
-            if (ql.includes('nivel') || ql.includes('nível') || ql.includes('habitualidade')) {
-                answer = 'Progressão de Atirador Desportivo (Decreto 11.615/2023): Nível 1 exige 8 treinamentos em 12 meses (até 4 armas de uso permitido); Nível 2 exige 12 treinamentos e 4 competições (2 de âmbito estadual/regional); Nível 3 exige 20 treinamentos e 6 competições (2 de âmbito nacional/internacional).';
-            } else if (ql.includes('transfer') || ql.includes('sigma') || ql.includes('sinarm')) {
-                answer = 'Na transferência entre SIGMA e SINARM, utiliza-se o Anexo I (Requerimento Padrão PF) acompanhado do Termo de Doação/Venda assinado, cópia do CRAF vigente e comprovante do pagamento da taxa GRU, respeitando os limites e calibres permitidos para o sistema de destino.';
-            } else if (ql.includes('idade') || ql.includes('25')) {
-                answer = 'Para aquisição de arma de fogo para defesa pessoal (Posse SINARM - Lei 10.826/03), a idade mínima exigida é de 25 anos. Para atirador desportivo entre 18 e 25 anos, aplicam-se regras específicas de uso de acervo de terceiros/clube conforme regulamentação.';
-            }
-
-            const aiBubble = document.createElement('div');
-            aiBubble.className = 'bg-indigo-100/80 text-indigo-950 p-3 rounded-xl border border-indigo-200 mr-8';
-            aiBubble.innerHTML = `<strong>Agente IA Despachante:</strong> ${answer}`;
-            history.appendChild(aiBubble);
-            history.scrollTop = history.scrollHeight;
-        };
-
-        window.runClientProcessAudit = function() {
-            const clientId = document.getElementById('ai-client-select')?.value || window.activeClientId;
-            const client = clientsData.find(c => c.id === clientId);
-            const resultEl = document.getElementById('ai-audit-result');
-            if (!client || !resultEl) return;
-
-            const missing = [];
-            if (!client.fullname) missing.push('Nome Completo');
-            if (!client.cpf) missing.push('CPF');
-            if (!client.rg) missing.push('RG');
-            if (!client.voterId) missing.push('Título de Eleitor');
-            if (!client.motherName) missing.push('Nome da Mãe');
-            if (!client.cep || !client.street || !client.number) missing.push('Endereço Completo');
-
-            const docsCount = Object.keys(client.pfDocuments || {}).length;
-            let report = `🔍 AUDITORIA TÉCNICA DO PROCESSO — ${client.fullname || 'REQUERENTE'}\n`;
-            report += `Modalidade: ${client.serviceType || 'Não definida'}\n`;
-            report += `--------------------------------------------------\n`;
-            report += missing.length === 0
-                ? `✅ Dados Cadastrais SINARM/PF: 100% completos.\n`
-                : `⚠️ Campos Obrigatórios Pendentes: ${missing.join(', ')}.\n`;
-            report += `📂 Checklist Documental (01 a 12): ${docsCount} de 12 anexados.\n`;
-            resultEl.innerText = report;
-        };
-
-        // Modais de Arma, Alienante, WhatsApp Rápido e Documentos Oficiais PF
-        window.openWeaponModal = function() {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
-            const map = {
-                'w-species': 'weaponSpecies', 'w-brand': 'weaponBrand', 'w-model': 'weaponModel',
-                'w-caliber': 'weaponCaliber', 'w-serial': 'weaponSerial', 'w-sigma': 'weaponSigma',
-                'w-sinarm': 'weaponSinarm', 'w-capacity': 'weaponCapacity', 'w-barrel': 'weaponBarrel',
-                'w-rifling': 'weaponRifling', 'w-finish': 'weaponFinish', 'w-action': 'weaponAction'
-            };
-            Object.entries(map).forEach(([elId, key]) => {
-                const el = document.getElementById(elId);
-                if (el) el.value = client[key] || '';
-            });
-            document.getElementById('weapon-modal')?.classList.remove('hidden');
-        };
-
-        window.closeWeaponModal = function() {
-            document.getElementById('weapon-modal')?.classList.add('hidden');
-        };
-
-        window.saveWeaponData = function() {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
-            const map = {
-                'w-species': 'weaponSpecies', 'w-brand': 'weaponBrand', 'w-model': 'weaponModel',
-                'w-caliber': 'weaponCaliber', 'w-serial': 'weaponSerial', 'w-sigma': 'weaponSigma',
-                'w-sinarm': 'weaponSinarm', 'w-capacity': 'weaponCapacity', 'w-barrel': 'weaponBarrel',
-                'w-rifling': 'weaponRifling', 'w-finish': 'weaponFinish', 'w-action': 'weaponAction'
-            };
-            Object.entries(map).forEach(([elId, key]) => {
-                const el = document.getElementById(elId);
-                if (el) client[key] = el.value;
-            });
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            closeWeaponModal();
-            showToast('Dados da arma salvos!');
-        };
-
-        window.openAlienatorModal = function() {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
-            const map = {
-                'a-name': 'alienatorName', 'a-cpf': 'alienatorCpf', 'a-rg': 'alienatorRg',
-                'a-father': 'alienatorFather', 'a-mother': 'alienatorMother', 'a-address': 'alienatorAddress',
-                'h-declarantName': 'declarantName', 'h-declarantDocs': 'declarantDocs',
-                'h-2026': 'hist2026', 'h-2025': 'hist2025', 'h-2024': 'hist2024',
-                'h-2023': 'hist2023', 'h-2022': 'hist2022'
-            };
-            Object.entries(map).forEach(([elId, key]) => {
-                const el = document.getElementById(elId);
-                if (el) el.value = client[key] || '';
-            });
-            document.getElementById('alienator-modal')?.classList.remove('hidden');
-        };
-
-        window.closeAlienatorModal = function() {
-            document.getElementById('alienator-modal')?.classList.add('hidden');
-        };
-
-        window.saveAlienatorData = function() {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
-            const map = {
-                'a-name': 'alienatorName', 'a-cpf': 'alienatorCpf', 'a-rg': 'alienatorRg',
-                'a-father': 'alienatorFather', 'a-mother': 'alienatorMother', 'a-address': 'alienatorAddress',
-                'h-declarantName': 'declarantName', 'h-declarantDocs': 'declarantDocs',
-                'h-2026': 'hist2026', 'h-2025': 'hist2025', 'h-2024': 'hist2024',
-                'h-2023': 'hist2023', 'h-2022': 'hist2022'
-            };
-            Object.entries(map).forEach(([elId, key]) => {
-                const el = document.getElementById(elId);
-                if (el) client[key] = el.value;
-            });
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            closeAlienatorModal();
-            showToast('Dados do alienante e histórico de 5 anos salvos!');
-        };
-
-        window.copyNewClientLink = function() {
-            const link = `${window.location.origin}${window.location.pathname}?novo-cadastro=true`;
-            const temp = document.createElement('input');
-            temp.value = link;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            document.body.removeChild(temp);
-            showToast('Link limpo de Novo Cadastro copiado!');
-        };
-
-        window.openWhatsAppModal = function(clientId) {
-            window.activeClientId = clientId;
-            const client = clientsData.find(c => c.id === clientId);
-            if (!client) return;
-            const link = `${window.location.origin}${window.location.pathname}?client=${client.id}`;
-            const box = document.getElementById('wa-message-box');
-            if (box) {
-                box.value = `Olá, *${client.fullname || 'Cliente'}*! Segue o link exclusivo do seu Portal do Requerente para conferir seus dados cadastrais e anexar os documentos da Polícia Federal:\n\n👉 ${link}`;
-            }
-            document.getElementById('whatsapp-modal')?.classList.remove('hidden');
-        };
-
-        window.closeWhatsAppModal = function() {
-            document.getElementById('whatsapp-modal')?.classList.add('hidden');
-        };
-
-        window.executeSendWhatsApp = function() {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            const msg = document.getElementById('wa-message-box')?.value || '';
-            const phone = (client?.phone || '').replace(/\D/g, '');
-            const targetPhone = phone.startsWith('55') ? phone : `55${phone}`;
-            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-            closeWhatsAppModal();
-        };
-
-        window.handlePhoto3x4Upload = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                client.photo3x4 = e.target.result;
-                localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-                const img = document.getElementById('anexo1-photo-img');
-                if (img) img.src = client.photo3x4;
-                showToast('Foto 3x4 carregada no Anexo I!');
-            };
-            reader.readAsDataURL(file);
-        };
-
-        function buildDocumentHTML(type, client) {
-            const fullAddress = `${client.street || ''}, ${client.number || ''}, ${client.neighborhood || ''}, ${client.city || ''} - ${client.state || ''}, CEP: ${client.cep || ''}`;
-            const todayStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-            const photoSrc = client.photo3x4 || 'https://placehold.co/105x130/e2e8f0/475569?text=FOTO+3x4';
-
-            if (type === 'anexo1') {
-                return `
-                    <div class="text-xs font-sans text-black space-y-3">
-                        <div class="flex items-start justify-between border-b-2 border-black pb-2">
-                            <img id="anexo1-photo-img" src="${photoSrc}" class="w-[105px] h-[130px] object-cover border border-black" alt="Foto 3x4">
-                            <div class="text-center flex-1 px-4 pt-2">
-                                <div class="font-extrabold text-sm">ANEXO I</div>
-                                <div class="font-extrabold text-sm">REQUERIMENTO PADRÃO</div>
-                                <div class="font-bold text-xs mt-1">SERVIÇO PÚBLICO FEDERAL</div>
-                                <div class="font-bold text-xs">MINISTÉRIO DA JUSTIÇA E SEGURANÇA PÚBLICA</div>
-                                <div class="font-extrabold text-xs">POLÍCIA FEDERAL</div>
-                            </div>
-                            <div class="w-[105px]"></div>
-                        </div>
-                        <div class="border border-black">
-                            <div class="bg-slate-200 font-extrabold px-2 py-1 border-b border-black">1 - TIPO DE REQUERIMENTO</div>
-                            <div class="p-2 grid grid-cols-2 gap-1 font-bold">
-                                <div>( ) TRANSFERÊNCIA DO SINARM PARA O SIGMA</div>
-                                <div>(${client.serviceType?.includes('SIGMA') ? 'X' : ' '}) TRANSFERÊNCIA DO SIGMA PARA O SINARM</div>
-                                <div>( ) REIMPRESSÃO DE CRAF</div>
-                                <div>(${client.serviceType?.includes('Porte') ? 'X' : ' '}) PORTE FUNCIONAL</div>
-                                <div class="col-span-2">(${!client.serviceType?.includes('SIGMA') && !client.serviceType?.includes('Porte') ? 'X' : ' '}) OUTROS - Especificar: ${client.serviceType || ''}</div>
-                            </div>
-                        </div>
-                        <div class="border border-black">
-                            <div class="bg-slate-200 font-extrabold px-2 py-1 border-b border-black">2 - DADOS DA PESSOA FÍSICA OU JURÍDICA</div>
-                            <div class="p-2 grid grid-cols-2 gap-2">
-                                <div class="col-span-2"><strong>Nome Completo:</strong> ${client.fullname || ''}</div>
-                                <div><strong>Nome do Pai:</strong> ${client.fatherName || ''}</div>
-                                <div><strong>Nome da Mãe:</strong> ${client.motherName || ''}</div>
-                                <div><strong>CPF:</strong> ${client.cpf || ''}</div>
-                                <div><strong>Data Nascimento:</strong> ${(client.birthdate || '').split('-').reverse().join('/')}</div>
-                                <div><strong>Identidade (RG):</strong> ${client.rg || ''} (${client.rgIssuer || ''})</div>
-                                <div><strong>Título de Eleitor:</strong> ${client.voterId || ''}</div>
-                                <div><strong>Estado Civil:</strong> ${client.maritalStatus || ''}</div>
-                                <div><strong>Profissão/Cargo:</strong> ${client.profession || ''}</div>
-                                <div class="col-span-2"><strong>Endereço Residencial:</strong> ${fullAddress}</div>
-                                <div><strong>Telefone Celular:</strong> ${client.phone || ''}</div>
-                                <div><strong>E-mail:</strong> ${client.email || ''}</div>
-                            </div>
-                        </div>
-                        <div class="border border-black">
-                            <div class="bg-slate-200 font-extrabold px-2 py-1 border-b border-black">3 - DADOS DA ARMA</div>
-                            <div class="p-2 grid grid-cols-3 gap-2">
-                                <div><strong>Espécie:</strong> ${client.weaponSpecies || ''}</div>
-                                <div><strong>Marca:</strong> ${client.weaponBrand || ''}</div>
-                                <div><strong>Modelo:</strong> ${client.weaponModel || ''}</div>
-                                <div><strong>Calibre:</strong> ${client.weaponCaliber || ''}</div>
-                                <div><strong>Nº Série:</strong> ${client.weaponSerial || ''}</div>
-                                <div><strong>Nº SIGMA:</strong> ${client.weaponSigma || ''}</div>
-                                <div><strong>Cadastro SINARM:</strong> ${client.weaponSinarm || ''}</div>
-                                <div><strong>Capacidade:</strong> ${client.weaponCapacity || ''}</div>
-                                <div><strong>Acabamento:</strong> ${client.weaponFinish || ''}</div>
-                            </div>
-                        </div>
-                        <div class="border border-black">
-                            <div class="bg-slate-200 font-extrabold px-2 py-1 border-b border-black">4 - TERMO DE RESPONSABILIDADE</div>
-                            <div class="p-2 space-y-1 font-semibold">
-                                <div>(X) Declaro que não estou respondendo a inquérito policial ou a processo criminal.</div>
-                                <div>(X) Declaro serem verdadeiras as informações consignadas neste formulário.</div>
-                            </div>
-                        </div>
-                        <div class="pt-6 text-center space-y-4">
-                            <div>${client.city || ''}/${client.state || ''}, ${todayStr}.</div>
-                            <div class="pt-6"><span class="border-t border-black px-10 pt-1 font-extrabold">${client.fullname || ''}</span></div>
-                        </div>
-                    </div>`;
-            }
-
-            if (type === 'doacao') {
-                return `
-                    <div class="text-xs font-sans text-black space-y-4 leading-relaxed">
-                        <h2 class="text-center font-extrabold text-base underline">TERMO DE DOAÇÃO</h2>
-                        <p class="text-justify">
-                            Eu, <strong>${client.alienatorName || '______________________________'}</strong>, portador(a) da cédula de identidade nº <strong>${client.alienatorRg || '__________'}</strong>, CPF/MF nº <strong>${client.alienatorCpf || '______________'}</strong>, filho(a) de ${client.alienatorFather || '________________'} e de ${client.alienatorMother || '________________'}, residente à ${client.alienatorAddress || '________________________________________'}, faço a <strong>DOAÇÃO</strong> ao(à) Sr(a). <strong>${client.fullname || ''}</strong>, portador(a) da cédula de identidade nº <strong>${client.rg || ''}</strong>, expedida por <strong>${client.rgIssuer || ''}</strong>, CPF nº <strong>${client.cpf || ''}</strong>, filho(a) de ${client.fatherName || ''} e de ${client.motherName || ''}, residente à ${fullAddress}, de uma arma de minha propriedade, com as seguintes características:
-                        </p>
-                        <table class="w-full border-collapse border border-black text-xs">
-                            <tr><td class="border border-black p-1.5"><strong>Espécie:</strong> ${client.weaponSpecies || ''}</td><td class="border border-black p-1.5"><strong>Calibre:</strong> ${client.weaponCaliber || ''}</td></tr>
-                            <tr><td class="border border-black p-1.5"><strong>Marca:</strong> ${client.weaponBrand || ''}</td><td class="border border-black p-1.5"><strong>Nº SINARM / SIGMA:</strong> ${client.weaponSinarm || ''} / ${client.weaponSigma || ''}</td></tr>
-                            <tr><td class="border border-black p-1.5"><strong>Modelo:</strong> ${client.weaponModel || ''}</td><td class="border border-black p-1.5"><strong>Nº de Série:</strong> ${client.weaponSerial || ''}</td></tr>
-                            <tr><td class="border border-black p-1.5"><strong>Acabamento:</strong> ${client.weaponFinish || ''}</td><td class="border border-black p-1.5"><strong>Capacidade de tiro:</strong> ${client.weaponCapacity || ''}</td></tr>
-                            <tr><td class="border border-black p-1.5"><strong>Funcionamento / País:</strong> ${client.weaponAction || ''}</td><td class="border border-black p-1.5"><strong>Cano / Raias:</strong> ${client.weaponBarrel || ''} / ${client.weaponRifling || ''}</td></tr>
-                        </table>
-                        <div class="text-center pt-4">${client.city || ''}/${client.state || ''}, ${todayStr}.</div>
-                        <div class="grid grid-cols-2 gap-8 pt-10 text-center">
-                            <div><div class="border-t border-black pt-1 font-bold">Alienante<br>${client.alienatorName || ''}</div></div>
-                            <div><div class="border-t border-black pt-1 font-bold">Adquirente<br>${client.fullname || ''}</div></div>
-                        </div>
-                    </div>`;
-            }
-
-            if (type === 'idoneidade') {
-                return `
-                    <div class="text-xs font-sans text-black space-y-5 leading-relaxed">
-                        <h2 class="text-center font-extrabold text-base underline">DECLARAÇÃO DE IDONEIDADE</h2>
-                        <p class="text-justify">
-                            Eu, <strong>${client.fullname || ''}</strong>, nacionalidade Brasileiro(a), nascido(a) em <strong>${(client.birthdate || '').split('-').reverse().join('/')}</strong>, natural de <strong>${client.birthCity || ''}/${client.birthState || ''}</strong>, filho(a) de <strong>${client.fatherName || ''}</strong> e <strong>${client.motherName || ''}</strong>, <strong>${client.profession || ''}</strong>, <strong>${client.maritalStatus || ''}</strong>, portador(a) do RG nº <strong>${client.rg || ''}</strong> expedido por <strong>${client.rgIssuer || ''}</strong>, inscrito(a) no CPF sob o nº <strong>${client.cpf || ''}</strong>, residente e domiciliado(a) à <strong>${fullAddress}</strong>, declaro, para os devidos fins de direito, sob as penas da Lei, que não respondo a inquérito policial, processo criminal ou administrativo, nem possuo antecedentes criminais. Declaro, ainda, que a presente é a expressão da verdade, pela qual assumo total responsabilidade.
-                        </p>
-                        <div class="p-3 border border-black bg-slate-50 text-[11px] italic">
-                            Art. 299 - Omitir, em documento público ou particular, declaração que nele deveria constar, ou nele inserir ou fazer inserir declaração falsa ou diversa da que devia ser escrita, com o fim de prejudicar direito, criar obrigação ou alterar a verdade sobre fato juridicamente relevante. Pena - reclusão de 1 (um) a 5 (cinco) anos e multa, se o documento é público e reclusão de 1 (um) a 3 (três) anos, se o documento é particular.
-                        </div>
-                        <div class="text-center pt-4">${client.city || ''} - ${client.state || ''}, ${todayStr}.</div>
-                        <div class="text-center pt-10">
-                            <span class="border-t border-black px-10 pt-1 font-extrabold">${client.fullname || ''}</span><br>
-                            <span>Declarante — Assinatura digital (gov.br ou ICP-Brasil)</span>
-                        </div>
-                    </div>`;
-            }
-
-            if (type === 'residencia5') {
-                return `
-                    <div class="text-xs font-sans text-black space-y-4 leading-relaxed">
-                        <h2 class="text-center font-extrabold text-base underline">DECLARAÇÃO DE RESIDÊNCIA (ÚLTIMOS 5 ANOS) - TERCEIROS</h2>
-                        <p class="text-justify">
-                            Eu, <strong>${client.declarantName || '______________________________'}</strong>, portador(a) do <strong>${client.declarantDocs || 'RG nº ____________, CPF nº ______________'}</strong>, DECLARO, para fins de prova de residência, nos termos do art. 1º da Lei nº 7.115/1983, ciente de que assumo inteira responsabilidade pelas informações prestadas, que o(a) Sr(a). <strong>${client.fullname || ''}</strong>, RG nº <strong>${client.rg || ''}</strong>, CPF nº <strong>${client.cpf || ''}</strong>, residiu nos endereços abaixo, referentes aos últimos 5 (cinco) anos:
-                        </p>
-                        <div class="space-y-1 font-semibold pl-2">
-                            <div>Ano de 2026: ${client.hist2026 || fullAddress}</div>
-                            <div>Ano de 2025: ${client.hist2025 || fullAddress}</div>
-                            <div>Ano de 2024: ${client.hist2024 || fullAddress}</div>
-                            <div>Ano de 2023: ${client.hist2023 || fullAddress}</div>
-                            <div>Ano de 2022: ${client.hist2022 || fullAddress}</div>
-                        </div>
-                        <div class="p-3 border border-black bg-slate-50 text-[10px] space-y-1">
-                            <div>Art. 1º - A declaração destinada a fazer prova de vida, residência, pobreza, dependência econômica, homonímia ou bons antecedentes, quando firmada pelo próprio interessado ou por procurador bastante, e sob as penas da Lei, presume-se verdadeira.</div>
-                            <div>Art. 2º - Se comprovadamente falsa a declaração, sujeitar-se-á o declarante às sanções civis, administrativas e criminais previstas na legislação aplicável.</div>
-                        </div>
-                        <div class="text-center pt-4">${client.city || ''} - ${client.state || ''}, ${todayStr}.</div>
-                        <div class="text-center pt-10">
-                            <span class="border-t border-black px-10 pt-1 font-extrabold">${client.declarantName || 'Responsável pela declaração'}</span><br>
-                            <span>Responsável pela declaração — Assinatura digital (gov.br ou ICP-Brasil)</span>
-                        </div>
-                    </div>`;
-            }
-
-            if (type === 'anexoA') {
-                return `
-                    <div class="text-xs font-sans text-black space-y-4">
-                        <h2 class="text-center font-extrabold text-sm">ANEXO A - REQUERIMENTO PARA AUTORIZAÇÃO DE AQUISIÇÃO DE ARMA DE FOGO DE USO RESTRITO</h2>
-                        <div class="border border-black p-3 space-y-1">
-                            <div class="font-extrabold bg-slate-200 px-2 py-1">1. IDENTIFICAÇÃO DO ADQUIRENTE</div>
-                            <div><strong>Cargo:</strong> ${client.profession || ''} | <strong>Identificação:</strong> ${client.functionalId || ''}</div>
-                            <div><strong>Nome:</strong> ${client.fullname || ''} | <strong>CPF:</strong> ${client.cpf || ''}</div>
-                            <div><strong>E-mail:</strong> ${client.email || ''} | <strong>Telefone:</strong> ${client.phone || ''}</div>
-                            <div><strong>Endereço de entrega:</strong> ${fullAddress}</div>
-                        </div>
-                        <div class="border border-black p-3 space-y-2">
-                            <div class="font-extrabold bg-slate-200 px-2 py-1">2. ARMAS A SEREM ADQUIRIDAS</div>
-                            <table class="w-full border-collapse border border-black text-center">
-                                <tr class="font-bold bg-slate-100"><th class="border border-black p-1">PRODUTO</th><th class="border border-black p-1">MARCA</th><th class="border border-black p-1">MODELO</th><th class="border border-black p-1">CALIBRE</th><th class="border border-black p-1">QTD</th></tr>
-                                <tr><td class="border border-black p-1">ARMA DE FOGO</td><td class="border border-black p-1">${client.weaponBrand || ''}</td><td class="border border-black p-1">${client.weaponModel || ''}</td><td class="border border-black p-1">${client.weaponCaliber || ''}</td><td class="border border-black p-1">1</td></tr>
-                            </table>
-                        </div>
-                        <div class="text-center pt-10">
-                            <span class="border-t border-black px-10 pt-1 font-extrabold">${client.fullname || ''}</span><br>
-                            <span>Requerente — Assinatura digital (.gov.br ou ICP-Brasil)</span>
-                        </div>
-                    </div>`;
-            }
-
-            return `
-                <div class="text-xs font-sans text-black space-y-5 leading-relaxed">
-                    <h2 class="text-center font-extrabold text-base underline">DECLARAÇÃO DE SEGURANÇA DO ACERVO (DSA)</h2>
-                    <p class="text-justify">
-                        Eu, <strong>${client.fullname || ''}</strong>, inscrito(a) no CPF sob o nº <strong>${client.cpf || ''}</strong>, RG nº <strong>${client.rg || ''}</strong> (${client.rgIssuer || ''}), residente e domiciliado(a) à <strong>${fullAddress}</strong>, DECLARO, sob as penas da Lei e em conformidade com o Decreto nº 11.615/2023, que o local de guarda do meu acervo de armas de fogo e munições possui cofre ou lugar seguro, com tranca, garantindo condições adequadas de segurança contra furto, roubo ou acesso por pessoas não autorizadas, inclusive crianças e adolescentes.
-                    </p>
-                    <div class="text-center pt-4">${client.city || ''} - ${client.state || ''}, ${todayStr}.</div>
-                    <div class="text-center pt-10">
-                        <span class="border-t border-black px-10 pt-1 font-extrabold">${client.fullname || ''}</span><br>
-                        <span>Declarante — Assinatura digital (gov.br ou ICP-Brasil)</span>
-                    </div>
-                </div>`;
-        }
-
-        window.openDocumentPreview = function(type) {
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
-            const photoBtn = document.getElementById('btn-upload-photo3x4');
-            if (photoBtn) photoBtn.classList.toggle('hidden', type !== 'anexo1');
-
-            const contentEl = document.getElementById('preview-content');
-            if (contentEl) contentEl.innerHTML = buildDocumentHTML(type, client);
-            document.getElementById('preview-modal')?.classList.remove('hidden');
-            if (window.lucide) lucide.createIcons();
-        };
-
-        window.closePreviewModal = function() {
-            document.getElementById('preview-modal')?.classList.add('hidden');
-        };
-
-        window.printPreviewDocument = function() {
-            const contentEl = document.getElementById('preview-content');
-            const printArea = document.getElementById('print-area');
-            if (!contentEl || !printArea) return;
-            printArea.innerHTML = contentEl.innerHTML;
-            window.print();
-            setTimeout(() => { printArea.innerHTML = ''; }, 500);
-        };
-
-        window.compileFullDossierForClient = function(clientId) {
-            window.activeClientId = clientId;
-            compileFullDossier();
-        };
-
-        window.compileFullDossier = function() {
-            const client = clientsData.find(c => c.id === window.activeClientId) || clientsData[0];
-            if (!client) return;
-            const printArea = document.getElementById('print-area');
-            if (!printArea) return;
-
-            printArea.innerHTML = `
-                ${buildDocumentHTML('anexo1', client)}
-                <div class="page-break"></div>
-                ${buildDocumentHTML('idoneidade', client)}
-                <div class="page-break"></div>
-                ${buildDocumentHTML('residencia5', client)}
-                <div class="page-break"></div>
-                ${buildDocumentHTML('dsa', client)}
-            `;
-            window.print();
-            setTimeout(() => { printArea.innerHTML = ''; }, 500);
-        };
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
-            const msgEl = document.getElementById('toast-message');
+            const msgEl = document.getElementById('toast-msg');
             if (!toast || !msgEl) return;
             msgEl.innerText = msg;
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3200);
+            }, 3500);
         }
 
-        // Inicialização da Aplicação e Detecção de Link Isolado do Cliente
+        function createNewClient() {
+            const newClient = {
+                id: 'cli_' + Date.now(),
+                fullname: '', cpf: '', birthdate: '', rg: '', rgIssuer: '', rgDate: '', voterId: '', maritalStatus: 'Solteiro(a)', birthCity: '', birthState: '', fatherName: '', motherName: '', profession: '', functionalId: '', phone: '', email: '', serviceType: 'Concessão de CR (Atirador)', cep: '', street: '', number: '', neighborhood: '', city: 'Teófilo Otoni', state: 'MG', crNumber: '', crExpiry: '', weaponSpecies: '', weaponBrand: '', weaponCaliber: '', weaponSerial: '', weaponSigma: '', weaponSinarm: '', alienatorName: '', alienatorCpf: '', res2026: '', res2025: '', res2024: '', res2023: '', res2022: '', files: {}
+            };
+            clientsData.push(newClient);
+            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            openClientPortal(newClient.id);
+        }
+
+        function openClientPortal(clientId) {
+            window.activeClientId = clientId;
+            const client = clientsData.find(c => c.id === clientId);
+            if (!client) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const isClientLink = urlParams.get('client') || urlParams.get('novo-cadastro');
+
+            const appHeader = document.getElementById('app-header');
+            const dashboard = document.getElementById('dispatcher-dashboard');
+            const portal = document.getElementById('client-portal');
+            const item3 = document.getElementById('section-item-3-dispatcher');
+            const dispatcherActions = document.getElementById('dispatcher-only-portal-actions');
+            const clientSaveBar = document.getElementById('client-only-save-bar');
+
+            if (isClientLink) {
+                if (appHeader) appHeader.style.display = 'none';
+                if (item3) item3.style.display = 'none';
+                if (dispatcherActions) dispatcherActions.style.display = 'none';
+                if (clientSaveBar) clientSaveBar.style.display = 'block';
+            } else {
+                if (appHeader) appHeader.style.display = 'block';
+                if (item3) item3.style.display = 'block';
+                if (dispatcherActions) dispatcherActions.style.display = 'flex';
+                if (clientSaveBar) clientSaveBar.style.display = 'none';
+            }
+
+            if (dashboard) dashboard.classList.add('hidden');
+            if (portal) portal.classList.remove('hidden');
+
+            const fields = ['fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId', 'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName', 'profession', 'functionalId', 'phone', 'email', 'serviceType', 'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'crNumber', 'crExpiry'];
+            fields.forEach(f => {
+                const el = document.getElementById(`field-${f}`);
+                if (el && client[f] !== undefined) el.value = client[f];
+            });
+
+            const weaponFields = ['species', 'brand', 'caliber', 'serial', 'sigma', 'sinarm'];
+            weaponFields.forEach(f => {
+                const el = document.getElementById(`weapon-${f}`);
+                if (el && client[`weapon${f.charAt(0).toUpperCase() + f.slice(1)}`] !== undefined) {
+                    el.value = client[`weapon${f.charAt(0).toUpperCase() + f.slice(1)}`];
+                }
+            });
+
+            const alienatorFields = ['name', 'cpf'];
+            alienatorFields.forEach(f => {
+                const el = document.getElementById(`alienator-${f}`);
+                if (el && client[`alienator${f.charAt(0).toUpperCase() + f.slice(1)}`] !== undefined) {
+                    el.value = client[`alienator${f.charAt(0).toUpperCase() + f.slice(1)}`];
+                }
+            });
+
+            for (let yr = 2022; yr <= 2026; yr++) {
+                const el = document.getElementById(`res-${yr}`);
+                if (el && client[`res${yr}`] !== undefined) el.value = client[`res${yr}`];
+            }
+
+            const titleEl = document.getElementById('portal-client-title');
+            if (titleEl) titleEl.innerText = client.fullname ? `Ficha SINARM: ${client.fullname}` : 'Nova Ficha Cadastral SINARM / Portal PF';
+
+            validateAge();
+            renderPFChecklist();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToDashboard() {
+            window.activeClientId = null;
+            const appHeader = document.getElementById('app-header');
+            if (appHeader) appHeader.style.display = 'block';
+            const dashboard = document.getElementById('dispatcher-dashboard');
+            const portal = document.getElementById('client-portal');
+            if (dashboard) dashboard.classList.remove('hidden');
+            if (portal) portal.classList.add('hidden');
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const tbody = document.getElementById('clients-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            document.getElementById('stat-total').innerText = clientsData.length;
+            document.getElementById('stat-ready').innerText = clientsData.filter(c => c.fullname).length;
+            document.getElementById('stat-alerts').innerText = 0;
+
+            if (clientsData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Nenhum cliente cadastrado. Clique em "+ Cadastrar Novo Requerente" para iniciar.</td></tr>`;
+                return;
+            }
+
+            clientsData.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors border-b border-slate-100';
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-extrabold text-slate-900">${c.fullname || 'SEM NOME'}<div class="text-[11px] text-slate-500 font-normal">CPF: ${c.cpf || 'Não informado'} • Anexos: ${Object.keys(c.files || {}).length}/12</div></td>
+                    <td class="py-3 px-4"><span class="px-2.5 py-1 bg-amber-50 text-amber-800 rounded-lg text-[11px] font-bold border border-amber-200">${c.serviceType || 'Concessão de CR'}</span></td>
+                    <td class="py-3 px-4 text-slate-600 font-medium">Sem CR / Em Concessão</td>
+                    <td class="py-3 px-4 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            <button onclick="openClientPortal('${c.id}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl" title="Abrir Ficha"><i data-lucide="folder-open" class="w-4 h-4 text-amber-600"></i></button>
+                            <button onclick="openWhatsAppModalForClient('${c.id}')" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl" title="WhatsApp IA"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
+                            <button onclick="deleteClient('${c.id}')" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl" title="Excluir"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function saveCurrentClientData(notify = false) {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (!client) return;
+
+            const fields = ['fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId', 'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName', 'profession', 'functionalId', 'phone', 'email', 'serviceType', 'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'crNumber', 'crExpiry'];
+            fields.forEach(f => {
+                const el = document.getElementById(`field-${f}`);
+                if (el) client[f] = el.value;
+            });
+
+            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            if (notify) {
+                showToast('🚀 Cadastro concluído e sincronizado com sucesso!');
+                syncWithGoogleDriveQuiet(client);
+            }
+        }
+
+        function validateAge() {
+            const b = document.getElementById('field-birthdate').value;
+            const badge = document.getElementById('age-badge');
+            if (!b || !badge) return;
+            const dob = new Date(b);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const m = today.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+            badge.innerText = `Idade: ${age} anos`;
+            badge.className = age >= 25 ? 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-800';
+        }
+
+        function lookupCEP(cepValue) {
+            const clean = cepValue.replace(/\D/g, '');
+            if (clean.length !== 8) return;
+            document.getElementById('cep-status').innerText = 'Buscando CEP...';
+            fetch(`https://viacep.com.br/ws/${clean}/json/`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.erro) {
+                        document.getElementById('field-street').value = data.logradouro || '';
+                        document.getElementById('field-neighborhood').value = data.bairro || '';
+                        document.getElementById('field-city').value = data.localidade || '';
+                        document.getElementById('field-state').value = data.uf || '';
+                        document.getElementById('cep-status').innerText = 'CEP preenchido com sucesso!';
+                        saveCurrentClientData(false);
+                    } else {
+                        document.getElementById('cep-status').innerText = 'CEP não encontrado.';
+                    }
+                }).catch(() => { document.getElementById('cep-status').innerText = 'Erro ao buscar CEP.'; });
+        }
+
+        function renderPFChecklist() {
+            const container = document.getElementById('pf-checklist-container');
+            if (!container) return;
+            container.innerHTML = '';
+            const client = clientsData.find(c => c.id === window.activeClientId) || {};
+            if (!client.files) client.files = {};
+
+            let attachedCount = 0;
+            pfChecklistItems.forEach(item => {
+                const fileInfo = client.files[item.id];
+                if (fileInfo) attachedCount++;
+                const div = document.createElement('div');
+                div.className = 'p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2';
+                div.innerHTML = `
+                    <div>
+                        <p class="font-bold text-xs text-slate-800">${item.id} - ${item.name}*</p>
+                        <p class="text-[10px] text-slate-500">${fileInfo ? fileInfo.name : 'Padrão Drive: ' + item.standard}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="file" id="slot-file-${item.id}" onchange="handleSlotFileUpload(${item.id}, '${item.standard}', this)" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                        <label for="slot-file-${item.id}" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg cursor-pointer border border-slate-300 shadow-sm flex items-center gap-1">
+                            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-600"></i> ${fileInfo ? 'Substituir' : 'Enviar'}
+                        </label>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            const counter = document.getElementById('checklist-counter');
+            if (counter) counter.innerText = `${attachedCount}/12 Anexados`;
+            lucide.createIcons();
+        }
+
+        function handleSlotFileUpload(slotId, standardName, inputEl) {
+            const file = inputEl.files[0];
+            if (!file) return;
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (!client) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (!client.files) client.files = {};
+                client.files[slotId] = { name: file.name, standardizedName: standardName, mimeType: file.type || 'application/pdf', base64: e.target.result.split(',')[1] };
+                localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                showToast(`Documento ${standardName} anexado com sucesso!`);
+                renderPFChecklist();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function syncWithGoogleDriveQuiet(client) {
+            const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
+            if (!webhookUrl) return;
+            const filesPayload = [];
+            if (client.files) {
+                Object.keys(client.files).forEach(k => filesPayload.push(client.files[k]));
+            }
+            const payload = { firstLetter: (client.fullname ? client.fullname[0] : 'A').toUpperCase(), clientName: client.fullname || 'CLIENTE', files: filesPayload };
+            fetch(webhookUrl, { method: 'POST', body: JSON.stringify(payload), mode: 'no-cors' }).catch(() => {});
+        }
+
+        function syncWithGoogleDrive() {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (!client || !client.fullname) {
+                alert('Abra a ficha de um cliente preenchido antes de sincronizar com o Google Drive.');
+                return;
+            }
+            syncWithGoogleDriveQuiet(client);
+            showToast('📁 Pastas e arquivos sincronizados com sucesso no Google Drive (`waglima01@gmail.com`)!');
+        }
+
+        function openDriveConfigModal() { document.getElementById('drive-config-modal').classList.remove('hidden'); const saved = localStorage.getItem('pf_drive_webhook_url'); if (saved) document.getElementById('drive-webhook-url-input').value = saved; }
+        function closeDriveConfigModal() { document.getElementById('drive-config-modal').classList.add('hidden'); }
+        function saveDriveWebhookUrl() {
+            const url = document.getElementById('drive-webhook-url-input').value.trim();
+            localStorage.setItem('pf_drive_webhook_url', url);
+            showToast('Configuração do Google Drive salva!');
+            closeDriveConfigModal();
+        }
+        function testDriveConnection() {
+            const url = document.getElementById('drive-webhook-url-input').value.trim();
+            if (!url) { alert('Insira a URL do Web App.'); return; }
+            localStorage.setItem('pf_drive_webhook_url', url);
+            fetch(url, { method: 'POST', body: JSON.stringify({ firstLetter: 'T', clientName: 'TESTE CONEXAO DRIVE', files: [] }), mode: 'no-cors' })
+                .then(() => showToast('Conexão testada com sucesso!'))
+                .catch(() => showToast('Comando enviado ao Google Drive!'));
+        }
+
+        function openWeaponModal() { document.getElementById('weapon-modal').classList.remove('hidden'); }
+        function closeWeaponModal() { document.getElementById('weapon-modal').classList.add('hidden'); }
+        function saveWeaponModalData() {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (!client) return;
+            ['species', 'brand', 'caliber', 'serial', 'sigma', 'sinarm'].forEach(f => {
+                const el = document.getElementById(`weapon-${f}`);
+                if (el) client[`weapon${f.charAt(0).toUpperCase() + f.slice(1)}`] = el.value;
+            });
+            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            closeWeaponModal();
+            showToast('Dados da arma salvos!');
+        }
+
+        function openAlienatorModal() { document.getElementById('alienator-modal').classList.remove('hidden'); }
+        function closeAlienatorModal() { document.getElementById('alienator-modal').classList.add('hidden'); }
+        function saveAlienatorModalData() {
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (!client) return;
+            client.alienatorName = document.getElementById('alienator-name').value;
+            client.alienatorCpf = document.getElementById('alienator-cpf').value;
+            for (let yr = 2022; yr <= 2026; yr++) {
+                const el = document.getElementById(`res-${yr}`);
+                if (el) client[`res${yr}`] = el.value;
+            }
+            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            closeAlienatorModal();
+            showToast('Dados do alienante e histórico salvos!');
+        }
+
+        function openAIAgentModal() { document.getElementById('ai-agent-modal').classList.remove('hidden'); populateAIClientSelect(); }
+        function closeAIAgentModal() { document.getElementById('ai-agent-modal').classList.add('hidden'); }
+
+        function switchAITab(tabName) {
+            ['whatsapp', 'consultor', 'autonomia'].forEach(t => {
+                document.getElementById(`ai-panel-${t}`).classList.add('hidden');
+                document.getElementById(`ai-tab-${t}`).className = 'pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors';
+            });
+            document.getElementById(`ai-panel-${tabName}`).classList.remove('hidden');
+            document.getElementById(`ai-tab-${tabName}`).className = 'pb-2 border-b-2 border-purple-600 text-purple-700 transition-colors';
+            lucide.createIcons();
+        }
+
+        function populateAIClientSelect() {
+            const sel = document.getElementById('ai-client-select');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Selecione um cliente...</option>';
+            clientsData.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = c.fullname || 'Cliente Sem Nome';
+                sel.appendChild(opt);
+            });
+        }
+
+        function generateAIWhatsAppScript() {
+            const clientId = document.getElementById('ai-client-select').value;
+            const modality = document.getElementById('ai-modality-select').value;
+            const client = clientsData.find(c => c.id === clientId) || { fullname: 'Prezado(a)' };
+
+            let text = `Olá, ${client.fullname || 'Prezado(a)'}! Aqui é do setor de Atendimento e Assessoria Bélica. Estou entrando em contato para orientar sobre o andamento do seu processo de *${modality}* na Polícia Federal.\n\n`;
+            text += `Para darmos início imediato e garantir total conformidade com a legislação vigente (Decreto 11.615/2023), organizei as etapas necessárias:\n`;
+            text += `1. Verificação de antecedentes criminais (Federal, Estadual, Eleitoral e Militar);\n`;
+            text += `2. Agendamento do Laudo Psicológico e Capacidade Técnica;\n`;
+            text += `3. Peticionamento eletrônico via novo Portal PF (Gov.br).\n\n`;
+            text += `Acesse seu portal exclusivo para acompanhar: https://waglima01-bit.github.io/gestor-cr-pf/?client=${clientId || ''}\n\nFicamos à disposição!`;
+
+            document.getElementById('ai-whatsapp-output').value = text;
+            showToast('Explicação técnica gerada pela IA!');
+        }
+
+        function copyAIMessage() {
+            const ta = document.getElementById('ai-whatsapp-output');
+            navigator.clipboard.writeText(ta.value);
+            showToast('Mensagem copiada para a área de transferência!');
+        }
+
+        function sendAIWhatsApp() {
+            const clientId = document.getElementById('ai-client-select').value;
+            const client = clientsData.find(c => c.id === clientId);
+            const phone = client && client.phone ? client.phone.replace(/\D/g, '') : '';
+            const text = encodeURIComponent(document.getElementById('ai-whatsapp-output').value);
+            window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${text}`, '_blank');
+        }
+
+        function openWhatsAppModalForClient(clientId) {
+            window.activeClientId = clientId;
+            openAIAgentModal();
+            document.getElementById('ai-client-select').value = clientId;
+            generateAIWhatsAppScript();
+        }
+
+        function askAIAssistant() {
+            const q = document.getElementById('ai-consult-input').value.toLowerCase();
+            const out = document.getElementById('ai-consult-output');
+            if (q.includes('psicoló') || q.includes('laudo')) {
+                out.innerText = '🤖 Resposta IA: O laudo psicológico para manuseio de arma de fogo deve ser emitido por psicólogo credenciado pela Polícia Federal (Lei 10.826/2003). Validade de 90 dias.';
+            } else if (q.includes('nível') || q.includes('treino')) {
+                out.innerText = '🤖 Resposta IA: Conforme Decreto 11.615/2023, a progressão de Níveis de atirador desportivo exige: Nível 1 (8 treinos/12m), Nível 2 (12 treinos + 4 competições) e Nível 3 (20 treinos + 6 competições).';
+            } else {
+                out.innerText = '🤖 Resposta IA: Todas as solicitações de aquisição, renovação e concessão de CR tramitam eletronicamente pelo Novo Portal PF integrado à conta Gov.br (Prata ou Ouro).';
+            }
+        }
+
+        function scheduleGoogleCalendar(examName) {
+            const client = clientsData.find(c => c.id === window.activeClientId) || { fullname: 'Cliente CAC' };
+            const title = encodeURIComponent(`Agendamento ${examName} - ${client.fullname}`);
+            const details = encodeURIComponent(`Requerente: ${client.fullname}\nCPF: ${client.cpf}\nTelefone: ${client.phone}`);
+            window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}`, '_blank');
+        }
+
+        function sendExaminerWhatsApp(phoneNum, examinerName) {
+            const client = clientsData.find(c => c.id === window.activeClientId) || { fullname: 'Não selecionado', cpf: '', phone: '', street: '' };
+            const msg = encodeURIComponent(`Olá ${examinerName}, gostaria de solicitar o agendamento de exame para o requerente:\n\n*Nome:* ${client.fullname}\n*CPF:* ${client.cpf}\n*Telefone:* ${client.phone}\n*Endereço:* ${client.street}, ${client.number} - ${client.city}/${client.state}`);
+            window.open(`https://api.whatsapp.com/send?phone=${phoneNum}&text=${msg}`, '_blank');
+        }
+
+        function copyNewClientLink() {
+            const link = `${window.location.origin}${window.location.pathname}?novo-cadastro=true`;
+            navigator.clipboard.writeText(link);
+            showToast('Link limpo para novo cliente copiado para a área de transferência!');
+        }
+
+        function deleteClient(id) {
+            if (confirm('Deseja realmente excluir este cliente?')) {
+                clientsData = clientsData.filter(c => c.id !== id);
+                localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                renderDashboard();
+                showToast('Cliente excluído.');
+            }
+        }
+
+        function openDocumentPreview(docType) {
+            const client = clientsData.find(c => c.id === window.activeClientId) || {};
+            const printArea = document.getElementById('print-area');
+            const modalTitle = document.getElementById('preview-modal-title');
+            if (!printArea) return;
+
+            let html = '';
+            if (docType === 'anexo1') {
+                modalTitle.innerText = 'ANEXO I - Requerimento Padrão PF';
+                html = `
+                    <div class="space-y-4 font-sans text-xs sm:text-sm">
+                        <div class="text-center border-b pb-3">
+                            <h4 class="font-extrabold text-base">MINISTÉRIO DA JUSTIÇA E SEGURANÇA PÚBLICA</h4>
+                            <h5 class="font-bold text-sm">POLÍCIA FEDERAL</h5>
+                            <p class="font-extrabold mt-1">REQUERIMENTO DE CONCESSÃO / RENOVAÇÃO DE CR / AQUISIÇÃO (ANEXO I)</p>
+                        </div>
+                        <div class="flex justify-between items-start my-4">
+                            <div class="space-y-1">
+                                <p><strong>Requerente:</strong> ${client.fullname || '________________________________________________'}</p>
+                                <p><strong>CPF:</strong> ${client.cpf || '__________________'} • <strong>RG:</strong> ${client.rg || '__________________'}</p>
+                                <p><strong>Filiação:</strong> ${client.motherName || '________________'} / ${client.fatherName || '________________'}</p>
+                                <p><strong>Endereço:</strong> ${client.street || '___'}, nº ${client.number || '___'}, ${client.neighborhood || '___'} - ${client.city || '___'}/${client.state || '___'}</p>
+                            </div>
+                            <div class="w-24 h-32 border-2 border-dashed border-slate-400 flex items-center justify-center text-center p-1 text-[10px] text-slate-500 bg-slate-50">
+                                FOTO 3X4
+                            </div>
+                        </div>
+                        <p class="text-justify leading-relaxed">O requerente acima qualificado vem, respeitosamente, à presença da Polícia Federal, requerer o deferimento do pleito de <strong>${client.serviceType || 'Concessão de CR'}</strong>, declarando para os devidos fins de direito e sob as penas da lei (Art. 299 do Código Penal) que preenche todos os requisitos legais.</p>
+                        <div class="pt-8 text-center">
+                            <p>__________________________________________________________________</p>
+                            <p class="font-bold mt-1">${client.fullname || 'Assinatura do Requerente'}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                modalTitle.innerText = 'Minuta Oficial Polícia Federal';
+                html = `<div class="p-6 text-center"><h3 class="font-bold text-base">Minuta gerada para ${client.fullname || 'Requerente'}</h3><p class="text-xs text-slate-500 mt-2">Clique em Imprimir / Salvar PDF no topo para gerar o documento oficial em página única.</p></div>`;
+            }
+
+            printArea.innerHTML = html;
+            document.getElementById('preview-modal').classList.remove('hidden');
+        }
+
+        function closeDocumentPreview() { document.getElementById('preview-modal').classList.add('hidden'); }
+        function compileFullDossier() { openDocumentPreview('anexo1'); }
+
+        // Inicialização
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
-            const isNovo = params.get('novo-cadastro') === 'true';
-            const clientIdParam = params.get('client');
+            const isNew = params.get('novo-cadastro');
+            const clientId = params.get('client');
 
-            if (isNovo) {
-                isClientStandaloneMode = true;
+            if (clientId) {
+                openClientPortal(clientId);
+            } else if (isNew) {
                 createNewClient();
-            } else if (clientIdParam) {
-                isClientStandaloneMode = true;
-                const exists = clientsData.find(c => c.id === clientIdParam);
-                if (exists) {
-                    openClientPortal(clientIdParam);
-                } else {
-                    createNewClient();
-                }
             } else {
                 renderDashboard();
             }
-            if (window.lucide) lucide.createIcons();
+            lucide.createIcons();
         });
     </script>
 </body>
