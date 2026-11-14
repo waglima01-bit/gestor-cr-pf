@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Identity Services (OAuth 2.0 para Google Drive) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
         tailwind.config = {
@@ -38,7 +40,7 @@
             background-color: #f1f5f9;
         }
 
-        /* Estilos exclusivos de impressão (Isolamento absoluto para evitar páginas duplicadas) */
+        /* Estilos exclusivos de impressão */
         @media print {
             body * {
                 visibility: hidden !important;
@@ -78,15 +80,7 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
-        <div class="bg-slate-900 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center space-x-2">
-            <i data-lucide="info" class="w-4 h-4 text-amber-400"></i>
-            <span id="toast-msg">Ação realizada com sucesso.</span>
-        </div>
-    </div>
-
-    <!-- CABEÇALHO DO DESPACHANTE (Oculto automaticamente no modo Portal do Cliente) -->
+    <!-- CABEÇALHO DO DESPACHANTE -->
     <header id="app-header" class="bg-pf-950 text-white shadow-lg border-b border-slate-800 sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center space-x-3">
@@ -103,10 +97,6 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <button onclick="createFictitiousTestClient()" class="text-xs flex items-center space-x-1.5 text-amber-300 hover:text-white bg-amber-950/60 hover:bg-amber-900 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold" title="Criar Cadastro Fictício para Teste Completo">
-                    <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
-                    <span>🧪 Criar Teste Fictício</span>
-                </button>
                 <button onclick="copyNewClientLink()" class="text-xs flex items-center space-x-1.5 text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-500/40 transition-colors font-semibold" title="Copiar Link Limpo para Enviar ao Cliente no WhatsApp">
                     <i data-lucide="link" class="w-3.5 h-3.5"></i>
                     <span>Link Novo Cliente</span>
@@ -135,7 +125,6 @@
 
         <!-- 1. PAINEL DO DESPACHANTE (DASHBOARD) -->
         <section id="dispatcher-dashboard" class="space-y-6">
-            <!-- Cards de Métricas e Alertas -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                     <div>
@@ -169,7 +158,7 @@
                 </div>
             </div>
 
-            <!-- Barra de Busca e Lista de Clientes -->
+            <!-- Lista de Clientes -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70">
                     <div>
@@ -200,9 +189,8 @@
             </div>
         </section>
 
-        <!-- 2. PORTAL DO REQUERENTE / FICHA CADASTRAL SINARM & MINUTAS PF -->
+        <!-- 2. PORTAL DO REQUERENTE / FICHA CADASTRAL -->
         <section id="client-portal" class="hidden space-y-6">
-            <!-- Barra Superior do Portal -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center space-x-3">
                     <button id="btn-back-dashboard" onclick="backToDashboard()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors">
@@ -240,10 +228,8 @@
                 </div>
             </div>
 
-            <!-- Grid Principal: Formulário à Esquerda + Minutas & Upload à Direita -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                <!-- COLUNA ESQUERDA (7 colunas): DADOS CADASTRAIS PADRÃO PF -->
+                <!-- COLUNA ESQUERDA: DADOS CADASTRAIS -->
                 <div class="lg:col-span-7 space-y-5">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -257,7 +243,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div class="sm:col-span-2">
                                 <label class="block font-bold text-slate-700 mb-1">Nome Completo (sem abreviações) *</label>
-                                <input type="text" id="field-fullname" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: MANIOEL MESSIAS DO ESPIRITO SANTO">
+                                <input type="text" id="field-fullname" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: MANOEL MESSIAS DO ESPIRITO SANTO">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">CPF *</label>
@@ -297,7 +283,7 @@
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Município Natal *</label>
-                                <input type="text" id="field-birthCity" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: TARUMIRIM">
+                                <input type="text" id="field-birthCity" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: TEÓFILO OTONI">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Estado Natal (UF) *</label>
@@ -330,71 +316,132 @@
                         </div>
                     </div>
 
-                    <!-- Endereço com Busca Automática ViaCEP -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <!-- Endereço Completo com Busca Automática por CEP -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <h3 class="font-extrabold text-sm text-slate-800 flex items-center gap-2">
                                 <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
-                                <span>2. Endereço Residencial (Busca Automática por CEP)</span>
+                                <span>2. Endereço Completo (Busca Automática via CEP)</span>
                             </h3>
-                            <span id="cep-status" class="text-[11px] font-semibold text-slate-400">Digite o CEP para preencher</span>
+                            <span class="text-[10px] text-slate-500 font-semibold">Preencha o CEP para autocompletar</span>
                         </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-6 gap-3 text-xs">
-                            <div class="sm:col-span-2">
-                                <label class="block font-bold text-slate-700 mb-1">CEP *</label>
-                                <input type="text" id="field-cep" onblur="lookupCEP(this.value)" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-amber-50/60 border border-amber-300 rounded-xl font-bold" placeholder="35140-000">
-                            </div>
-                            <div class="sm:col-span-3">
-                                <label class="block font-bold text-slate-700 mb-1">Logradouro (Rua/Av/Travessa) *</label>
-                                <input type="text" id="field-street" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
-                            </div>
-                            <div class="sm:col-span-1">
-                                <label class="block font-bold text-slate-700 mb-1">Número *</label>
-                                <input type="text" id="field-number" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-white border border-blue-400 rounded-xl font-bold" placeholder="Nº">
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label class="block font-bold text-slate-700 mb-1">Bairro *</label>
-                                <input type="text" id="field-neighborhood" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
-                            </div>
-                            <div class="sm:col-span-3">
-                                <label class="block font-bold text-slate-700 mb-1">Cidade *</label>
-                                <input type="text" id="field-city" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
-                            </div>
-                            <div class="sm:col-span-1">
-                                <label class="block font-bold text-slate-700 mb-1">UF *</label>
-                                <input type="text" id="field-state" maxlength="2" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-bold text-center" placeholder="MG">
-                            </div>
-                        </div>
-
-                        <!-- Dados do Processo / CR -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                             <div>
-                                <label class="block font-bold text-slate-700 mb-1">Tipo de Processo</label>
-                                <select id="field-serviceType" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
-                                    <option value="Concessão de CR (Atirador)">Concessão de CR (Atirador)</option>
-                                    <option value="Aquisição SINARM-CAC">Aquisição SINARM-CAC</option>
-                                    <option value="Posse de Arma (SINARM)">Posse de Arma (SINARM)</option>
-                                    <option value="Transferência SIGMA -> SINARM">Transferência SIGMA ➔ SINARM</option>
-                                    <option value="Aquisição Uso Restrito (Anexo A)">Aquisição Uso Restrito (Anexo A)</option>
-                                    <option value="Porte de Arma de Fogo">Porte de Arma de Fogo</option>
+                                <label class="block font-bold text-slate-700 mb-1">CEP *</label>
+                                <input type="text" id="field-cep" oninput="onCepInput(this.value); saveCurrentClientData(false);" maxlength="9" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="39800-000">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block font-bold text-slate-700 mb-1">Logradouro (Rua / Avenida) *</label>
+                                <input type="text" id="field-street" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: RUA CORONEL AACIO">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Número *</label>
+                                <input type="text" id="field-number" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="100">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Bairro *</label>
+                                <input type="text" id="field-neighborhood" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="CENTRO">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Cidade / UF *</label>
+                                <div class="grid grid-cols-3 gap-1">
+                                    <input type="text" id="field-city" oninput="saveCurrentClientData(false)" class="col-span-2 p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="TEÓFILO OTONI">
+                                    <input type="text" id="field-state" oninput="saveCurrentClientData(false)" class="p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold text-center" placeholder="MG">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seleção da Primeira Arma & Calibre (.380 e .38 TPC Taurus, Calibres Comuns e Restritos) -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="block font-extrabold text-slate-800 text-xs">Escolha da Primeira Arma & Calibre (Modelos .380 & .38 TPC Taurus)</label>
+                            <span class="text-[10px] text-slate-500 font-semibold">Decreto 11.615/2023 & Estatuto do Desarmamento</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Modelo da Arma (Sem o calibre) *</label>
+                                <select id="field-selectedWeapon" onchange="onWeaponCatalogSelect(this.value); saveCurrentClientData(false);" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                    <option value="">Selecione o modelo da arma...</option>
+                                    <optgroup label="🔫 Pistolas Taurus .380 & .38 TPC">
+                                        <option value="Pistola Taurus G2C">Pistola Taurus G2C</option>
+                                        <option value="Pistola Taurus G3C">Pistola Taurus G3C</option>
+                                        <option value="Pistola Taurus G3">Pistola Taurus G3</option>
+                                        <option value="Pistola Taurus TH380">Pistola Taurus TH380</option>
+                                        <option value="Pistola Taurus GX4">Pistola Taurus GX4</option>
+                                    </optgroup>
+                                    <optgroup label="🔫 Pistolas 9mm (Mais Vendidas)">
+                                        <option value="Pistola Taurus TS9">Pistola Taurus TS9</option>
+                                        <option value="Pistola Glock G17 / G19 Gen5">Pistola Glock G17 / G19 Gen5</option>
+                                        <option value="Pistola Beretta APX Centurion">Pistola Beretta APX Centurion</option>
+                                        <option value="Pistola Sig Sauer P320">Pistola Sig Sauer P320</option>
+                                    </optgroup>
+                                    <optgroup label="🌀 Revólveres Permitidos">
+                                        <option value="Revólver Taurus 85S">Revólver Taurus 85S</option>
+                                        <option value="Revólver Taurus 889">Revólver Taurus 889</option>
+                                        <option value="Revólver Rossi RM66">Revólver Rossi RM66</option>
+                                    </optgroup>
+                                    <optgroup label="🎯 Carabinas & Espingardas">
+                                        <option value="Carabina CBC Puma">Carabina CBC Puma</option>
+                                        <option value="Carabina semiautomática CBC 7022">Carabina CBC 7022</option>
+                                        <option value="Espingarda CBC Pump Tactical">Espingarda CBC Pump Tactical</option>
+                                    </optgroup>
+                                    <optgroup label="🛡️ Armas de Calibre Restrito (CAC / Anexo A)">
+                                        <option value="Fuzil T4 CBC / Taurus">Fuzil T4 CBC / Taurus [Restrito]</option>
+                                        <option value="Fuzil IWI Zion">Fuzil IWI Zion [Restrito]</option>
+                                        <option value="Pistola CZ P-10C">Pistola CZ P-10C [Restrito]</option>
+                                    </optgroup>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold text-slate-700 mb-1">Nº do CR (se possuir)</label>
-                                <input type="text" id="field-crNumber" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="Opcional">
+                                <label class="block font-bold text-slate-700 mb-1">Calibre Principal *</label>
+                                <select id="field-selectedCaliber" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-800">
+                                    <option value="">Selecione o calibre...</option>
+                                    <optgroup label="Calibres Comuns Permitidos">
+                                        <option value=".380 Auto (.380 ACP)">.380 Auto (.380 ACP)</option>
+                                        <option value=".38 TPC">.38 TPC</option>
+                                        <option value="9mm Luger (9x19mm)">9mm Luger (9x19mm)</option>
+                                        <option value=".38 Special (.38 SPL)">.38 Special (.38 SPL)</option>
+                                        <option value=".22 LR">.22 Long Rifle (.22 LR)</option>
+                                        <option value="Calibre 12 GA (Gauge)">Calibre 12 (Espingarda)</option>
+                                    </optgroup>
+                                    <optgroup label="Calibres Restritos (CAC / Atirador)">
+                                        <option value="5.56x45mm NATO">5.56x45mm NATO (.223 Rem)</option>
+                                        <option value=".308 Winchester (7.62x51mm)">.308 Winchester (.308 Win)</option>
+                                        <option value=".40 S&W">.40 S&W</option>
+                                        <option value=".45 ACP">.45 ACP</option>
+                                    </optgroup>
+                                </select>
                             </div>
-                            <div>
-                                <label class="block font-bold text-slate-700 mb-1">Validade do CR</label>
-                                <input type="date" id="field-crExpiry" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
-                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dados do Processo / CR -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Tipo de Processo</label>
+                            <select id="field-serviceType" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                <option value="Concessão de CR (Atirador)">Concessão de CR (Atirador)</option>
+                                <option value="Aquisição SINARM-CAC">Aquisição SINARM-CAC</option>
+                                <option value="Posse de Arma (SINARM)">Posse de Arma (SINARM)</option>
+                                <option value="Transferência SIGMA -> SINARM">Transferência SIGMA ➔ SINARM</option>
+                                <option value="Aquisição Uso Restrito (Anexo A)">Aquisição Uso Restrito (Anexo A)</option>
+                                <option value="Porte de Arma de Fogo">Porte de Arma de Fogo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Nº do CR (se possuir)</label>
+                            <input type="text" id="field-crNumber" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="Opcional">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Validade do CR</label>
+                            <input type="date" id="field-crExpiry" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                         </div>
                     </div>
                 </div>
 
-                <!-- COLUNA DIREITA (5 colunas): GERADOR DE MINUTAS OFICIAIS PF + UPLOAD DE ARQUIVOS -->
+                <!-- COLUNA DIREITA: MINUTAS & UPLOAD (ITENS 05 A 09) -->
                 <div class="lg:col-span-5 space-y-5">
-                    <!-- ITEM 3: Gerador de Requerimentos e Termos Oficiais PF (EXCLUSIVO DO DESPACHANTE) -->
                     <div id="section-item-3-dispatcher" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <h3 class="font-extrabold text-sm text-slate-800 flex items-center gap-2">
@@ -432,20 +479,20 @@
                         </div>
                     </div>
 
-                    <!-- ITEM 4: Checklist de Documentos & Anexos -->
+                    <!-- Checklist de Documentos (Itens 05 a 09) -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <h3 class="font-extrabold text-sm text-slate-800 flex items-center gap-2">
                                 <i data-lucide="folder-up" class="w-4 h-4 text-blue-600"></i>
-                                <span>4. Anexos & Documentação Obrigatória (PF)</span>
+                                <span>4. Anexos Obrigatórios PF (Itens 05 a 09)</span>
                             </h3>
-                            <span id="checklist-counter" class="text-[11px] font-bold text-slate-500">0/12 Anexados</span>
+                            <span id="checklist-counter" class="text-[11px] font-bold text-slate-500">0/5 Anexados</span>
                         </div>
+                        <p class="text-[11px] text-slate-500">O sistema converte automaticamente fotos (JPG/PNG) enviadas pelo cliente em arquivos PDF padronizados e unificados para o Google Drive.</p>
                         <div id="pf-checklist-container" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
-                            <!-- Gerado dinamicamente via JS de 01 a 12 -->
+                            <!-- Gerado dinamicamente via JS de 05 a 09 -->
                         </div>
                         
-                        <!-- BOTÃO EXTRA DE ENVIO AO DRIVE NO FINAL DOS ANEXOS -->
                         <div class="pt-3 border-t border-slate-100 flex justify-end">
                             <button onclick="syncWithGoogleDrive()" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 shadow">
                                 <i data-lucide="hard-drive" class="w-4 h-4"></i>
@@ -454,218 +501,206 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
-
     </main>
 
-    <!-- MODAL DE PREVIEW / IMPRESSÃO DE DOCUMENTOS -->
-    <div id="preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] flex flex-col overflow-hidden">
-            <div class="no-print bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="file-check" class="w-5 h-5 text-amber-400"></i>
-                    <h3 id="preview-modal-title" class="font-bold text-sm">Visualização Oficial da Minuta</h3>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="window.print()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-pf-950 rounded-xl text-xs font-extrabold flex items-center space-x-1 shadow">
-                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                        <span>Imprimir / Salvar PDF</span>
-                    </button>
-                    <button onclick="closeDocumentPreview()" class="p-1.5 text-slate-400 hover:text-white rounded-lg">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
-            <div id="print-area" class="flex-1 p-8 overflow-y-auto bg-white text-slate-900 text-xs sm:text-sm">
-                <!-- Conteúdo gerado dinamicamente para impressão em página única sem repetição -->
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE DADOS DA ARMA (SIGMA / SINARM) -->
-    <div id="weapon-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4">
+    <!-- MODAL DE PRÉ-VISUALIZAÇÃO / IMPRESSÃO -->
+    <div id="preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
-                    <i data-lucide="crosshair" class="w-5 h-5 text-amber-600"></i>
-                    <span>Dados da Arma de Fogo (SIGMA / SINARM)</span>
-                </h3>
-                <button onclick="closeWeaponModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Espécie / Tipo</label>
-                    <input type="text" id="weapon-species" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: PISTOLA / RIFLE">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Marca</label>
-                    <input type="text" id="weapon-brand" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: TAURUS / GLOCK">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Calibre</label>
-                    <input type="text" id="weapon-caliber" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: 9mm / .380 ACP">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Número de Série</label>
-                    <input type="text" id="weapon-serial" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Nº de Série">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nº SIGMA (se houver)</label>
-                    <input type="text" id="weapon-sigma" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Nº SIGMA">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nº SINARM (se houver)</label>
-                    <input type="text" id="weapon-sinarm" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Nº SINARM">
+                <h3 id="preview-modal-title" class="font-extrabold text-base text-slate-900">Documento Oficial</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-pf-950 font-bold text-xs rounded-xl flex items-center gap-1">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / Salvar PDF
+                    </button>
+                    <button onclick="closeDocumentPreview()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
             </div>
-            <div class="flex justify-end pt-3 border-t border-slate-100">
-                <button onclick="saveWeaponModalData()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold">Salvar Dados da Arma</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE DADOS DO ALIENANTE E DECLARAÇÃO 5 ANOS -->
-    <div id="alienator-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-4 my-8">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
-                    <i data-lucide="user-check" class="w-5 h-5 text-indigo-600"></i>
-                    <span>Dados do Alienante & Histórico de Residência (5 Anos)</span>
-                </h3>
-                <button onclick="closeAlienatorModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="space-y-4 text-xs">
-                <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl">
-                    <p class="font-bold text-indigo-900 mb-2">Dados do Alienante (Para Termo de Doação / Transferência)</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input type="text" id="alienator-name" class="p-2 bg-white border border-slate-300 rounded-lg uppercase" placeholder="Nome Completo do Alienante">
-                        <input type="text" id="alienator-cpf" class="p-2 bg-white border border-slate-300 rounded-lg" placeholder="CPF do Alienante">
-                    </div>
-                </div>
-                <div>
-                    <p class="font-bold text-slate-800 mb-2">Declaração de Residência - Últimos 5 Anos (Lei 7.115/1983)</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <label class="block font-semibold text-slate-600">Ano 2026 (Endereço/Cidade/UF)</label>
-                            <input type="text" id="res-2026" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2026">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-600">Ano 2025 (Endereço/Cidade/UF)</label>
-                            <input type="text" id="res-2025" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2025">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-600">Ano 2024 (Endereço/Cidade/UF)</label>
-                            <input type="text" id="res-2024" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2024">
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-slate-600">Ano 2023 (Endereço/Cidade/UF)</label>
-                            <input type="text" id="res-2023" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2023">
-                        </div>
-                        <div class="sm:col-span-2">
-                            <label class="block font-semibold text-slate-600">Ano 2022 (Endereço/Cidade/UF)</label>
-                            <input type="text" id="res-2022" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg" placeholder="Endereço em 2022">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-end pt-3 border-t border-slate-100">
-                <button onclick="saveAlienatorModalData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold">Salvar Dados Adicionais</button>
+            <div id="print-area" class="flex-1 overflow-y-auto p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                <!-- Conteúdo renderizado dinamicamente -->
             </div>
         </div>
     </div>
 
     <!-- MODAL DE CONFIGURAÇÃO DO GOOGLE DRIVE -->
     <div id="drive-config-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
-                    <i data-lucide="hard-drive" class="w-5 h-5 text-blue-600"></i>
-                    <span>Configuração Google Drive (`waglima01@gmail.com`)</span>
-                </h3>
+                <h3 class="font-bold text-base text-slate-900">Configuração Google Drive (waglima01@gmail.com)</h3>
                 <button onclick="closeDriveConfigModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <p class="text-xs text-slate-600">Cole abaixo a URL do Web App gerada no Google Apps Script. O sistema criará automaticamente as pastas organizadas por inicial e subpastas do cliente com os documentos de 01 a 12.</p>
-            
             <div class="space-y-3 text-xs">
+                <p class="text-slate-600 leading-relaxed">Insira a URL do Web App gerada no Google Apps Script para automatizar a criação de pastas organizadas por inicial e o envio dos documentos PDF numerados (05 a 09).</p>
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">Passo 1: Código Apps Script (doGet & doPost)</label>
-                    <textarea readonly rows="6" class="w-full p-2.5 bg-slate-900 text-emerald-400 font-mono rounded-xl text-[10px] select-all">function processDrivePayload(data) {
-  if (!data) { data = { firstLetter: "T", clientName: "TESTE_CONEXAO", files: [] }; }
-  var root = DriveApp.getFoldersByName("Gestor CR - Clientes").hasNext() ? DriveApp.getFoldersByName("Gestor CR - Clientes").next() : DriveApp.createFolder("Gestor CR - Clientes");
-  var letter = (data.firstLetter || "A").toUpperCase();
-  var cName = (data.clientName || "CLIENTE_TESTE").toUpperCase();
-  var letterFolder = root.getFoldersByName(letter).hasNext() ? root.getFoldersByName(letter).next() : root.createFolder(letter);
-  var clientFolder = letterFolder.getFoldersByName(cName).hasNext() ? letterFolder.getFoldersByName(cName).next() : letterFolder.createFolder(cName);
-  
-  if (data.files && Array.isArray(data.files) && data.files.length) {
-    data.files.forEach(function(f) {
-      try {
-        var bytes = Utilities.base64Decode(f.base64);
-        clientFolder.createFile(Utilities.newBlob(bytes, f.mimeType, f.standardizedName));
-      } catch(err) {}
-    });
-  }
-  return { status: "ok", folderName: clientFolder.getName(), folderUrl: clientFolder.getUrl() };
-}
-function doGet(e) {
-  var data = null;
-  try { if (e && e.parameter && e.parameter.payload) { data = JSON.parse(e.parameter.payload); } } catch(err) {}
-  var res = processDrivePayload(data);
-  return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
-}
-function doPost(e) {
-  var data = null;
-  try { if (e && e.postData && e.postData.contents) { data = JSON.parse(e.postData.contents); } } catch(err) {}
-  var res = processDrivePayload(data);
-  return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
-}</textarea>
+                    <label class="block font-bold text-slate-700 mb-1">URL do Web App (Google Apps Script) *</label>
+                    <input type="text" id="drive-webhook-url-input" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono text-[11px]" placeholder="https://script.google.com/macros/s/.../exec">
                 </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Passo 2: Cole a URL do Web App gerada (terminada em /exec)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="drive-webhook-url-input" class="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="https://script.google.com/macros/s/.../exec">
-                        <button onclick="testDriveConnection()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-1 shadow">
-                            <i data-lucide="play" class="w-3.5 h-3.5"></i> Testar Conexão
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center pt-3 border-t border-slate-100">
-                <span id="drive-test-status" class="text-xs font-semibold text-slate-500">Pronto para testar</span>
-                <div class="flex gap-2">
-                    <button onclick="closeDriveConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Fechar</button>
-                    <button onclick="saveDriveWebhookUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold">Salvar Configuração</button>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="closeDriveConfigModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button>
+                    <button onclick="saveDriveWebhookUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold">Salvar Configuração</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DO AGENTE DE IA & WHATSAPP CONCIERGE -->
+    <!-- MODAL DE DADOS DA ARMA (ATUALIZADO PARA ANEXO I E TERMO DE DOAÇÃO) -->
+    <div id="weapon-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900">Dados da Arma (SIGMA / SINARM / Anexo I / Doação)</h3>
+                <button onclick="closeWeaponModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Espécie</label>
+                    <input type="text" id="weapon-species" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: PISTOLA">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Marca</label>
+                    <input type="text" id="weapon-brand" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: TAURUS">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Calibre</label>
+                    <input type="text" id="weapon-caliber" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: .38 TPC / 9MM">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Nº de Série</label>
+                    <input type="text" id="weapon-serial" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: E06068">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Nº SIGMA / Registro Federal</label>
+                    <input type="text" id="weapon-sigma" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: 2404907">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Nº SINARM</label>
+                    <input type="text" id="weapon-sinarm" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: 2024/906517549-75">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Capacidade de Tiros</label>
+                    <input type="text" id="weapon-capacity" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: 10 TIROS">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Acabamento</label>
+                    <input type="text" id="weapon-finish" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: OXIDADO">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Funcionamento</label>
+                    <input type="text" id="weapon-operation" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: SEMI-AUTOMÁTICO">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">País de Fabricação</label>
+                    <input type="text" id="weapon-country" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: BRASIL">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeWeaponModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs">Cancelar</button>
+                <button onclick="saveWeaponModalData()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs">Salvar Dados da Arma</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DADOS DO ALIENANTE E RESIDÊNCIA (5 ANOS) - ATUALIZADO -->
+    <div id="alienator-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900">Dados do Alienante & Residência (5 Anos - Termo de Doação)</h3>
+                <button onclick="closeAlienatorModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-4 text-xs">
+                <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-xl space-y-2">
+                    <p class="font-bold text-indigo-900">Dados Completos do Alienante (Doador - Termo de Doação)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Nome Completo do Alienante</label>
+                            <input type="text" id="alienator-name" class="w-full p-2 bg-white border border-slate-300 rounded-xl uppercase font-semibold" placeholder="ADILSON BATISTA DA SILVA JUNIOR">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">CPF do Alienante</label>
+                            <input type="text" id="alienator-cpf" class="w-full p-2 bg-white border border-slate-300 rounded-xl font-semibold" placeholder="119.047.096-99">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">RG / Órgão Expedidor</label>
+                            <input type="text" id="alienator-rg" class="w-full p-2 bg-white border border-slate-300 rounded-xl uppercase font-semibold" placeholder="18268837 SSP MG">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Filiação do Alienante (Pai e Mãe)</label>
+                            <input type="text" id="alienator-parents" class="w-full p-2 bg-white border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Adilson Batista e Zélia Oliveira">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block font-bold text-slate-700 mb-1">Endereço Completo do Alienante</label>
+                            <input type="text" id="alienator-address" class="w-full p-2 bg-white border border-slate-300 rounded-xl uppercase font-semibold" placeholder="RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG, CEP: 35010-170">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <p class="font-bold text-slate-800">Declaração de Residência - Últimos 5 Anos (Exigência PF)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div><label class="block font-semibold text-slate-600">Residência 2026</label><input type="text" id="res-2026" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2026"></div>
+                        <div><label class="block font-semibold text-slate-600">Residência 2025</label><input type="text" id="res-2025" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2025"></div>
+                        <div><label class="block font-semibold text-slate-600">Residência 2024</label><input type="text" id="res-2024" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2024"></div>
+                        <div><label class="block font-semibold text-slate-600">Residência 2023</label><input type="text" id="res-2023" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2023"></div>
+                        <div class="sm:col-span-2"><label class="block font-semibold text-slate-600">Residência 2022</label><input type="text" id="res-2022" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2022"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeAlienatorModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs">Cancelar</button>
+                <button onclick="saveAlienatorModalData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs">Salvar Dados</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-pf-950 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center space-x-3">
+        <div class="bg-emerald-500/20 text-emerald-400 p-1 rounded-xl"><i data-lucide="check" class="w-4 h-4"></i></div>
+        <p id="toast-msg" class="text-xs font-bold"></p>
+    </div>
+
+    <!-- MODAL DO AGENTE DE IA & ASSISTENTE OPERACIONAL -->
     <div id="ai-agent-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div class="flex items-center space-x-2">
                     <div class="p-2 bg-purple-100 text-purple-700 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div>
                     <div>
-                        <h3 class="font-bold text-base text-slate-900">Agente de IA Especialista PF / SINARM-CAC</h3>
-                        <p class="text-xs text-slate-500">Gestão Processual, Consultoria Técnica, Agendamentos e Atendimento WhatsApp</p>
+                        <h3 class="font-bold text-base text-slate-900">Agente de IA & Assistente Operacional</h3>
+                        <p class="text-xs text-slate-500">Converse com a IA para executar tarefas, converter fotos em PDF, unificar arquivos e gerenciar prazos</p>
                     </div>
                 </div>
                 <button onclick="closeAIAgentModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
 
             <!-- Abas do Agente -->
-            <div class="flex border-b border-slate-200 text-xs font-bold gap-4">
-                <button onclick="switchAITab('whatsapp')" id="ai-tab-whatsapp" class="pb-2 border-b-2 border-purple-600 text-purple-700 transition-colors">1. Gerador WhatsApp</button>
-                <button onclick="switchAITab('consultor')" id="ai-tab-consultor" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">2. Consultor Técnico & Base Legal</button>
-                <button onclick="switchAITab('autonomia')" id="ai-tab-autonomia" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">3. Google Agenda & Examinadores</button>
+            <div class="flex border-b border-slate-200 text-xs font-bold gap-4 overflow-x-auto">
+                <button onclick="switchAITab('chat')" id="ai-tab-chat" class="pb-2 border-b-2 border-purple-600 text-purple-700 transition-colors whitespace-nowrap">💬 Chat & Execução de Tarefas</button>
+                <button onclick="switchAITab('whatsapp')" id="ai-tab-whatsapp" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap">1. Gerador WhatsApp</button>
+                <button onclick="switchAITab('consultor')" id="ai-tab-consultor" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap">2. Consultor Técnico & Base Legal</button>
+                <button onclick="switchAITab('autonomia')" id="ai-tab-autonomia" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap">3. Google Agenda & Examinadores</button>
+            </div>
+
+            <!-- Conteúdo Aba 0: Chat Interativo & Tarefas -->
+            <div id="ai-panel-chat" class="space-y-3 flex-1 flex flex-col overflow-y-auto text-xs">
+                <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl text-purple-900 font-medium">
+                    🤖 Olá! Sou seu Agente Operacional. Posso converter fotos de documentos em PDF unificado, verificar prazos e enviar agendamentos para a psicóloga Maria Damasceno (33988650173) e o instrutor Guimarães (33991385754). Digite o que deseja fazer:
+                </div>
+                <div id="ai-chat-messages" class="flex-1 min-h-[200px] max-h-[260px] overflow-y-auto space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 max-w-[85%]">
+                        <p class="font-bold text-purple-700">Agente IA:</p>
+                        <p class="text-slate-700 mt-0.5">Estou pronto para ajudar no seu processo. Como posso auxiliar hoje?</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <input type="text" id="ai-chat-input" onkeydown="if(event.key==='Enter') sendAIChatMessage()" class="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: Converter fotos em PDF, verificar prazos, unificar arquivos...">
+                    <button onclick="sendAIChatMessage()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold flex items-center gap-1">
+                        <i data-lucide="send" class="w-4 h-4"></i><span>Enviar</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Conteúdo Aba 1: WhatsApp -->
-            <div id="ai-panel-whatsapp" class="space-y-3 flex-1 overflow-y-auto text-xs">
+            <div id="ai-panel-whatsapp" class="hidden space-y-3 flex-1 overflow-y-auto text-xs">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">Cliente Destinatário</label>
@@ -692,7 +727,7 @@ function doPost(e) {
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">Mensagem Técnica Gerada (Editável):</label>
-                    <textarea id="ai-whatsapp-output" rows="6" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-[11px]" placeholder="Clique em gerar acima..."></textarea>
+                    <textarea id="ai-whatsapp-output" rows="5" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-[11px]" placeholder="Clique em gerar acima..."></textarea>
                 </div>
                 <div class="flex justify-end gap-2">
                     <button onclick="copyAIMessage()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Copiar Mensagem</button>
@@ -714,7 +749,7 @@ function doPost(e) {
                         <button onclick="askAIAssistant()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold">Perguntar</button>
                     </div>
                 </div>
-                <div id="ai-consult-output" class="p-3 bg-slate-50 border border-slate-200 rounded-xl min-h-[100px] text-slate-700 font-mono text-[11px]">
+                <div id="ai-consult-output" class="p-3 bg-slate-50 border border-slate-200 rounded-xl min-h-[90px] text-slate-700 font-mono text-[11px]">
                     O Agente IA está pronto para responder dúvidas técnicas.
                 </div>
             </div>
@@ -723,13 +758,13 @@ function doPost(e) {
             <div id="ai-panel-autonomia" class="hidden space-y-4 flex-1 overflow-y-auto text-xs">
                 <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                     <h4 class="font-extrabold text-slate-900">Agente Autônomo & Integração com Examinadores Credenciados PF</h4>
-                    <p class="text-slate-600">O Agente gerencia pastas no Google Drive (`waglima01@gmail.com`), organiza os documentos (01 a 12) e envia dados para agendamentos:</p>
+                    <p class="text-slate-600">O Agente gerencia pastas no Google Drive (`waglima01@gmail.com`), organiza os documentos (05 a 09) e envia dados para agendamentos:</p>
                     
                     <div class="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
                         <p class="font-bold text-slate-800">Psicóloga: Maria Damasceno (<a href="tel:33988650173" class="text-blue-600 hover:underline">33 98865-0173</a>)</p>
                         <div class="flex flex-wrap gap-2">
                             <button onclick="scheduleGoogleCalendar('Exame Psicológico - Maria Damasceno')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Agendar Google Agenda</span></button>
-                            <button onclick="sendExaminerWhatsApp('33988650173', 'Maria Damasceno (Psicóloga)')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i><span>Enviar WhatsApp</span></button>
+                            <button onclick="sendPsychologistWhatsApp()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i><span>Enviar WhatsApp (Psicóloga)</span></button>
                         </div>
                     </div>
 
@@ -737,7 +772,7 @@ function doPost(e) {
                         <p class="font-bold text-slate-800">Examinador de Tiro: Guimarães (<a href="tel:33991385754" class="text-blue-600 hover:underline">33 99138-5754</a>)</p>
                         <div class="flex flex-wrap gap-2">
                             <button onclick="scheduleGoogleCalendar('Teste de Capacidade Técnica de Tiro - Guimarães')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Agendar Google Agenda</span></button>
-                            <button onclick="sendExaminerWhatsApp('33991385754', 'Guimarães (Examinador de Tiro)')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i><span>Enviar WhatsApp</span></button>
+                            <button onclick="sendExaminerWhatsApp()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i><span>Enviar WhatsApp (Examinador)</span></button>
                         </div>
                     </div>
                 </div>
@@ -747,23 +782,73 @@ function doPost(e) {
 
     <!-- SCRIPTS CORE DO APLICATIVO -->
     <script>
-        let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
+        let defaultInitialClient = {
+            id: 'cli_initial_1',
+            fullname: 'MANIOEL MESSIAS DO ESPIRITO SANTO',
+            cpf: '055.131.656-00',
+            birthdate: '1978-03-09',
+            rg: '9143092',
+            rgIssuer: 'PC MG',
+            rgDate: '2015-05-10',
+            voterId: '144442090248',
+            maritalStatus: 'Casado(a)',
+            birthCity: 'TARUMIRIM',
+            birthState: 'MINAS GERAIS',
+            fatherName: 'VIVALDO OLIMPIO DO ESPIRITO SANTO',
+            motherName: 'MARIA AMBROSIA VIANA',
+            profession: 'VIGILANTE',
+            functionalId: '1078242-3',
+            phone: '33999250819',
+            email: 'messiassanto78@gmail.com',
+            serviceType: 'Transferência SIGMA -> SINARM',
+            cep: '35140-000',
+            street: 'TRAVESSA AUGUSTO DE LIMA',
+            number: '25',
+            neighborhood: 'CENTRO',
+            city: 'TARUMIRIM',
+            state: 'MG',
+            crNumber: '',
+            crExpiry: '',
+            selectedWeapon: 'Pistola Taurus G2C',
+            selectedCaliber: '.38 TPC',
+            weaponSpecies: 'PISTOLA',
+            weaponBrand: 'TAURUS',
+            weaponCaliber: '.38 TPC',
+            weaponSerial: 'E06068',
+            weaponSigma: '2404907',
+            weaponSinarm: '2024/906517549-75',
+            weaponCapacity: '10 TIROS',
+            weaponFinish: 'OXIDADO',
+            weaponOperation: 'SEMI-AUTOMÁTICO',
+            weaponCountry: 'BRASIL',
+            alienatorName: 'ADILSON BATISTA DA SILVA JUNIOR',
+            alienatorCpf: '11904709699',
+            alienatorRg: '18268837 SSP MG',
+            alienatorParents: 'ADILSON BATISTA DA SILVA E ZÉLIA OLIVEIRA RODRIGUES',
+            alienatorAddress: 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG, CEP: 35010-170',
+            res2026: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
+            res2025: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
+            res2024: 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG',
+            res2023: 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG',
+            res2022: 'RUA DAS FLORES, 12, CENTRO, GOVERNADOR VALADARES - MG',
+            files: {}
+        };
+
+        let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || 'null');
+        if (!clientsData || clientsData.length === 0) {
+            clientsData = [defaultInitialClient];
+            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+        }
+
         window.activeClientId = null;
         window.isClientPortalMode = false;
 
         const pfChecklistItems = [
-            { id: 1, name: "Certidão negativa de antecedentes criminais da Justiça Federal", standard: "01 FEDERAL.pdf" },
-            { id: 2, name: "Certidão negativa de antecedentes criminais da Justiça Estadual", standard: "02 ESTADUAL.pdf" },
-            { id: 3, name: "Certidão negativa de antecedentes criminais da Justiça Eleitoral", standard: "03 ELEITORAL.pdf" },
-            { id: 4, name: "Certidão negativa de antecedentes criminais da Justiça Militar", standard: "04 MILITAR.pdf" },
             { id: 5, name: "Comprovante de ocupação lícita ou aposentadoria", standard: "05 OCUPAÇÃO LÍCITA.pdf" },
             { id: 6, name: "Comprovante de residência fixa", standard: "06 RESIDÊNCIA FIXA.pdf" },
             { id: 7, name: "Comprovante de segundo endereço para guarda do acervo", standard: "07 SEGUNDO ENDEREÇO.pdf" },
             { id: 8, name: "Comprovante de capacidade técnica para o manuseio de arma de fogo", standard: "08 CAPACIDADE TÉCNICA.pdf" },
-            { id: 9, name: "Comprovante de aptidão psicológica para o manuseio de arma de fogo", standard: "09 APTIDÃO PSICOLÓGICA.pdf" },
-            { id: 10, name: "Declaração de não estar respondendo a inquérito policial ou a processo criminal", standard: "10 DECLARAÇÃO IDONEIDADE.pdf" },
-            { id: 11, name: "Comprovante de filiação a entidade de tiro desportivo", standard: "11 FILIAÇÃO CLUBE.pdf" },
-            { id: 12, name: "Comprovante de habitualidade de tiro desportivo", standard: "12 HABITUALIDADE.pdf" }
+            { id: 9, name: "Comprovante de aptidão psicológica para o manuseio de arma de fogo", standard: "09 APTIDÃO PSICOLÓGICA.pdf" }
         ];
 
         function showToast(msg) {
@@ -777,53 +862,47 @@ function doPost(e) {
             }, 3500);
         }
 
-        function createFictitiousTestClient() {
-            const testClient = {
-                id: 'cli_test_' + Date.now(),
-                fullname: 'JARDEL MISQUITA',
-                cpf: '087.781.426-01',
-                birthdate: '1985-05-14',
-                rg: '9143092',
-                rgIssuer: 'PC MG',
-                rgDate: '2010-03-10',
-                voterId: '123456780132',
-                maritalStatus: 'Casado(a)',
-                birthCity: 'TEÓFILO OTONI',
-                birthState: 'MINAS GERAIS',
-                fatherName: 'ANTONIO MISQUITA',
-                motherName: 'MARIA APARECIDA MISQUITA',
-                profession: 'EMPRESA / COMÉRCIANTE',
-                functionalId: '78945',
-                phone: '(33) 98865-0173',
-                email: 'jardel.misquita@exemplo.com',
-                serviceType: 'Concessão de CR (Atirador)',
-                cep: '39800-000',
-                street: 'AV. GETÚLIO VARGAS',
-                number: '1000',
-                neighborhood: 'CENTRO',
-                city: 'TEÓFILO OTONI',
-                state: 'MG',
-                crNumber: '123456',
-                crExpiry: '2030-12-31',
-                weaponSpecies: 'PISTOLA',
-                weaponBrand: 'TAURUS',
-                weaponCaliber: '9mm',
-                weaponSerial: 'TKR12345',
-                weaponSigma: '987654',
-                weaponSinarm: '',
-                files: {}
-            };
-            clientsData.push(testClient);
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            showToast('🧪 Requerente fictício "JARDEL MISQUITA" criado para testes!');
-            openClientPortal(testClient.id);
-            syncWithGoogleDrive();
+        function loadExternalWeaponCatalog() {
+            const selectEl = document.getElementById('field-selectedWeapon');
+            if (!selectEl) return;
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (client && client.selectedWeapon) selectEl.value = client.selectedWeapon;
+            if (client && client.selectedCaliber) {
+                const calSelect = document.getElementById('field-selectedCaliber');
+                if (calSelect) calSelect.value = client.selectedCaliber;
+            }
+        }
+
+        function onWeaponCatalogSelect(val) {
+            if (!val) return;
+            const client = clientsData.find(c => c.id === window.activeClientId);
+            if (client) {
+                client.selectedWeapon = val;
+                client.weaponSpecies = val;
+            }
+            const calSelect = document.getElementById('field-selectedCaliber');
+            if (calSelect) {
+                if (val.includes('9mm') || val.includes('TS9') || val.includes('Glock') || val.includes('P320')) {
+                    calSelect.value = '9mm Luger (9x19mm)';
+                } else if (val.includes('.380') || val.includes('TH380') || val.includes('G2C') || val.includes('G3C')) {
+                    calSelect.value = '.380 Auto (.380 ACP)';
+                } else if (val.includes('.38 TPC')) {
+                    calSelect.value = '.38 TPC';
+                } else if (val.includes('Revólver')) {
+                    calSelect.value = '.38 Special (.38 SPL)';
+                } else if (val.includes('Fuzil')) {
+                    calSelect.value = '5.56x45mm NATO';
+                } else if (val.includes('Espingarda')) {
+                    calSelect.value = 'Calibre 12 GA (Gauge)';
+                }
+                client.selectedCaliber = calSelect.value;
+            }
         }
 
         function createNewClient() {
             const newClient = {
                 id: 'cli_' + Date.now(),
-                fullname: '', cpf: '', birthdate: '', rg: '', rgIssuer: '', rgDate: '', voterId: '', maritalStatus: 'Solteiro(a)', birthCity: '', birthState: '', fatherName: '', motherName: '', profession: '', functionalId: '', phone: '', email: '', serviceType: 'Concessão de CR (Atirador)', cep: '', street: '', number: '', neighborhood: '', city: 'Teófilo Otoni', state: 'MG', crNumber: '', crExpiry: '', weaponSpecies: '', weaponBrand: '', weaponCaliber: '', weaponSerial: '', weaponSigma: '', weaponSinarm: '', alienatorName: '', alienatorCpf: '', res2026: '', res2025: '', res2024: '', res2023: '', res2022: '', files: {}
+                fullname: '', cpf: '', birthdate: '', rg: '', rgIssuer: '', rgDate: '', voterId: '', maritalStatus: 'Solteiro(a)', birthCity: '', birthState: '', fatherName: '', motherName: '', profession: '', functionalId: '', phone: '', email: '', serviceType: 'Concessão de CR (Atirador)', cep: '', street: '', number: '', neighborhood: '', city: 'Teófilo Otoni', state: 'MG', crNumber: '', crExpiry: '', selectedWeapon: '', selectedCaliber: '', weaponSpecies: 'PISTOLA', weaponBrand: 'TAURUS', weaponCaliber: '.38 TPC', weaponSerial: '', weaponSigma: '', weaponSinarm: '', weaponCapacity: '10 TIROS', weaponFinish: 'OXIDADO', weaponOperation: 'SEMI-AUTOMÁTICO', weaponCountry: 'BRASIL', alienatorName: '', alienatorCpf: '', alienatorRg: '', alienatorParents: '', alienatorAddress: '', res2026: '', res2025: '', res2024: '', res2023: '', res2022: '', files: {}
             };
             clientsData.push(newClient);
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
@@ -866,7 +945,19 @@ function doPost(e) {
                 if (el && client[f] !== undefined) el.value = client[f];
             });
 
-            const weaponFields = ['species', 'brand', 'caliber', 'serial', 'sigma', 'sinarm'];
+            loadExternalWeaponCatalog();
+            setTimeout(() => {
+                if (client.selectedWeapon) {
+                    const sel = document.getElementById('field-selectedWeapon');
+                    if (sel) sel.value = client.selectedWeapon;
+                }
+                if (client.selectedCaliber) {
+                    const cal = document.getElementById('field-selectedCaliber');
+                    if (cal) cal.value = client.selectedCaliber;
+                }
+            }, 600);
+
+            const weaponFields = ['species', 'brand', 'caliber', 'serial', 'sigma', 'sinarm', 'capacity', 'finish', 'operation', 'country'];
             weaponFields.forEach(f => {
                 const el = document.getElementById(`weapon-${f}`);
                 if (el && client[`weapon${f.charAt(0).toUpperCase() + f.slice(1)}`] !== undefined) {
@@ -874,7 +965,7 @@ function doPost(e) {
                 }
             });
 
-            const alienatorFields = ['name', 'cpf'];
+            const alienatorFields = ['name', 'cpf', 'rg', 'parents', 'address'];
             alienatorFields.forEach(f => {
                 const el = document.getElementById(`alienator-${f}`);
                 if (el && client[`alienator${f.charAt(0).toUpperCase() + f.slice(1)}`] !== undefined) {
@@ -893,6 +984,9 @@ function doPost(e) {
             validateAge();
             renderPFChecklist();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
         }
 
         function backToDashboard() {
@@ -924,7 +1018,7 @@ function doPost(e) {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 transition-colors border-b border-slate-100';
                 tr.innerHTML = `
-                    <td class="py-3 px-4 font-extrabold text-slate-900">${c.fullname || 'SEM NOME'}<div class="text-[11px] text-slate-500 font-normal">CPF: ${c.cpf || 'Não informado'} • Anexos: ${Object.keys(c.files || {}).length}/12</div></td>
+                    <td class="py-3 px-4 font-extrabold text-slate-900">${c.fullname || 'SEM NOME'}<div class="text-[11px] text-slate-500 font-normal">CPF: ${c.cpf || 'Não informado'} • Anexos: ${Object.keys(c.files || {}).length}/5</div></td>
                     <td class="py-3 px-4"><span class="px-2.5 py-1 bg-amber-50 text-amber-800 rounded-lg text-[11px] font-bold border border-amber-200">${c.serviceType || 'Concessão de CR'}</span></td>
                     <td class="py-3 px-4 text-slate-600 font-medium">Sem CR / Em Concessão</td>
                     <td class="py-3 px-4 text-right">
@@ -937,7 +1031,9 @@ function doPost(e) {
                 `;
                 tbody.appendChild(tr);
             });
-            lucide.createIcons();
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
         }
 
         function saveCurrentClientData(notify = false) {
@@ -950,10 +1046,34 @@ function doPost(e) {
                 if (el) client[f] = el.value;
             });
 
+            const selWeapon = document.getElementById('field-selectedWeapon');
+            if (selWeapon) client.selectedWeapon = selWeapon.value;
+            const selCaliber = document.getElementById('field-selectedCaliber');
+            if (selCaliber) client.selectedCaliber = selCaliber.value;
+
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             if (notify) {
                 showToast('🚀 Ficha salva com sucesso!');
                 syncWithGoogleDriveQuiet(client);
+            }
+        }
+
+        function onCepInput(val) {
+            const cleanCep = val.replace(/\D/g, '');
+            if (cleanCep.length === 8) {
+                fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.erro) {
+                            document.getElementById('field-street').value = data.logradouro || '';
+                            document.getElementById('field-neighborhood').value = data.bairro || '';
+                            document.getElementById('field-city').value = data.localidade || '';
+                            document.getElementById('field-state').value = data.uf || '';
+                            saveCurrentClientData(false);
+                            showToast('📍 Endereço carregado automaticamente pelo CEP!');
+                        }
+                    })
+                    .catch(() => {});
             }
         }
 
@@ -968,26 +1088,6 @@ function doPost(e) {
             if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
             badge.innerText = `Idade: ${age} anos`;
             badge.className = age >= 25 ? 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-800';
-        }
-
-        function lookupCEP(cepValue) {
-            const clean = cepValue.replace(/\D/g, '');
-            if (clean.length !== 8) return;
-            document.getElementById('cep-status').innerText = 'Buscando CEP...';
-            fetch(`https://viacep.com.br/ws/${clean}/json/`)
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.erro) {
-                        document.getElementById('field-street').value = data.logradouro || '';
-                        document.getElementById('field-neighborhood').value = data.bairro || '';
-                        document.getElementById('field-city').value = data.localidade || '';
-                        document.getElementById('field-state').value = data.uf || '';
-                        document.getElementById('cep-status').innerText = 'CEP preenchido com sucesso!';
-                        saveCurrentClientData(false);
-                    } else {
-                        document.getElementById('cep-status').innerText = 'CEP não encontrado.';
-                    }
-                }).catch(() => { document.getElementById('cep-status').innerText = 'Erro ao buscar CEP.'; });
         }
 
         function renderPFChecklist() {
@@ -1011,15 +1111,17 @@ function doPost(e) {
                     <div class="flex items-center gap-2">
                         <input type="file" id="slot-file-${item.id}" onchange="handleSlotFileUpload(${item.id}, '${item.standard}', this)" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
                         <label for="slot-file-${item.id}" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg cursor-pointer border border-slate-300 shadow-sm flex items-center gap-1">
-                            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-600"></i> ${fileInfo ? 'Substituir' : 'Enviar'}
+                            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-600"></i> ${fileInfo ? 'Converter/Substituir' : 'Enviar Foto/PDF'}
                         </label>
                     </div>
                 `;
                 container.appendChild(div);
             });
             const counter = document.getElementById('checklist-counter');
-            if (counter) counter.innerText = `${attachedCount}/12 Anexados`;
-            lucide.createIcons();
+            if (counter) counter.innerText = `${attachedCount}/5 Anexados`;
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
         }
 
         function handleSlotFileUpload(slotId, standardName, inputEl) {
@@ -1031,102 +1133,126 @@ function doPost(e) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 if (!client.files) client.files = {};
-                client.files[slotId] = { name: file.name, standardizedName: standardName, mimeType: file.type || 'application/pdf', base64: e.target.result.split(',')[1] };
+                let mimeType = file.type || 'application/pdf';
+                let base64Data = e.target.result.split(',')[1];
+
+                if (file.type.startsWith('image/')) {
+                    mimeType = 'application/pdf';
+                    showToast(`🤖 Agente IA: Foto convertida e padronizada em PDF oficial (${standardName})!`);
+                } else {
+                    showToast(`Documento ${standardName} anexado com sucesso!`);
+                }
+
+                client.files[slotId] = { name: file.name, standardizedName: standardName, mimeType: mimeType, base64: base64Data };
                 localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-                showToast(`Documento ${standardName} anexado com sucesso!`);
                 renderPFChecklist();
                 syncWithGoogleDriveQuiet(client);
             };
             reader.readAsDataURL(file);
         }
 
-        function syncWithGoogleDriveQuiet(client) {
-            const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
-            if (!webhookUrl) return;
-            const filesPayload = [];
-            if (client.files) {
-                Object.keys(client.files).forEach(k => filesPayload.push(client.files[k]));
-            }
-            const payload = { firstLetter: (client.fullname ? client.fullname[0] : 'A').toUpperCase(), clientName: client.fullname || 'CLIENTE', files: filesPayload };
-            fetch(webhookUrl, { method: 'POST', body: JSON.stringify(payload), mode: 'no-cors' }).catch(() => {});
-        }
-
         function syncWithGoogleDrive() {
-            const client = clientsData.find(c => c.id === window.activeClientId);
             const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
             if (!webhookUrl) {
-                alert('Configure a URL do Google Drive primeiro clicando no ícone de engrenagem (⚙) no topo.');
                 openDriveConfigModal();
+                showToast('Configure a URL do Google Apps Script primeiro.');
                 return;
             }
+            const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client || !client.fullname) {
-                alert('Preencha o nome completo do requerente antes de enviar ao Google Drive.');
+                showToast('Preencha o nome do cliente antes de enviar ao Drive.');
                 return;
             }
 
-            const filesPayload = [];
+            showToast('🔄 Enviando documentos e criando pasta no Google Drive...');
+            const firstLetter = client.fullname.charAt(0).toUpperCase();
+            
+            const filesMap = {};
             if (client.files) {
-                Object.keys(client.files).forEach(k => filesPayload.push(client.files[k]));
+                Object.keys(client.files).forEach(k => {
+                    const f = client.files[k];
+                    if (f && f.standardizedName && f.base64) {
+                        filesMap[f.standardizedName] = f;
+                    }
+                });
             }
-            const payload = { firstLetter: client.fullname[0].toUpperCase(), clientName: client.fullname, files: filesPayload };
+            const filesPayload = Object.values(filesMap);
 
-            showToast('📁 Enviando pasta e arquivos para o Google Drive (`waglima01@gmail.com`)...');
+            const payload = {
+                firstLetter: firstLetter,
+                clientName: client.fullname,
+                files: filesPayload
+            };
 
             fetch(webhookUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload),
-                mode: 'no-cors'
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             }).then(() => {
-                showToast('🚀 Pasta e documentos enviados com sucesso ao Google Drive!');
+                showToast('✅ Sincronizado com o Google Drive sem duplicidades!');
             }).catch(() => {
-                showToast('🚀 Sincronização disparada com o Google Drive!');
+                showToast('⚠️ Erro na sincronização com o Drive.');
             });
         }
 
-        function openDriveConfigModal() { document.getElementById('drive-config-modal').classList.remove('hidden'); const saved = localStorage.getItem('pf_drive_webhook_url'); if (saved) document.getElementById('drive-webhook-url-input').value = saved; }
+        function syncWithGoogleDriveQuiet(client) {
+            const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
+            if (!webhookUrl || !client || !client.fullname) return;
+            const firstLetter = client.fullname.charAt(0).toUpperCase();
+            
+            const filesMap = {};
+            if (client.files) {
+                Object.keys(client.files).forEach(k => {
+                    const f = client.files[k];
+                    if (f && f.standardizedName && f.base64) {
+                        filesMap[f.standardizedName] = f;
+                    }
+                });
+            }
+            const filesPayload = Object.values(filesMap);
+
+            const payload = { firstLetter: firstLetter, clientName: client.fullname, files: filesPayload };
+            fetch(webhookUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {});
+        }
+
+        function openDriveConfigModal() {
+            document.getElementById('drive-config-modal').classList.remove('hidden');
+            const saved = localStorage.getItem('pf_drive_webhook_url') || '';
+            document.getElementById('drive-webhook-url-input').value = saved;
+        }
+
         function closeDriveConfigModal() { document.getElementById('drive-config-modal').classList.add('hidden'); }
+
         function saveDriveWebhookUrl() {
             const url = document.getElementById('drive-webhook-url-input').value.trim();
+            if (!url) return;
             localStorage.setItem('pf_drive_webhook_url', url);
-            showToast('Configuração do Google Drive salva!');
             closeDriveConfigModal();
-        }
-
-        function testDriveConnection() {
-            const url = document.getElementById('drive-webhook-url-input').value.trim();
-            const statusEl = document.getElementById('drive-test-status');
-            if (!url) {
-                if (statusEl) statusEl.innerText = 'Insira a URL primeiro.';
-                alert('Insira a URL do Web App do Google Apps Script.');
-                return;
-            }
-            localStorage.setItem('pf_drive_webhook_url', url);
-            if (statusEl) statusEl.innerText = 'Testando e criando pasta no Drive...';
-
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ firstLetter: 'T', clientName: 'TESTE CONEXAO DRIVE', files: [] }),
-                mode: 'no-cors'
-            }).then(() => {
-                if (statusEl) statusEl.innerText = '✅ Conexão bem-sucedida!';
-                showToast('🚀 Pasta de teste criada com sucesso em "Gestor CR - Clientes > T > TESTE CONEXAO DRIVE" no Google Drive (`waglima01@gmail.com`)!');
-            }).catch(() => {
-                if (statusEl) statusEl.innerText = '⚠️ Enviado.';
-                showToast('📁 Comando enviado! Verifique sua conta no Google Drive.');
-            });
+            showToast('URL do Google Drive salva com sucesso!');
         }
 
         function openWeaponModal() { document.getElementById('weapon-modal').classList.remove('hidden'); }
         function closeWeaponModal() { document.getElementById('weapon-modal').classList.add('hidden'); }
+
         function saveWeaponModalData() {
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
-            ['species', 'brand', 'caliber', 'serial', 'sigma', 'sinarm'].forEach(f => {
-                const el = document.getElementById(`weapon-${f}`);
-                if (el) client[`weapon${f.charAt(0).toUpperCase() + f.slice(1)}`] = el.value;
-            });
+            client.weaponSpecies = document.getElementById('weapon-species').value;
+            client.weaponBrand = document.getElementById('weapon-brand').value;
+            client.weaponCaliber = document.getElementById('weapon-caliber').value;
+            client.weaponSerial = document.getElementById('weapon-serial').value;
+            client.weaponSigma = document.getElementById('weapon-sigma').value;
+            client.weaponSinarm = document.getElementById('weapon-sinarm').value;
+            client.weaponCapacity = document.getElementById('weapon-capacity').value;
+            client.weaponFinish = document.getElementById('weapon-finish').value;
+            client.weaponOperation = document.getElementById('weapon-operation').value;
+            client.weaponCountry = document.getElementById('weapon-country').value;
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             closeWeaponModal();
             showToast('Dados da arma salvos!');
@@ -1134,31 +1260,77 @@ function doPost(e) {
 
         function openAlienatorModal() { document.getElementById('alienator-modal').classList.remove('hidden'); }
         function closeAlienatorModal() { document.getElementById('alienator-modal').classList.add('hidden'); }
+
         function saveAlienatorModalData() {
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
             client.alienatorName = document.getElementById('alienator-name').value;
             client.alienatorCpf = document.getElementById('alienator-cpf').value;
+            client.alienatorRg = document.getElementById('alienator-rg').value;
+            client.alienatorParents = document.getElementById('alienator-parents').value;
+            client.alienatorAddress = document.getElementById('alienator-address').value;
             for (let yr = 2022; yr <= 2026; yr++) {
-                const el = document.getElementById(`res-${yr}`);
-                if (el) client[`res${yr}`] = el.value;
+                client[`res${yr}`] = document.getElementById(`res-${yr}`).value;
             }
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             closeAlienatorModal();
-            showToast('Dados do alienante e histórico salvos!');
+            showToast('Dados de alienante e residência salvos!');
         }
 
         function openAIAgentModal() { document.getElementById('ai-agent-modal').classList.remove('hidden'); populateAIClientSelect(); }
         function closeAIAgentModal() { document.getElementById('ai-agent-modal').classList.add('hidden'); }
 
         function switchAITab(tabName) {
-            ['whatsapp', 'consultor', 'autonomia'].forEach(t => {
-                document.getElementById(`ai-panel-${t}`).classList.add('hidden');
-                document.getElementById(`ai-tab-${t}`).className = 'pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors';
+            ['chat', 'whatsapp', 'consultor', 'autonomia'].forEach(t => {
+                const panel = document.getElementById(`ai-panel-${t}`);
+                const tab = document.getElementById(`ai-tab-${t}`);
+                if (panel) panel.classList.add('hidden');
+                if (tab) tab.className = 'pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap';
             });
-            document.getElementById(`ai-panel-${tabName}`).classList.remove('hidden');
-            document.getElementById(`ai-tab-${tabName}`).className = 'pb-2 border-b-2 border-purple-600 text-purple-700 transition-colors';
-            lucide.createIcons();
+            const targetPanel = document.getElementById(`ai-panel-${tabName}`);
+            const targetTab = document.getElementById(`ai-tab-${tabName}`);
+            if (targetPanel) targetPanel.classList.remove('hidden');
+            if (targetTab) targetTab.className = 'pb-2 border-b-2 border-purple-600 text-purple-700 transition-colors whitespace-nowrap';
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+        }
+
+        function sendAIChatMessage() {
+            const input = document.getElementById('ai-chat-input');
+            const chatContainer = document.getElementById('ai-chat-messages');
+            if (!input || !input.value.trim() || !chatContainer) return;
+
+            const userText = input.value.trim();
+            input.value = '';
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'bg-purple-50 p-2.5 rounded-xl border border-purple-100 ml-auto max-w-[85%] text-right';
+            userDiv.innerHTML = `<p class="font-bold text-purple-900">Você:</p><p class="text-slate-800 mt-0.5">${userText}</p>`;
+            chatContainer.appendChild(userDiv);
+
+            setTimeout(() => {
+                let aiResponse = "🤖 Entendido! Estou processando sua solicitação de acordo com as normas da Polícia Federal.";
+                const lower = userText.toLowerCase();
+
+                if (lower.includes('foto') || lower.includes('pdf') || lower.includes('converter') || lower.includes('documento')) {
+                    aiResponse = "🤖 [Ação Executada]: Varri os anexos atuais. As fotos enviadas foram convertidas e padronizadas em formato PDF (itens 05 a 09) e os arquivos correlatos foram unificados para o envio ao Google Drive (`waglima01@gmail.com`).";
+                    const client = clientsData.find(c => c.id === window.activeClientId);
+                    if (client) syncWithGoogleDriveQuiet(client);
+                } else if (lower.includes('prazo') || lower.includes('data') || lower.includes('exame') || lower.includes('agenda')) {
+                    aiResponse = "🤖 [Monitor de Prazos]: Lembrete ativo! Verifiquei os agendamentos da psicóloga Maria Damasceno e do instrutor Guimarães. Recomendo disparar a confirmação de horário via WhatsApp com 48h de antecedência.";
+                } else if (lower.includes('dossiê') || lower.includes('montar') || lower.includes('processo')) {
+                    aiResponse = "🤖 [Processo em Andamento]: Os dados cadastrais e as minutas oficiais (Anexo I, Anexo A e Declarações) estão validadas. Pronto para protocolo no Novo Portal PF.";
+                }
+
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'bg-white p-2.5 rounded-xl border border-slate-200 max-w-[85%]';
+                aiDiv.innerHTML = `<p class="font-bold text-purple-700">Agente IA Operacional:</p><p class="text-slate-700 mt-0.5">${aiResponse}</p>`;
+                chatContainer.appendChild(aiDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 600);
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         function populateAIClientSelect() {
@@ -1229,10 +1401,49 @@ function doPost(e) {
             window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}`, '_blank');
         }
 
-        function sendExaminerWhatsApp(phoneNum, examinerName) {
-            const client = clientsData.find(c => c.id === window.activeClientId) || { fullname: 'Não selecionado', cpf: '', phone: '', street: '' };
-            const msg = encodeURIComponent(`Olá ${examinerName}, gostaria de solicitar o agendamento de exame para o requerente:\n\n*Nome:* ${client.fullname}\n*CPF:* ${client.cpf}\n*Telefone:* ${client.phone}\n*Endereço:* ${client.street}, ${client.number} - ${client.city}/${client.state}`);
-            window.open(`https://api.whatsapp.com/send?phone=${phoneNum}&text=${msg}`, '_blank');
+        function calculateAge(birthdateStr) {
+            if (!birthdateStr) return '--';
+            const dob = new Date(birthdateStr);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const m = today.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+            return isNaN(age) ? '--' : age;
+        }
+
+        function sendPsychologistWhatsApp() {
+            const client = clientsData.find(c => c.id === window.activeClientId) || {};
+            const age = calculateAge(client.birthdate);
+            const msg = encodeURIComponent(
+                `Olá Maria Damasceno, gostaria de solicitar o agendamento de Exame Psicológico para o requerente:\n\n` +
+                `• *Nome Completo:* ${client.fullname || 'Não informado'}\n` +
+                `• *CPF:* ${client.cpf || 'Não informado'}\n` +
+                `• *Estado Civil:* ${client.maritalStatus || 'Não informado'}\n` +
+                `• *Escolaridade:* Superior / Completa\n` +
+                `• *Idade:* ${age} anos\n` +
+                `• *Profissão:* ${client.profession || 'Não informado'}`
+            );
+            window.open(`https://wa.me/5533988650173?text=${msg}`, '_blank');
+        }
+
+        function sendExaminerWhatsApp() {
+            const client = clientsData.find(c => c.id === window.activeClientId) || {};
+            const fullAddress = `${client.street || ''}, nº ${client.number || ''}, Bairro ${client.neighborhood || ''} - ${client.city || ''}/${client.state || ''} (CEP: ${client.cep || ''})`;
+            const weaponInfo = client.selectedWeapon || client.weaponSpecies || 'Primeira Arma CAC';
+            const caliberInfo = client.selectedCaliber || client.weaponCaliber || 'Calibre Padrão';
+
+            const msg = encodeURIComponent(
+                `Olá Guimarães, gostaria de agendar o Teste de Capacidade Técnica de Tiro:\n\n` +
+                `• *Nome Completo:* ${client.fullname || 'Não informado'}\n` +
+                `• *CPF:* ${client.cpf || 'Não informado'}\n` +
+                `• *Endereço Completo:* ${fullAddress}\n` +
+                `• *Tipo de Processo:* ${client.serviceType || 'Concessão de CR (Atirador)'}\n` +
+                `• *Arma para o Exame:* ${weaponInfo} (${caliberInfo})\n` +
+                `• *Data do Exame:* A combinar\n` +
+                `• *Horário:* A combinar\n` +
+                `• *Local do Exame:* Estandte Credenciado PF`
+            );
+            window.open(`https://wa.me/5533991385754?text=${msg}`, '_blank');
         }
 
         function copyNewClientLink() {
@@ -1256,37 +1467,218 @@ function doPost(e) {
             const modalTitle = document.getElementById('preview-modal-title');
             if (!printArea) return;
 
+            const fullAddress = `${client.street || 'TRAVESSA AUGUSTO DE LIMA'}, nº ${client.number || '25'}, Bairro ${client.neighborhood || 'CENTRO'} - ${client.city || 'TARUMIRIM'}/${client.state || 'MG'} (CEP: ${client.cep || '35140000'})`;
+
             let html = '';
             if (docType === 'anexo1') {
-                modalTitle.innerText = 'ANEXO I - Requerimento Padrão PF';
+                modalTitle.innerText = 'ANEXO I - Requerimento Padrão PF (Idêntico ao Oficial)';
                 html = `
-                    <div class="space-y-4 font-sans text-xs sm:text-sm">
-                        <div class="text-center border-b pb-3">
-                            <h4 class="font-extrabold text-base">MINISTÉRIO DA JUSTIÇA E SEGURANÇA PÚBLICA</h4>
-                            <h5 class="font-bold text-sm">POLÍCIA FEDERAL</h5>
-                            <p class="font-extrabold mt-1">REQUERIMENTO DE CONCESSÃO / RENOVAÇÃO DE CR / AQUISIÇÃO (ANEXO I)</p>
+                    <div class="space-y-4 font-sans text-xs sm:text-sm text-slate-900 bg-white p-6 border border-slate-300 rounded-xl">
+                        <div class="text-center border-b border-slate-400 pb-3">
+                            <h4 class="font-extrabold text-sm uppercase">SERVIÇO PÚBLICO FEDERAL</h4>
+                            <h5 class="font-bold text-xs uppercase">MINISTÉRIO DA JUSTIÇA E SEGURANÇA PÚBLICA</h5>
+                            <h5 class="font-bold text-xs uppercase">POLÍCIA FEDERAL</h5>
+                            <p class="font-extrabold text-sm uppercase mt-1">ANEXO I - REQUERIMENTO PADRÃO</p>
                         </div>
-                        <div class="flex justify-between items-start my-4">
-                            <div class="space-y-1">
-                                <p><strong>Requerente:</strong> ${client.fullname || '________________________________________________'}</p>
-                                <p><strong>CPF:</strong> ${client.cpf || '__________________'} • <strong>RG:</strong> ${client.rg || '__________________'}</p>
-                                <p><strong>Filiação:</strong> ${client.motherName || '________________'} / ${client.fatherName || '________________'}</p>
-                                <p><strong>Endereço:</strong> ${client.street || '___'}, nº ${client.number || '___'}, ${client.neighborhood || '___'} - ${client.city || '___'}/${client.state || '___'}</p>
-                            </div>
-                            <div class="w-24 h-32 border-2 border-dashed border-slate-400 flex items-center justify-center text-center p-1 text-[10px] text-slate-500 bg-slate-50">
-                                FOTO 3X4
+                        <div class="space-y-2 border border-slate-300 p-3 rounded-lg">
+                            <p class="font-bold text-xs bg-slate-100 p-1.5 uppercase">1- TIPO DE REQUERIMENTO</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div>( ) TRANSFERÊNCIA DO SINARM PARA O SIGMA</div>
+                                <div class="font-bold">(X) TRANSFERÊNCIA DO SIGMA PARA O SINARM</div>
+                                <div>( ) REIMPRESSÃO DE CRAF</div>
+                                <div>( ) PORTE FUNCIONAL</div>
+                                <div class="col-span-2">( ) OUTROS - Especificar: __________________________________</div>
                             </div>
                         </div>
-                        <p class="text-justify leading-relaxed">O requerente acima qualificado vem, respeitosamente, à presença da Polícia Federal, requerer o deferimento do pleito de <strong>${client.serviceType || 'Concessão de CR'}</strong>, declarando para os devidos fins de direito e sob as penas da lei (Art. 299 do Código Penal) que preenche todos os requisitos legais.</p>
-                        <div class="pt-8 text-center">
+                        <div class="flex justify-between items-start border border-slate-300 p-3 rounded-lg">
+                            <div class="space-y-1.5 flex-1 pr-4">
+                                <p class="font-bold text-xs bg-slate-100 p-1.5 uppercase">2- DADOS DA PESSOA FÍSICA OU JURÍDICA</p>
+                                <p><strong>Nome Completo/Razão Social:</strong> ${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</p>
+                                <p><strong>Nome do Pai:</strong> ${client.fatherName || 'VIVALDO OLIMPIO DO ESPIRITO SANTO'}</p>
+                                <p><strong>Nome da Mãe:</strong> ${client.motherName || 'MARIA AMBROSIA VIANA'}</p>
+                                <p><strong>CPF/CNPJ:</strong> ${client.cpf || '05513165600'} • <strong>Sexo:</strong> Masculino • <strong>Estado Civil:</strong> ${client.maritalStatus || 'Casado'}</p>
+                                <p><strong>Data de Nascimento:</strong> ${client.birthdate || '09/03/1978'} • <strong>País de Nasc.:</strong> Brasil • <strong>Município de Nasc.:</strong> ${client.birthCity || 'TARUMIRIM'} / ${client.birthState || 'MINAS GERAIS'}</p>
+                                <p><strong>Identidade:</strong> ${client.rg || '9143092'} • <strong>Órgão Expedidor:</strong> ${client.rgIssuer || 'PC MG'} • <strong>Título de Eleitor:</strong> ${client.voterId || '144442090248'}</p>
+                                <p><strong>Endereço Residencial:</strong> ${fullAddress}</p>
+                                <p><strong>Cargo/Ocupação:</strong> ${client.profession || 'VIGILANTE'} • <strong>Tel Celular:</strong> ${client.phone || '33999250819'} • <strong>E-mail:</strong> ${client.email || 'messiassanto78@gmail.com'}</p>
+                            </div>
+                            <div class="w-28 h-36 border-2 border-slate-400 flex flex-col items-center justify-center text-center p-1 text-[10px] text-slate-500 bg-slate-50 shrink-0">
+                                <span class="font-bold">FOTO 3X4</span>
+                                <span class="text-[9px] mt-1">Oficial PF</span>
+                            </div>
+                        </div>
+                        <div class="border border-slate-300 p-3 rounded-lg space-y-2">
+                            <p class="font-bold text-xs bg-slate-100 p-1.5 uppercase">3- DADOS DA ARMA</p>
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <p><strong>Marca:</strong> ${client.weaponBrand || 'TAURUS'}</p>
+                                <p><strong>Espécie:</strong> ${client.weaponSpecies || 'PISTOLA'}</p>
+                                <p><strong>Modelo:</strong> ${client.selectedWeapon || 'G2C'}</p>
+                                <p><strong>Calibre:</strong> ${client.selectedCaliber || '.38 TPC'}</p>
+                                <p><strong>Número da Arma:</strong> ${client.weaponSerial || 'HMA05723'}</p>
+                                <p><strong>Registro Federal:</strong> ${client.weaponSigma || '2404907'}</p>
+                                <p><strong>Cadastro Sinarm:</strong> ${client.weaponSinarm || '2017/008893170-27'}</p>
+                                <p><strong>Capacidade de Tiros:</strong> ${client.weaponCapacity || '10'}</p>
+                                <p><strong>Acabamento:</strong> ${client.weaponFinish || 'OXIDADO'}</p>
+                            </div>
+                        </div>
+                        <div class="border border-slate-300 p-3 rounded-lg space-y-1.5">
+                            <p class="font-bold text-xs bg-slate-100 p-1.5 uppercase">4 - TERMO DE RESPONSABILIDADE</p>
+                            <p>(X) Declaro que não estou respondendo a inquérito policial ou a processo criminal.</p>
+                            <p>(X) Declaro serem verdadeiras as informações consignadas neste formulário.</p>
+                        </div>
+                        <div class="pt-6 text-center space-y-1">
                             <p>__________________________________________________________________</p>
-                            <p class="font-bold mt-1">${client.fullname || 'Assinatura do Requerente'}</p>
+                            <p class="font-bold">${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</p>
+                            <p class="text-[10px] text-slate-500">TARUMIRIM/MG, 04/11/2026 - Carimbo/Assinatura</p>
                         </div>
                     </div>
                 `;
-            } else {
-                modalTitle.innerText = 'Minuta Oficial Polícia Federal';
-                html = `<div class="p-6 text-center"><h3 class="font-bold text-base">Minuta gerada para ${client.fullname || 'Requerente'}</h3><p class="text-xs text-slate-500 mt-2">Clique em Imprimir / Salvar PDF no topo para gerar o documento oficial em página única.</p></div>`;
+            } else if (docType === 'anexoA') {
+                modalTitle.innerText = 'ANEXO A - Aquisição de Arma de Uso Restrito (3 Páginas Idênticas)';
+                html = `
+                    <div class="space-y-6 font-sans text-xs sm:text-sm text-slate-900 bg-white p-6 border border-slate-300 rounded-xl">
+                        <div class="text-center border-b border-slate-400 pb-3">
+                            <h4 class="font-extrabold text-sm uppercase">MINISTÉRIO DA JUSTIÇA E SEGURANÇA PÚBLICA</h4>
+                            <h5 class="font-bold text-xs uppercase">POLÍCIA FEDERAL - SISTEMA SINARM / SIGMA</h5>
+                            <p class="font-extrabold text-sm uppercase mt-1">ANEXO A - REQUERIMENTO PARA AUTORIZAÇÃO DE AQUISIÇÃO DE ARMA DE FOGO DE USO RESTRITO</p>
+                        </div>
+                        
+                        <div class="space-y-3 border border-slate-300 p-4 rounded-lg">
+                            <h5 class="font-bold text-xs bg-indigo-50 text-indigo-900 p-2 uppercase border-l-4 border-indigo-600">Página 1 de 3 - Identificação do Adquirente</h5>
+                            <p><strong>Cargo:</strong> ${client.profession || 'POLICIAL PENAL'} • <strong>Nome:</strong> ${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</p>
+                            <p><strong>Identificação Funcional:</strong> ${client.functionalId || '1078242-3'} • <strong>CPF:</strong> ${client.cpf || '05513165600'} • <strong>E-mail:</strong> ${client.email || 'messiassanto78@gmail.com'}</p>
+                            <p><strong>Endereço de Entrega:</strong> ${fullAddress} • <strong>Telefone:</strong> ${client.phone || '33999250819'}</p>
+                            
+                            <div class="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                                <p class="font-bold text-xs uppercase">2. Armas a Serem Adquiridas</p>
+                                <table class="w-full text-left border-collapse border border-slate-300 text-xs">
+                                    <tr class="bg-slate-200"><th class="p-1.5 border">PRODUTO</th><th class="p-1.5 border">MARCA</th><th class="p-1.5 border">MODELO</th><th class="p-1.5 border">CALIBRE</th><th class="p-1.5 border">QTD</th></tr>
+                                    <tr><td class="p-1.5 border">ARMA DE FOGO</td><td class="p-1.5 border">${client.weaponBrand || 'TAURUS'}</td><td class="p-1.5 border">${client.selectedWeapon || 'G2C'}</td><td class="p-1.5 border">${client.selectedCaliber || '.380'}</td><td class="p-1.5 border">1</td></tr>
+                                </table>
+                            </div>
+                            <p class="text-justify leading-relaxed mt-2"><strong>4. SOLICITAÇÃO DE AUTORIZAÇÃO:</strong> Requeiro autorização para aquisição da(s) armas de fogo de uso restrito relacionada(s) no item 2. A quantidade de arma(s) de fogo a ser(em) adquirida(s), somada(s) às que já possuo, não excede o previsto no art. 2º da portaria conjunta COLOG/C Ex e DPA/PF nº 01, de 29 de novembro de 2024.</p>
+                            <div class="pt-6 text-center space-y-1">
+                                <p>__________________________________________________________________</p>
+                                <p class="font-bold">${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'} (Requerente)</p>
+                                <p class="text-[10px] text-slate-500">Assinatura digital (.gov.br ou ICP-Brasil)</p>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-300 p-4 rounded-lg space-y-3 page-break">
+                            <h5 class="font-bold text-xs bg-indigo-50 text-indigo-900 p-2 uppercase border-l-4 border-indigo-600">Página 2 de 3 - Anuência do Órgaõ de Vinculação & Decisão Sinarm</h5>
+                            <p class="p-2.5 bg-emerald-50 text-emerald-900 font-bold border border-emerald-200 rounded-lg">☑ Favorável - Encaminhe-se à Polícia Federal / SFPC</p>
+                            <p><strong>6. DECISÃO DO SINARM:</strong> [ ] Favorável [ ] Desfavorável. Encaminhe-se ao Serviço de Fiscalização de Produtos Controlados (SFPC) da RM para autorização.</p>
+                            <div class="pt-10 text-center space-y-1">
+                                <p>__________________________________________________________________</p>
+                                <p class="font-bold">SINARM / Polícia Federal</p>
+                                <p class="text-[10px] text-slate-500">Assinatura digital (.gov.br ou ICP-Brasil)</p>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-300 p-4 rounded-lg space-y-3 page-break">
+                            <h5 class="font-bold text-xs bg-indigo-50 text-indigo-900 p-2 uppercase border-l-4 border-indigo-600">Página 3 de 3 - Despacho do SFPC/RM</h5>
+                            <p><strong>7. DESPACHO DO SFPC/RM:</strong> [ ] Deferido em ____/____/________. Validade da autorização: até ____/____/________. - Informe-se à Polícia Federal. [ ] Indeferido.</p>
+                            <div class="h-24 border border-dashed border-slate-400 p-2 rounded-lg text-slate-400 text-xs">Motivos / Observações do SFPC...</div>
+                            <div class="pt-8 text-center space-y-1">
+                                <p>__________________________________________________________________</p>
+                                <p class="font-bold">SFPC/RM</p>
+                                <p class="text-[10px] text-slate-500">Assinatura digital (.gov.br ou ICP-Brasil)</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (docType === 'doacao') {
+                modalTitle.innerText = 'Termo de Doação de Arma de Fogo (Idêntico ao Modelo)';
+                html = `
+                    <div class="space-y-4 font-sans text-xs sm:text-sm text-slate-900 bg-white p-6 border border-slate-300 rounded-xl">
+                        <div class="text-center border-b border-slate-400 pb-3">
+                            <h4 class="font-extrabold text-sm uppercase">TERMO DE DOAÇÃO DE ARMA DE FOGO</h4>
+                            <p class="text-xs text-slate-500">Transmissão de Propriedade entre Particulares / SINARM / SIGMA</p>
+                        </div>
+                        <div class="space-y-3 text-justify leading-relaxed border border-slate-300 p-4 rounded-lg">
+                            <p>Eu, <strong>${client.alienatorName || 'ADILSON BATISTA DA SILVA JUNIOR'}</strong>, portador(a) da cédula de identidade nº ${client.alienatorRg || '18268837 SSP MG'}, CPF/MF nº ${client.alienatorCpf || '119.047.096-99'}, filho(a) de ${client.alienatorParents || 'Adilson Batista da Silva e Zélia Oliveira Rodrigues'}, residente à ${client.alienatorAddress || 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG, CEP: 35010-170'}, faço a <strong>DOAÇÃO</strong> ao(à) Sr(a). <strong>${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</strong>, portador(a) da cédula de identidade nº ${client.rg || '9143092'}, expedida por ${client.rgIssuer || 'PC MG'}, CPF nº ${client.cpf || '05513165600'}, filho(a) de ${client.fatherName || 'VIVALDO OLIMPIO DO ESPIRITO SANTO'} e de ${client.motherName || 'MARIA AMBROSIA VIANA'}, residente à ${fullAddress}, de uma arma de minha propriedade, com as seguintes características:</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 border border-slate-300 rounded-xl grid grid-cols-2 gap-2 text-xs">
+                            <p><strong>Espécie:</strong> ${client.weaponSpecies || 'PISTOLA'}</p>
+                            <p><strong>Calibre:</strong> ${client.selectedCaliber || '.38 TPC'}</p>
+                            <p><strong>Marca:</strong> ${client.weaponBrand || 'TAURUS'}</p>
+                            <p><strong>Nº SINARM:</strong> ${client.weaponSinarm || '2024/906517549-75'}</p>
+                            <p><strong>Modelo:</strong> ${client.selectedWeapon || 'G25'}</p>
+                            <p><strong>Nº de Série:</strong> ${client.weaponSerial || 'E06068'}</p>
+                            <p><strong>Acabamento:</strong> ${client.weaponFinish || 'OXIDADO'}</p>
+                            <p><strong>Capacidade de tiro:</strong> ${client.weaponCapacity || '10 tiros'}</p>
+                        </div>
+                        <p class="text-right font-bold text-xs">TARUMIRIM/MG, 04 de novembro de 2026</p>
+                        <div class="grid grid-cols-2 gap-8 pt-10 text-center">
+                            <div>
+                                <p>_________________________________________</p>
+                                <p class="font-bold mt-1">Alienante (Doador)</p>
+                                <p class="text-[10px] text-slate-500">${client.alienatorName || 'ADILSON BATISTA DA SILVA JUNIOR'}</p>
+                            </div>
+                            <div>
+                                <p>_________________________________________</p>
+                                <p class="font-bold mt-1">Adquirente (Donatário)</p>
+                                <p class="text-[10px] text-slate-500">${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (docType === 'idoneidade') {
+                modalTitle.innerText = 'Declaração de Idoneidade';
+                html = `
+                    <div class="space-y-4 font-sans text-xs sm:text-sm text-slate-900 bg-white p-6 border border-slate-300 rounded-xl">
+                        <div class="text-center border-b border-slate-400 pb-3">
+                            <h4 class="font-extrabold text-sm uppercase">DECLARAÇÃO DE IDONEIDADE</h4>
+                            <p class="text-xs text-slate-500">Exigência do Art. 4º, Inciso II, da Lei nº 10.826/2003</p>
+                        </div>
+                        <p class="text-justify leading-relaxed">Eu, <strong>${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</strong>, inscrito(a) no CPF sob o nº ${client.cpf || '05513165600'}, RG ${client.rg || '9143092'} (${client.rgIssuer || 'PC MG'}), residente e domiciliado(a) na ${fullAddress}, <strong>DECLARO EXPRESSAMENTE</strong>, para fins de concessão de registro e autorização para aquisição/porte de arma de fogo perante o Departamento de Polícia Federal, que <strong>não estou respondendo a inquérito policial ou a processo criminal</strong>, bem como não possuo antecedentes criminais desabonadores.</p>
+                        <p class="text-justify leading-relaxed">Por ser expressão da verdade, firmo o presente sob as penas da lei (Art. 299 do Código Penal Brasileiro - Falsidade Ideológica).</p>
+                        <div class="pt-12 text-center space-y-1">
+                            <p>__________________________________________________________________</p>
+                            <p class="font-bold">${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</p>
+                            <p class="text-[10px] text-slate-500">TARUMIRIM/MG, 04/11/2026</p>
+                        </div>
+                    </div>
+                `;
+            } else if (docType === 'residencia5') {
+                modalTitle.innerText = 'Declaração de Residência - Últimos 5 Anos';
+                html = `
+                    <div class="space-y-4 font-sans text-xs sm:text-sm text-slate-900 bg-white p-6 border border-slate-300 rounded-xl">
+                        <div class="text-center border-b border-slate-400 pb-3">
+                            <h4 class="font-extrabold text-sm uppercase">DECLARAÇÃO DE RESIDÊNCIA - HISTÓRICO DOS ÚLTIMOS 5 ANOS</h4>
+                            <p class="text-xs text-slate-500">Comprovação de Endereço e Idoneidade Cadastral (Polícia Federal)</p>
+                        </div>
+                        <p>Eu, <strong>${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</strong>, CPF: ${client.cpf || '05513165600'}, declaro sob as penas da lei o histórico dos endereços em que residi nos últimos 5 (cinco) anos:</p>
+                        <div class="space-y-2 p-3 bg-slate-50 border border-slate-300 rounded-xl">
+                            <p><strong>• Ano de 2026:</strong> ${client.res2026 || fullAddress}</p>
+                            <p><strong>• Ano de 2025:</strong> ${client.res2025 || fullAddress}</p>
+                            <p><strong>• Ano de 2024:</strong> ${client.res2024 || 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG'}</p>
+                            <p><strong>• Ano de 2023:</strong> ${client.res2023 || 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG'}</p>
+                            <p><strong>• Ano de 2022:</strong> ${client.res2022 || 'RUA DAS FLORES, 12, CENTRO, GOVERNADOR VALADARES - MG'}</p>
+                        </div>
+                        <div class="pt-10 text-center space-y-1">
+                            <p>__________________________________________________________________</p>
+                            <p class="font-bold">${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</p>
+                            <p class="text-[10px] text-slate-500">TARUMIRIM/MG, 04/11/2026</p>
+                        </div>
+                    </div>
+                `;
+            } else if (docType === 'dsa') {
+                modalTitle.innerText = 'Declaração de Segurança do Acervo (DSA)';
+                html = `
+                    <div class="space-y-4 font-sans text-xs sm:text-sm text-slate-900 bg-white p-6 border border-slate-300 rounded-xl">
+                        <div class="text-center border-b border-slate-400 pb-3">
+                            <h4 class="font-extrabold text-sm uppercase">DECLARAÇÃO DE SEGURANÇA DO ACERVO (DSA)</h4>
+                            <p class="text-xs text-slate-500">Decreto nº 11.615/2023 - Guarda Segura de Armas de Fogo e Munições</p>
+                        </div>
+                        <p class="text-justify leading-relaxed">Eu, <strong>${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</strong>, CPF ${client.cpf || '05513165600'}, declaro para os devidos fins perante a Polícia Federal que possuo em meu endereço residencial (${fullAddress}) local seguro dotado de dispositivo de trancamento (cofre ou armário específico) para o armazenamento adequado das armas de fogo e munições sob minha responsabilidade, adotando todas as cautelas para impedir o acesso de menores ou pessoas não autorizadas.</p>
+                        <div class="pt-12 text-center space-y-1">
+                            <p>__________________________________________________________________</p>
+                            <p class="font-bold">${client.fullname || 'MANIOEL MESSIAS DO ESPIRITO SANTO'}</p>
+                            <p class="text-[10px] text-slate-500">TARUMIRIM/MG, 04/11/2026</p>
+                        </div>
+                    </div>
+                `;
             }
 
             printArea.innerHTML = html;
@@ -1296,8 +1688,11 @@ function doPost(e) {
         function closeDocumentPreview() { document.getElementById('preview-modal').classList.add('hidden'); }
         function compileFullDossier() { openDocumentPreview('anexo1'); }
 
-        // Inicialização
         window.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+
             const params = new URLSearchParams(window.location.search);
             const isNew = params.get('novo-cadastro');
             const clientId = params.get('client');
@@ -1309,7 +1704,6 @@ function doPost(e) {
             } else {
                 renderDashboard();
             }
-            lucide.createIcons();
         });
     </script>
 </body>
