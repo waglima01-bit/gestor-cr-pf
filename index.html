@@ -103,6 +103,10 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
+                <button onclick="createFictitiousTestClient()" class="text-xs flex items-center space-x-1.5 text-amber-300 hover:text-white bg-amber-950/60 hover:bg-amber-900 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold" title="Criar Cadastro Fictício para Teste Completo">
+                    <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
+                    <span>🧪 Criar Teste Fictício</span>
+                </button>
                 <button onclick="copyNewClientLink()" class="text-xs flex items-center space-x-1.5 text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-500/40 transition-colors font-semibold" title="Copiar Link Limpo para Enviar ao Cliente no WhatsApp">
                     <i data-lucide="link" class="w-3.5 h-3.5"></i>
                     <span>Link Novo Cliente</span>
@@ -440,6 +444,14 @@
                         <div id="pf-checklist-container" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
                             <!-- Gerado dinamicamente via JS de 01 a 12 -->
                         </div>
+                        
+                        <!-- BOTÃO EXTRA DE ENVIO AO DRIVE NO FINAL DOS ANEXOS -->
+                        <div class="pt-3 border-t border-slate-100 flex justify-end">
+                            <button onclick="syncWithGoogleDrive()" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 shadow">
+                                <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                                <span>Enviar Anexos Atuais ao Google Drive (waglima01@gmail.com)</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -580,27 +592,32 @@
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">Passo 1: Código Apps Script (doGet & doPost)</label>
                     <textarea readonly rows="6" class="w-full p-2.5 bg-slate-900 text-emerald-400 font-mono rounded-xl text-[10px] select-all">function processDrivePayload(data) {
+  if (!data) { data = { firstLetter: "T", clientName: "TESTE_CONEXAO", files: [] }; }
   var root = DriveApp.getFoldersByName("Gestor CR - Clientes").hasNext() ? DriveApp.getFoldersByName("Gestor CR - Clientes").next() : DriveApp.createFolder("Gestor CR - Clientes");
   var letter = (data.firstLetter || "A").toUpperCase();
   var cName = (data.clientName || "CLIENTE_TESTE").toUpperCase();
   var letterFolder = root.getFoldersByName(letter).hasNext() ? root.getFoldersByName(letter).next() : root.createFolder(letter);
   var clientFolder = letterFolder.getFoldersByName(cName).hasNext() ? letterFolder.getFoldersByName(cName).next() : letterFolder.createFolder(cName);
   
-  if (data.files && data.files.length) {
+  if (data.files && Array.isArray(data.files) && data.files.length) {
     data.files.forEach(function(f) {
-      var bytes = Utilities.base64Decode(f.base64);
-      clientFolder.createFile(Utilities.newBlob(bytes, f.mimeType, f.standardizedName));
+      try {
+        var bytes = Utilities.base64Decode(f.base64);
+        clientFolder.createFile(Utilities.newBlob(bytes, f.mimeType, f.standardizedName));
+      } catch(err) {}
     });
   }
   return { status: "ok", folderName: clientFolder.getName(), folderUrl: clientFolder.getUrl() };
 }
 function doGet(e) {
-  var data = (e && e.parameter && e.parameter.payload) ? JSON.parse(e.parameter.payload) : { firstLetter: "T", clientName: "TESTE CONEXAO DRIVE" };
+  var data = null;
+  try { if (e && e.parameter && e.parameter.payload) { data = JSON.parse(e.parameter.payload); } } catch(err) {}
   var res = processDrivePayload(data);
   return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
 }
 function doPost(e) {
-  var data = JSON.parse(e.postData.contents);
+  var data = null;
+  try { if (e && e.postData && e.postData.contents) { data = JSON.parse(e.postData.contents); } } catch(err) {}
   var res = processDrivePayload(data);
   return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
 }</textarea>
@@ -758,6 +775,49 @@ function doPost(e) {
             setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3500);
+        }
+
+        function createFictitiousTestClient() {
+            const testClient = {
+                id: 'cli_test_' + Date.now(),
+                fullname: 'JARDEL MISQUITA',
+                cpf: '087.781.426-01',
+                birthdate: '1985-05-14',
+                rg: '9143092',
+                rgIssuer: 'PC MG',
+                rgDate: '2010-03-10',
+                voterId: '123456780132',
+                maritalStatus: 'Casado(a)',
+                birthCity: 'TEÓFILO OTONI',
+                birthState: 'MINAS GERAIS',
+                fatherName: 'ANTONIO MISQUITA',
+                motherName: 'MARIA APARECIDA MISQUITA',
+                profession: 'EMPRESA / COMÉRCIANTE',
+                functionalId: '78945',
+                phone: '(33) 98865-0173',
+                email: 'jardel.misquita@exemplo.com',
+                serviceType: 'Concessão de CR (Atirador)',
+                cep: '39800-000',
+                street: 'AV. GETÚLIO VARGAS',
+                number: '1000',
+                neighborhood: 'CENTRO',
+                city: 'TEÓFILO OTONI',
+                state: 'MG',
+                crNumber: '123456',
+                crExpiry: '2030-12-31',
+                weaponSpecies: 'PISTOLA',
+                weaponBrand: 'TAURUS',
+                weaponCaliber: '9mm',
+                weaponSerial: 'TKR12345',
+                weaponSigma: '987654',
+                weaponSinarm: '',
+                files: {}
+            };
+            clientsData.push(testClient);
+            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            showToast('🧪 Requerente fictício "JARDEL MISQUITA" criado para testes!');
+            openClientPortal(testClient.id);
+            syncWithGoogleDrive();
         }
 
         function createNewClient() {
@@ -1229,7 +1289,7 @@ function doPost(e) {
                 html = `<div class="p-6 text-center"><h3 class="font-bold text-base">Minuta gerada para ${client.fullname || 'Requerente'}</h3><p class="text-xs text-slate-500 mt-2">Clique em Imprimir / Salvar PDF no topo para gerar o documento oficial em página única.</p></div>`;
             }
 
-printArea.innerHTML = html;
+            printArea.innerHTML = html;
             document.getElementById('preview-modal').classList.remove('hidden');
         }
 
