@@ -1296,7 +1296,6 @@ function doPost(e) {
             const testPayload = {
                 firstLetter: 'T',
                 clientName: 'TESTE CONEXAO DRIVE',
-                clientData: { teste: true, data: new Date().toISOString() },
                 files: []
             };
 
@@ -1335,7 +1334,7 @@ function doPost(e) {
             const webhookUrl = localStorage.getItem('pf_gdrive_webhook_url');
             const gClientId = localStorage.getItem('pf_gdrive_client_id');
 
-            // Prepara os arquivos renomeados internamente pelo Agente IA (01 a 12) apenas para o Google Drive
+            // Prepara apenas os arquivos PDF/documentos dos 12 slots oficiais da PF
             const standardizedFiles = [];
             if (client.pfDocuments) {
                 PF_DOCUMENT_SLOTS.forEach(slot => {
@@ -1356,7 +1355,6 @@ function doPost(e) {
                 pastaDestino: `Gestor CR - Clientes / ${firstLetter} / ${cleanName}`,
                 contaDestino: 'waglima01@gmail.com',
                 dataSincronizacao: new Date().toISOString(),
-                clientData: client,
                 files: standardizedFiles
             };
 
@@ -1375,7 +1373,6 @@ function doPost(e) {
                         return;
                     }
                 } catch (err) {
-                    // Fallback no-cors para garantir a entrega do payload mesmo quando o navegador bloqueia a leitura do redirect 302
                     try {
                         await fetch(webhookUrl, {
                             method: 'POST',
@@ -1383,7 +1380,7 @@ function doPost(e) {
                             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                             body: JSON.stringify(exportPayload)
                         });
-                        showToast(`✅ Pasta "${firstLetter}/${cleanName}" e arquivos (01-12) enviados ao Google Drive!`);
+                        showToast(`✅ Pasta "${firstLetter}/${cleanName}" e arquivos da PF enviados ao Google Drive!`);
                         if (typeof onCompleteCallback === 'function') onCompleteCallback(true);
                         return;
                     } catch (e2) {
@@ -1442,19 +1439,22 @@ function doPost(e) {
                 const letterId = await getOrCreateDriveFolder(token, firstLetter, rootId);
                 const clientFolderId = await getOrCreateDriveFolder(token, cleanName, letterId);
 
-                const fileMeta = {
-                    name: `00_FICHA_SINARM_${cleanName.replace(/\s+/g, '_')}.json`,
-                    parents: [clientFolderId]
-                };
-                const form = new FormData();
-                form.append('metadata', new Blob([JSON.stringify(fileMeta)], { type: 'application/json' }));
-                form.append('file', new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+                // Apenas faz o upload dos arquivos padronizados (01 a 12), sem criar o arquivo JSON de resumo
+                if (payload.files && payload.files.length > 0) {
+                    for (const f of payload.files) {
+                        const fileMeta = { name: f.standardizedName, parents: [clientFolderId] };
+                        const bytes = Uint8Array.from(atob(f.base64), c => c.charCodeAt(0));
+                        const form = new FormData();
+                        form.append('metadata', new Blob([JSON.stringify(fileMeta)], { type: 'application/json' }));
+                        form.append('file', new Blob([bytes], { type: f.mimeType }));
 
-                await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}` },
-                    body: form
-                });
+                        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                            method: 'POST',
+                            headers: { Authorization: `Bearer ${token}` },
+                            body: form
+                        });
+                    }
+                }
 
                 showToast(`Pasta "${firstLetter}/${cleanName}" criada e organizada no Google Drive!`);
             } catch (err) {
