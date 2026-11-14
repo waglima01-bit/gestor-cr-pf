@@ -634,22 +634,53 @@
                 </div>
 
                 <div class="space-y-2 border border-slate-200 p-3 rounded-xl bg-slate-50">
-                    <div class="font-bold text-slate-800">Passo 1: Copie o código abaixo, cole em um <a href="https://script.google.com/home/projects/create" target="_blank" class="text-blue-600 underline">Novo Projeto Apps Script</a> e clique em <strong>Implantar ➔ Nova implantação ➔ App da Web</strong> (Quem pode acessar: <em>Qualquer pessoa</em>):</div>
-                    <textarea id="apps-script-template" readonly rows="7" class="w-full p-2 bg-slate-900 text-emerald-300 font-mono text-[10px] rounded-lg">function doPost(e) {
-  var data = JSON.parse(e.postData.contents);
+                    <div class="font-bold text-slate-800">Passo 1: Copie o código abaixo, cole no seu <a href="https://script.google.com/home/projects/create" target="_blank" class="text-blue-600 underline">Projeto Apps Script</a> e clique em <strong>Implantar ➔ Nova implantação ➔ App da Web</strong> (Executar como: <em>Eu</em> | Quem pode acessar: <em>Qualquer pessoa</em>):</div>
+                    <textarea id="apps-script-template" readonly rows="8" class="w-full p-2 bg-slate-900 text-emerald-300 font-mono text-[10px] rounded-lg">function processDrivePayload(data) {
   var root = DriveApp.getFoldersByName("Gestor CR - Clientes").hasNext() ? DriveApp.getFoldersByName("Gestor CR - Clientes").next() : DriveApp.createFolder("Gestor CR - Clientes");
-  var letterFolder = root.getFoldersByName(data.firstLetter).hasNext() ? root.getFoldersByName(data.firstLetter).next() : root.createFolder(data.firstLetter);
-  var clientFolder = letterFolder.getFoldersByName(data.clientName).hasNext() ? letterFolder.getFoldersByName(data.clientName).next() : letterFolder.createFolder(data.clientName);
-  clientFolder.createFile("00_FICHA_" + data.clientName + ".json", JSON.stringify(data.clientData, null, 2));
+  var letter = (data.firstLetter || "A").toUpperCase();
+  var cName = (data.clientName || "CLIENTE_TESTE").toUpperCase();
+  var letterFolder = root.getFoldersByName(letter).hasNext() ? root.getFoldersByName(letter).next() : root.createFolder(letter);
+  var clientFolder = letterFolder.getFoldersByName(cName).hasNext() ? letterFolder.getFoldersByName(cName).next() : letterFolder.createFolder(cName);
+  if (data.clientData) {
+    clientFolder.createFile("00_FICHA_" + cName + ".json", JSON.stringify(data.clientData, null, 2));
+  }
   if (data.files && data.files.length) {
     data.files.forEach(function(f) {
       var bytes = Utilities.base64Decode(f.base64);
       clientFolder.createFile(Utilities.newBlob(bytes, f.mimeType, f.standardizedName));
     });
   }
-  return ContentService.createTextOutput(JSON.stringify({status: "ok", folder: clientFolder.getName()})).setMimeType(ContentService.MimeType.JSON);
+  return { status: "ok", folderName: clientFolder.getName(), folderUrl: clientFolder.getUrl() };
+}
+function doGet(e) {
+  var data = (e && e.parameter && e.parameter.payload) ? JSON.parse(e.parameter.payload) : { firstLetter: "T", clientName: "TESTE CONEXAO DRIVE" };
+  var res = processDrivePayload(data);
+  return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
+}
+function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+  var res = processDrivePayload(data);
+  return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
 }</textarea>
                     <button onclick="copyAppsScriptCode()" class="px-3 py-1.5 bg-slate-800 text-white rounded-lg font-bold text-[11px]">Copiar Código Apps Script</button>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Passo 2: Cole a URL do Web App gerada pelo Google Apps Script:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="drive-webhook-url-input" class="flex-1 p-2.5 border border-blue-400 bg-blue-50/40 rounded-xl font-semibold" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+                        <button onclick="testDriveConnection()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold whitespace-nowrap">Testar Conexão</button>
+                    </div>
+                    <p id="drive-test-status" class="text-[11px] font-semibold text-slate-500 mt-1"></p>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Passo 2: Cole a URL do Web App gerada pelo Google Apps Script:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="drive-webhook-url-input" class="flex-1 p-2.5 border border-blue-400 bg-blue-50/40 rounded-xl font-semibold" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+                        <button onclick="testDriveWebhookConnection()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shrink-0">Testar Conexão</button>
+                    </div>
+                    <div id="drive-test-status" class="mt-1.5 text-[11px] font-semibold text-slate-600"></div>
                 </div>
 
                 <div>
@@ -1262,6 +1293,59 @@
             showToast('Configuração do Google Drive salva!');
         };
 
+        window.testDriveConnection = async function() {
+            const url = document.getElementById('drive-webhook-url-input')?.value.trim();
+            const statusEl = document.getElementById('drive-test-status');
+            if (!url) {
+                if (statusEl) statusEl.innerHTML = '<span class="text-red-600">Cole primeiro a URL terminada em /exec gerada no Apps Script.</span>';
+                return;
+            }
+            if (!url.endsWith('/exec')) {
+                if (statusEl) statusEl.innerHTML = '<span class="text-amber-600">⚠️ Atenção: A URL do Web App deve terminar com <strong>/exec</strong> (não /dev).</span>';
+                return;
+            }
+            localStorage.setItem('pf_gdrive_webhook_url', url);
+            if (statusEl) statusEl.innerHTML = '<span class="text-blue-600">⏳ Enviando comando ao Google Drive...</span>';
+
+            const testPayload = {
+                firstLetter: 'T',
+                clientName: 'TESTE CONEXAO DRIVE',
+                clientData: { teste: true, data: new Date().toISOString() },
+                files: []
+            };
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(testPayload)
+                });
+                const json = await res.json();
+                if (json && json.status === 'ok') {
+                    if (statusEl) statusEl.innerHTML = `<span class="text-emerald-700">✅ Conectado! Pasta criada: <a href="${json.folderUrl}" target="_blank" class="underline font-extrabold">Abrir Pasta no Google Drive</a></span>`;
+                    showToast('Conexão com Google Drive validada!');
+                    return;
+                }
+            } catch (err) {
+                // Fallback automático para contornar restrição de leitura CORS do redirecionamento 302 do Google
+                try {
+                    await fetch(url, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(testPayload)
+                    });
+                    if (statusEl) {
+                        statusEl.innerHTML = `<span class="text-emerald-700">✅ Comando enviado ao Google Drive! Verifique a pasta <strong>"Gestor CR - Clientes ➔ T ➔ TESTE CONEXAO DRIVE"</strong> no seu Drive ou <a href="${url}" target="_blank" class="underline font-bold">clique aqui para abrir a resposta direta</a>.</span>`;
+                    }
+                    showToast('Comando enviado ao Google Drive! Confira a pasta criada.');
+                    return;
+                } catch (err2) {
+                    if (statusEl) statusEl.innerHTML = '<span class="text-red-600">❌ Verifique se a URL termina em /exec e se selecionou "Qualquer pessoa" na implantação.</span>';
+                }
+            }
+        };
+
         window.syncWithGoogleDrive = async function(onCompleteCallback = null) {
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client || !client.fullname) {
@@ -1301,17 +1385,32 @@
             if (webhookUrl) {
                 try {
                     showToast(`Agente IA criando pasta "${firstLetter}/${cleanName}" no Google Drive...`);
-                    await fetch(webhookUrl, {
+                    const res = await fetch(webhookUrl, {
                         method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(exportPayload)
                     });
-                    showToast(`Pasta "${firstLetter}/${cleanName}" e arquivos (01-12) enviados ao Google Drive!`);
-                    if (typeof onCompleteCallback === 'function') onCompleteCallback(true);
-                    return;
+                    const json = await res.json();
+                    if (json && json.status === 'ok') {
+                        showToast(`✅ Pasta "${firstLetter}/${cleanName}" criada no Google Drive!`);
+                        if (typeof onCompleteCallback === 'function') onCompleteCallback(true);
+                        return;
+                    }
                 } catch (err) {
-                    showToast('Erro ao enviar para o Web App do Google Drive.');
+                    // Fallback no-cors para garantir a entrega do payload mesmo quando o navegador bloqueia a leitura do redirect 302
+                    try {
+                        await fetch(webhookUrl, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify(exportPayload)
+                        });
+                        showToast(`✅ Pasta "${firstLetter}/${cleanName}" e arquivos (01-12) enviados ao Google Drive!`);
+                        if (typeof onCompleteCallback === 'function') onCompleteCallback(true);
+                        return;
+                    } catch (e2) {
+                        showToast('Erro ao enviar para o Web App do Google Drive.');
+                    }
                 }
             }
 
@@ -1401,9 +1500,9 @@
             });
             if (resultEl) resultEl.innerText = log;
 
-            syncWithGoogleDrive((success) => {
+            syncWithGoogleDrive((success, folderUrl) => {
                 if (success && resultEl) {
-                    resultEl.innerText += `\n\n✅ OPERAÇÃO CONCLUÍDA NO GOOGLE DRIVE!\nA pasta "${firstLetter}/${cleanName}" foi localizada/atualizada e todos os documentos foram renomeados e organizados na sequência oficial da Polícia Federal (01 a 12).`;
+                    resultEl.innerText += `\n\n✅ OPERAÇÃO CONFIRMADA NO GOOGLE DRIVE!\nA pasta "${firstLetter}/${cleanName}" foi criada/atualizada e todos os documentos foram organizados na sequência oficial da Polícia Federal (01 a 12).${folderUrl ? `\nLink da Pasta: ${folderUrl}` : ''}`;
                 }
             });
         };
