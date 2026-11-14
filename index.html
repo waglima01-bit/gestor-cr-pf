@@ -674,20 +674,6 @@ function doPost(e) {
                     <p id="drive-test-status" class="text-[11px] font-semibold text-slate-500 mt-1"></p>
                 </div>
 
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Passo 2: Cole a URL do Web App gerada pelo Google Apps Script:</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="drive-webhook-url-input" class="flex-1 p-2.5 border border-blue-400 bg-blue-50/40 rounded-xl font-semibold" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
-                        <button onclick="testDriveWebhookConnection()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shrink-0">Testar Conexão</button>
-                    </div>
-                    <div id="drive-test-status" class="mt-1.5 text-[11px] font-semibold text-slate-600"></div>
-                </div>
-
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Passo 2: Cole a URL do Web App gerada pelo Google Apps Script:</label>
-                    <input type="text" id="drive-webhook-url-input" class="w-full p-2.5 border border-blue-400 bg-blue-50/40 rounded-xl font-semibold" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
-                </div>
-
                 <div class="pt-2 border-t border-slate-200">
                     <label class="block font-bold text-slate-700 mb-1">Alternativa: Google OAuth 2.0 Client ID (Opcional):</label>
                     <input type="text" id="drive-client-id-input" class="w-full p-2.5 border border-slate-300 rounded-xl" placeholder="Ex: 123456789-abc.apps.googleusercontent.com">
@@ -1314,12 +1300,10 @@ function doPost(e) {
                 files: []
             };
 
+            const getUrl = `${url}?payload=${encodeURIComponent(JSON.stringify(testPayload))}`;
+
             try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(testPayload)
-                });
+                const res = await fetch(getUrl, { method: 'GET' });
                 const json = await res.json();
                 if (json && json.status === 'ok') {
                     if (statusEl) statusEl.innerHTML = `<span class="text-emerald-700">✅ Conectado! Pasta criada: <a href="${json.folderUrl}" target="_blank" class="underline font-extrabold">Abrir Pasta no Google Drive</a></span>`;
@@ -1327,18 +1311,12 @@ function doPost(e) {
                     return;
                 }
             } catch (err) {
-                // Fallback automático para contornar restrição de leitura CORS do redirecionamento 302 do Google
                 try {
-                    await fetch(url, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(testPayload)
-                    });
+                    await fetch(getUrl, { method: 'GET', mode: 'no-cors' });
                     if (statusEl) {
-                        statusEl.innerHTML = `<span class="text-emerald-700">✅ Comando enviado ao Google Drive! Verifique a pasta <strong>"Gestor CR - Clientes ➔ T ➔ TESTE CONEXAO DRIVE"</strong> no seu Drive ou <a href="${url}" target="_blank" class="underline font-bold">clique aqui para abrir a resposta direta</a>.</span>`;
+                        statusEl.innerHTML = `<span class="text-emerald-700">✅ Comando enviado ao Google Drive! <a href="${getUrl}" target="_blank" class="underline font-extrabold text-blue-700">Clique aqui para confirmar a criação em nova aba</a> (deve aparecer <code>{"status":"ok"}</code>).</span>`;
                     }
-                    showToast('Comando enviado ao Google Drive! Confira a pasta criada.');
+                    showToast('Comando enviado! Confira a pasta no Google Drive.');
                     return;
                 } catch (err2) {
                     if (statusEl) statusEl.innerHTML = '<span class="text-red-600">❌ Verifique se a URL termina em /exec e se selecionou "Qualquer pessoa" na implantação.</span>';
