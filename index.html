@@ -221,13 +221,13 @@
                     </button>
                     <button onclick="saveCurrentClientData(true)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow">
                         <i data-lucide="save" class="w-4 h-4"></i>
-                        <span>Salvar & Sincronizar</span>
+                        <span>Salvar & Sincronizar Drive</span>
                     </button>
                 </div>
                 <div id="client-only-save-bar" class="hidden">
                     <button onclick="saveCurrentClientData(true)" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 shadow">
                         <i data-lucide="check-circle" class="w-4 h-4"></i>
-                        <span>Concluir & Enviar Meus Dados</span>
+                        <span>Concluir & Enviar Meus Dados ao Drive</span>
                     </button>
                 </div>
             </div>
@@ -971,6 +971,7 @@ function doPost(e) {
                 localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
                 showToast(`Documento ${standardName} anexado com sucesso!`);
                 renderPFChecklist();
+                syncWithGoogleDriveQuiet(client);
             };
             reader.readAsDataURL(file);
         }
