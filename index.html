@@ -570,7 +570,7 @@
                 </h3>
                 <button onclick="closeDriveConfigModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <p class="text-xs text-slate-600">O código atualizado abaixo (sem o arquivo JSON, salvando apenas os PDFs de 01 a 12) já está pronto. <strong>Se você já implantou anteriormente, não precisa alterar nada no Apps Script</strong>, a menos que queira colar a versão mais recente abaixo.</p>
+            <p class="text-xs text-slate-600">Cole abaixo a URL do Web App gerada no Google Apps Script. O sistema criará automaticamente as pastas organizadas por inicial e subpastas do cliente com os documentos de 01 a 12.</p>
             
             <div class="space-y-3 text-xs">
                 <div>
@@ -605,14 +605,19 @@ function doPost(e) {
                     <label class="block font-bold text-slate-700 mb-1">Passo 2: Cole a URL do Web App gerada (terminada em /exec)</label>
                     <div class="flex gap-2">
                         <input type="text" id="drive-webhook-url-input" class="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="https://script.google.com/macros/s/.../exec">
-                        <button onclick="testDriveConnection()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold">Testar</button>
+                        <button onclick="testDriveConnection()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-1 shadow">
+                            <i data-lucide="play" class="w-3.5 h-3.5"></i> Testar Conexão
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end pt-3 border-t border-slate-100 gap-2">
-                <button onclick="closeDriveConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Fechar</button>
-                <button onclick="saveDriveWebhookUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold">Salvar Configuração</button>
+            <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+                <span id="drive-test-status" class="text-xs font-semibold text-slate-500">Pronto para testar</span>
+                <div class="flex gap-2">
+                    <button onclick="closeDriveConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Fechar</button>
+                    <button onclick="saveDriveWebhookUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold">Salvar Configuração</button>
+                </div>
             </div>
         </div>
     </div>
@@ -999,13 +1004,29 @@ function doPost(e) {
             showToast('Configuração do Google Drive salva!');
             closeDriveConfigModal();
         }
+
         function testDriveConnection() {
             const url = document.getElementById('drive-webhook-url-input').value.trim();
-            if (!url) { alert('Insira a URL do Web App.'); return; }
+            const statusEl = document.getElementById('drive-test-status');
+            if (!url) {
+                if (statusEl) statusEl.innerText = 'Insira a URL primeiro.';
+                alert('Insira a URL do Web App do Google Apps Script.');
+                return;
+            }
             localStorage.setItem('pf_drive_webhook_url', url);
-            fetch(url, { method: 'POST', body: JSON.stringify({ firstLetter: 'T', clientName: 'TESTE CONEXAO DRIVE', files: [] }), mode: 'no-cors' })
-                .then(() => showToast('Conexão testada com sucesso!'))
-                .catch(() => showToast('Comando enviado ao Google Drive!'));
+            if (statusEl) statusEl.innerText = 'Testando e criando pasta no Drive...';
+
+            fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({ firstLetter: 'T', clientName: 'TESTE CONEXAO DRIVE', files: [] }),
+                mode: 'no-cors'
+            }).then(() => {
+                if (statusEl) statusEl.innerText = '✅ Comando enviado com sucesso!';
+                showToast('🚀 Comando de teste enviado! Verifique a pasta "Gestor CR - Clientes > T > TESTE CONEXAO DRIVE" no seu Google Drive (waglima01@gmail.com).');
+            }).catch(() => {
+                if (statusEl) statusEl.innerText = '⚠️ Enviado (verifique o Drive).';
+                showToast('📁 Comando enviado! Verifique seu Google Drive.');
+            });
         }
 
         function openWeaponModal() { document.getElementById('weapon-modal').classList.remove('hidden'); }
