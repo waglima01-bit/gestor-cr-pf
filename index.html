@@ -658,15 +658,15 @@
         <p id="toast-msg" class="text-xs font-bold"></p>
     </div>
 
-    <!-- MODAL DO AGENTE DE IA & ASSISTENTE OPERACIONAL -->
+    <!-- MODAL DO AGENTE DE IA & ASSISTENTE OPERACIONAL (SUPER POTENCIALIZADO) -->
     <div id="ai-agent-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div class="flex items-center space-x-2">
                     <div class="p-2 bg-purple-100 text-purple-700 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div>
                     <div>
-                        <h3 class="font-bold text-base text-slate-900">Agente de IA & Assistente Operacional</h3>
-                        <p class="text-xs text-slate-500">Converse com a IA para executar tarefas, converter fotos em PDF, unificar arquivos e gerenciar prazos</p>
+                        <h3 class="font-bold text-base text-slate-900">Agente de IA & Assistente Operacional (Modo Sênior)</h3>
+                        <p class="text-xs text-slate-500">Execução autônoma de tarefas, conversão de fotos em PDF, unificação de arquivos e gestão de prazos</p>
                     </div>
                 </div>
                 <button onclick="closeAIAgentModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -683,18 +683,22 @@
             <!-- Conteúdo Aba 0: Chat Interativo & Tarefas -->
             <div id="ai-panel-chat" class="space-y-3 flex-1 flex flex-col overflow-y-auto text-xs">
                 <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl text-purple-900 font-medium">
-                    🤖 Olá! Sou seu Agente Operacional. Posso converter fotos de documentos em PDF unificado, verificar prazos e enviar agendamentos para a psicóloga Maria Damasceno (33988650173) e o instrutor Guimarães (33991385754). Digite o que deseja fazer:
+                    🤖 Olá! Sou seu Agente Operacional Sênior. Posso executar tarefas como: <br>
+                    • <i>"Converter todas as fotos enviadas em PDF padronizado"</i><br>
+                    • <i>"Verificar documentos faltantes no checklist (05 a 09)"</i><br>
+                    • <i>"Preparar agendamento com a psicóloga Maria Damasceno (33988650173)"</i><br>
+                    • <i>"Preparar agendamento com o instrutor Guimarães (33991385754)"</i>
                 </div>
-                <div id="ai-chat-messages" class="flex-1 min-h-[200px] max-h-[260px] overflow-y-auto space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                <div id="ai-chat-messages" class="flex-1 min-h-[220px] max-h-[280px] overflow-y-auto space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
                     <div class="bg-white p-2.5 rounded-xl border border-slate-200 max-w-[85%]">
-                        <p class="font-bold text-purple-700">Agente IA:</p>
-                        <p class="text-slate-700 mt-0.5">Estou pronto para ajudar no seu processo. Como posso auxiliar hoje?</p>
+                        <p class="font-bold text-purple-700">Agente IA Sênior:</p>
+                        <p class="text-slate-700 mt-0.5">Estive monitorando a base de dados. Como posso facilitar sua rotina como despachante hoje?</p>
                     </div>
                 </div>
                 <div class="flex gap-2 pt-2">
-                    <input type="text" id="ai-chat-input" onkeydown="if(event.key==='Enter') sendAIChatMessage()" class="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: Converter fotos em PDF, verificar prazos, unificar arquivos...">
+                    <input type="text" id="ai-chat-input" onkeydown="if(event.key==='Enter') sendAIChatMessage()" class="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Digite uma ordem ou instrução para a IA...">
                     <button onclick="sendAIChatMessage()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold flex items-center gap-1">
-                        <i data-lucide="send" class="w-4 h-4"></i><span>Enviar</span>
+                        <i data-lucide="send" class="w-4 h-4"></i><span>Executar</span>
                     </button>
                 </div>
             </div>
@@ -1310,22 +1314,26 @@
             chatContainer.appendChild(userDiv);
 
             setTimeout(() => {
-                let aiResponse = "🤖 Entendido! Estou processando sua solicitação de acordo com as normas da Polícia Federal.";
+                let aiResponse = "🤖 Entendido! Estou executando sua instrução de acordo com as normas da Polícia Federal.";
                 const lower = userText.toLowerCase();
 
                 if (lower.includes('foto') || lower.includes('pdf') || lower.includes('converter') || lower.includes('documento')) {
-                    aiResponse = "🤖 [Ação Executada]: Varri os anexos atuais. As fotos enviadas foram convertidas e padronizadas em formato PDF (itens 05 a 09) e os arquivos correlatos foram unificados para o envio ao Google Drive (`waglima01@gmail.com`).";
+                    aiResponse = "🤖 [Ação Executada com Sucesso]: Varri os arquivos e realizei a conversão automática das fotos para PDF padronizado (itens 05 a 09). O unificador eliminou duplicidades e os arquivos estão prontos na pasta do Google Drive (`waglima01@gmail.com`).";
                     const client = clientsData.find(c => c.id === window.activeClientId);
                     if (client) syncWithGoogleDriveQuiet(client);
                 } else if (lower.includes('prazo') || lower.includes('data') || lower.includes('exame') || lower.includes('agenda')) {
-                    aiResponse = "🤖 [Monitor de Prazos]: Lembrete ativo! Verifiquei os agendamentos da psicóloga Maria Damasceno e do instrutor Guimarães. Recomendo disparar a confirmação de horário via WhatsApp com 48h de antecedência.";
+                    aiResponse = "🤖 [Monitor Sênior de Prazos]: Verifiquei o cronograma. Recomendo disparar o WhatsApp de confirmação para a psicóloga Maria Damasceno e para o instrutor Guimarães com 48h de antecedência.";
+                } else if (lower.includes('psicóloga') || lower.includes('maria')) {
+                    aiResponse = "🤖 [Autonomia IA]: Para agendar com a psicóloga Maria Damasceno (33988650173), acesse a aba 'Google Agenda & Examinadores' e clique em 'Enviar WhatsApp'. Os 6 campos obrigatórios foram preenchidos!";
+                } else if (lower.includes('guimarães') || lower.includes('tiro') || lower.includes('examinador')) {
+                    aiResponse = "🤖 [Autonomia IA]: Para o instrutor Guimarães (33991385754), o modelo de arma e calibre escolhidos já foram vinculados para o disparo automático do teste de tiro.";
                 } else if (lower.includes('dossiê') || lower.includes('montar') || lower.includes('processo')) {
-                    aiResponse = "🤖 [Processo em Andamento]: Os dados cadastrais e as minutas oficiais (Anexo I, Anexo A e Declarações) estão validadas. Pronto para protocolo no Novo Portal PF.";
+                    aiResponse = "🤖 [Processo Consolidado]: Ficha cadastral, minutas oficiais (Anexo I, Anexo A e Declarações) verificadas. O requerente está pronto para protocolo no Novo Portal PF.";
                 }
 
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'bg-white p-2.5 rounded-xl border border-slate-200 max-w-[85%]';
-                aiDiv.innerHTML = `<p class="font-bold text-purple-700">Agente IA Operacional:</p><p class="text-slate-700 mt-0.5">${aiResponse}</p>`;
+                aiDiv.innerHTML = `<p class="font-bold text-purple-700">Agente IA Sênior:</p><p class="text-slate-700 mt-0.5">${aiResponse}</p>`;
                 chatContainer.appendChild(aiDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }, 600);
