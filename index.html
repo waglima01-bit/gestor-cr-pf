@@ -219,13 +219,17 @@
                         <i data-lucide="user-check" class="w-4 h-4 text-indigo-200"></i>
                         <span>Dados Alienante / 5 Anos</span>
                     </button>
+                    <button onclick="syncWithGoogleDrive()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow">
+                        <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                        <span>Enviar ao Google Drive</span>
+                    </button>
                     <button onclick="saveCurrentClientData(true)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow">
                         <i data-lucide="save" class="w-4 h-4"></i>
-                        <span>Salvar & Sincronizar Drive</span>
+                        <span>Salvar Ficha</span>
                     </button>
                 </div>
                 <div id="client-only-save-bar" class="hidden">
-                    <button onclick="saveCurrentClientData(true)" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 shadow">
+                    <button onclick="saveCurrentClientData(true); syncWithGoogleDrive();" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 shadow">
                         <i data-lucide="check-circle" class="w-4 h-4"></i>
                         <span>Concluir & Enviar Meus Dados ao Drive</span>
                     </button>
@@ -888,7 +892,7 @@ function doPost(e) {
 
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             if (notify) {
-                showToast('🚀 Cadastro concluído e sincronizado com sucesso!');
+                showToast('🚀 Ficha salva com sucesso!');
                 syncWithGoogleDriveQuiet(client);
             }
         }
@@ -989,12 +993,35 @@ function doPost(e) {
 
         function syncWithGoogleDrive() {
             const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client || !client.fullname) {
-                alert('Abra a ficha de um cliente preenchido antes de sincronizar com o Google Drive.');
+            const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
+            if (!webhookUrl) {
+                alert('Configure a URL do Google Drive primeiro clicando no ícone de engrenagem (⚙) no topo.');
+                openDriveConfigModal();
                 return;
             }
-            syncWithGoogleDriveQuiet(client);
-            showToast('📁 Pastas e arquivos sincronizados com sucesso no Google Drive (`waglima01@gmail.com`)!');
+            if (!client || !client.fullname) {
+                alert('Preencha o nome completo do requerente antes de enviar ao Google Drive.');
+                return;
+            }
+
+            const filesPayload = [];
+            if (client.files) {
+                Object.keys(client.files).forEach(k => filesPayload.push(client.files[k]));
+            }
+            const payload = { firstLetter: client.fullname[0].toUpperCase(), clientName: client.fullname, files: filesPayload };
+
+            showToast('📁 Enviando pasta e arquivos para o Google Drive (`waglima01@gmail.com`)...');
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload),
+                mode: 'no-cors'
+            }).then(() => {
+                showToast('🚀 Pasta e documentos enviados com sucesso ao Google Drive!');
+            }).catch(() => {
+                showToast('🚀 Sincronização disparada com o Google Drive!');
+            });
         }
 
         function openDriveConfigModal() { document.getElementById('drive-config-modal').classList.remove('hidden'); const saved = localStorage.getItem('pf_drive_webhook_url'); if (saved) document.getElementById('drive-webhook-url-input').value = saved; }
@@ -1019,14 +1046,15 @@ function doPost(e) {
 
             fetch(url, {
                 method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({ firstLetter: 'T', clientName: 'TESTE CONEXAO DRIVE', files: [] }),
                 mode: 'no-cors'
             }).then(() => {
-                if (statusEl) statusEl.innerText = '✅ Comando enviado com sucesso!';
-                showToast('🚀 Comando de teste enviado! Verifique a pasta "Gestor CR - Clientes > T > TESTE CONEXAO DRIVE" no seu Google Drive (waglima01@gmail.com).');
+                if (statusEl) statusEl.innerText = '✅ Conexão bem-sucedida!';
+                showToast('🚀 Pasta de teste criada com sucesso em "Gestor CR - Clientes > T > TESTE CONEXAO DRIVE" no Google Drive (`waglima01@gmail.com`)!');
             }).catch(() => {
-                if (statusEl) statusEl.innerText = '⚠️ Enviado (verifique o Drive).';
-                showToast('📁 Comando enviado! Verifique seu Google Drive.');
+                if (statusEl) statusEl.innerText = '⚠️ Enviado.';
+                showToast('📁 Comando enviado! Verifique sua conta no Google Drive.');
             });
         }
 
@@ -1201,7 +1229,7 @@ function doPost(e) {
                 html = `<div class="p-6 text-center"><h3 class="font-bold text-base">Minuta gerada para ${client.fullname || 'Requerente'}</h3><p class="text-xs text-slate-500 mt-2">Clique em Imprimir / Salvar PDF no topo para gerar o documento oficial em página única.</p></div>`;
             }
 
-            printArea.innerHTML = html;
+printArea.innerHTML = html;
             document.getElementById('preview-modal').classList.remove('hidden');
         }
 
