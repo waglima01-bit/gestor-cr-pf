@@ -1064,7 +1064,34 @@
             if (notify) {
                 showToast('🚀 Ficha salva com sucesso!');
                 syncWithGoogleDriveQuiet(client);
+
+                // Disparo de confirmação automática e instruções dos itens 05 a 09 via WhatsApp para o cliente
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('novo-cadastro') || urlParams.get('client')) {
+                    sendClientWelcomeWhatsApp(client);
+                }
             }
+        }
+
+        function sendClientWelcomeWhatsApp(client) {
+            const clientPhone = client.phone ? client.phone.replace(/\D/g, '') : '';
+            const msg = encodeURIComponent(
+                `Olá *${client.fullname || 'Prezado(a)'}*! Recebemos com sucesso o seu preenchimento de cadastro e dados para o processo de *${client.serviceType || 'Concessão de CR / SINARM'}* na Polícia Federal.\n\n` +
+                `Para darmos andamento imediato ao seu processo, você deverá providenciar exclusivamente os seguintes documentos obrigatórios (Itens 05 a 09):\n\n` +
+                `📋 *CHECKLIST OBRIGATÓRIO PF (05 A 09):*\n` +
+                `• *05.* Comprovante de ocupação lícita ou aposentadoria\n` +
+                `• *06.* Comprovante de residência fixa atualizado\n` +
+                `• *07.* Comprovante de segundo endereço para guarda do acervo (se aplicável)\n` +
+                `• *08.* Laudo de capacidade técnica para o manuseio de arma de fogo\n` +
+                `• *09.* Laudo de aptidão psicológica para o manuseio de arma de fogo\n\n` +
+                `Por favor, acesse novamente seu link exclusivo para anexar as fotos ou PDFs desses documentos. Assim que anexados, nossa equipe e o Agente de IA farão a conferência final!`
+            );
+            
+            if (clientPhone) {
+                // Abre o WhatsApp para o cliente com a instrução exata dos itens 05 a 09
+                window.open(`https://wa.me/55${clientPhone}?text=${msg}`, '_blank');
+            }
+            showToast('✅ Cadastro enviado! Notificação e guia de documentos gerados.');
         }
 
         function onCepInput(val) {
