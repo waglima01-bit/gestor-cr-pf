@@ -158,16 +158,22 @@
                 </div>
             </div>
 
-            <!-- Lista de Clientes -->
+            <!-- Lista de Clientes & Botão de Atualizar -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70">
                     <div>
                         <h2 class="text-base font-bold text-slate-800">Processos & Clientes Cadastrados</h2>
                         <p class="text-xs text-slate-500">Gerencie cadastros SINARM / SINARM-CAC, gere minutas oficiais PF e acione o Agente de IA.</p>
                     </div>
-                    <div class="relative w-full sm:w-72">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
-                        <input type="text" id="search-input" onkeyup="filterClients()" placeholder="Buscar por nome ou CPF..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+                    <div class="flex items-center gap-2">
+                        <button onclick="refreshDashboardData()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors border border-slate-300 shadow-sm" title="Atualizar lista de cadastros recebidos">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-blue-600"></i>
+                            <span>Atualizar Lista</span>
+                        </button>
+                        <div class="relative w-full sm:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                            <input type="text" id="search-input" onkeyup="filterClients()" placeholder="Buscar por nome ou CPF..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+                        </div>
                     </div>
                 </div>
 
@@ -929,18 +935,21 @@
             const dispatcherActions = document.getElementById('dispatcher-only-portal-actions');
             const clientSaveBar = document.getElementById('client-only-save-bar');
             const dispatcherDriveBar = document.getElementById('dispatcher-drive-sync-bar');
+            const btnBackDashboard = document.getElementById('btn-back-dashboard');
 
             if (isClientLink) {
-                // Restrição estrita para o cliente final: ocultar cabeçalho, minutas PF, botões de despachante e o botão de envio ao drive
+                // Restrição estrita para o cliente final: ocultar cabeçalho, minutas PF, botão de voltar ao painel e botões de despachante
                 if (appHeader) appHeader.style.display = 'none';
                 if (item3) item3.style.display = 'none';
                 if (dispatcherActions) dispatcherActions.style.display = 'none';
+                if (btnBackDashboard) btnBackDashboard.style.display = 'none';
                 if (clientSaveBar) clientSaveBar.style.display = 'block';
                 if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'none';
             } else {
                 if (appHeader) appHeader.style.display = 'block';
                 if (item3) item3.style.display = 'block';
                 if (dispatcherActions) dispatcherActions.style.display = 'flex';
+                if (btnBackDashboard) btnBackDashboard.style.display = 'flex';
                 if (clientSaveBar) clientSaveBar.style.display = 'none';
                 if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'flex';
             }
@@ -1009,7 +1018,14 @@
             renderDashboard();
         }
 
+        function refreshDashboardData() {
+            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]') || [];
+            renderDashboard();
+            showToast('🔄 Lista de cadastros atualizada com sucesso!');
+        }
+
         function renderDashboard() {
+            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]') || [];
             const tbody = document.getElementById('clients-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
