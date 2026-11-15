@@ -1079,9 +1079,11 @@
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             if (notify) {
                 showToast('🚀 Ficha salva com sucesso!');
+                
+                // Salva silenciosamente se houver webhook configurado, sem pedir nada ao cliente
                 syncWithGoogleDriveQuiet(client);
 
-                // Disparo de confirmação automática e instruções dos itens 05 a 09 via WhatsApp para o cliente
+                // Disparo de confirmação automática e instruções dos itens 05 a 09 via WhatsApp para o cliente direto do seu notebook
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('novo-cadastro') || urlParams.get('client')) {
                     sendClientWelcomeWhatsApp(client);
@@ -1104,10 +1106,10 @@
             );
             
             if (clientPhone) {
-                // Abre o WhatsApp para o cliente com a instrução exata dos itens 05 a 09
+                // Dispara o WhatsApp diretamente do seu notebook/dispositivo através da API do WhatsApp web
                 window.open(`https://wa.me/55${clientPhone}?text=${msg}`, '_blank');
             }
-            showToast('✅ Cadastro enviado! Notificação e guia de documentos gerados.');
+            showToast('✅ Cadastro salvo com sucesso! Mensagem WhatsApp gerada.');
         }
 
         function onCepInput(val) {
