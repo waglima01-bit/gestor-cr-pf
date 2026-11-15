@@ -488,12 +488,13 @@
                             </h3>
                             <span id="checklist-counter" class="text-[11px] font-bold text-slate-500">0/5 Anexados</span>
                         </div>
-                        <p class="text-[11px] text-slate-500">O sistema converte automaticamente fotos (JPG/PNG) enviadas pelo cliente em arquivos PDF padronizados e unificados para o Google Drive.</p>
+                        <p class="text-[11px] text-slate-500">Você pode anexar vários arquivos ou fotos em cada item. O sistema converte automaticamente fotos em PDF padronizado.</p>
                         <div id="pf-checklist-container" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
                             <!-- Gerado dinamicamente via JS de 05 a 09 -->
                         </div>
                         
-                        <div class="pt-3 border-t border-slate-100 flex justify-end">
+                        <!-- Botão de Enviar ao Drive visível apenas para o Despachante -->
+                        <div id="dispatcher-drive-sync-bar" class="pt-3 border-t border-slate-100 flex justify-end">
                             <button onclick="syncWithGoogleDrive()" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 shadow">
                                 <i data-lucide="hard-drive" class="w-4 h-4"></i>
                                 <span>Enviar Anexos Atuais ao Google Drive (waglima01@gmail.com)</span>
@@ -927,17 +928,21 @@
             const item3 = document.getElementById('section-item-3-dispatcher');
             const dispatcherActions = document.getElementById('dispatcher-only-portal-actions');
             const clientSaveBar = document.getElementById('client-only-save-bar');
+            const dispatcherDriveBar = document.getElementById('dispatcher-drive-sync-bar');
 
             if (isClientLink) {
+                // Restrição estrita para o cliente final: ocultar cabeçalho, minutas PF, botões de despachante e o botão de envio ao drive
                 if (appHeader) appHeader.style.display = 'none';
                 if (item3) item3.style.display = 'none';
                 if (dispatcherActions) dispatcherActions.style.display = 'none';
                 if (clientSaveBar) clientSaveBar.style.display = 'block';
+                if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'none';
             } else {
                 if (appHeader) appHeader.style.display = 'block';
                 if (item3) item3.style.display = 'block';
                 if (dispatcherActions) dispatcherActions.style.display = 'flex';
                 if (clientSaveBar) clientSaveBar.style.display = 'none';
+                if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'flex';
             }
 
             if (dashboard) dashboard.classList.add('hidden');
@@ -1113,9 +1118,9 @@
                         <p class="text-[10px] text-slate-500">${fileInfo ? fileInfo.name : 'Padrão Drive: ' + item.standard}</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <input type="file" id="slot-file-${item.id}" onchange="handleSlotFileUpload(${item.id}, '${item.standard}', this)" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                        <input type="file" id="slot-file-${item.id}" multiple onchange="handleSlotFileUpload(${item.id}, '${item.standard}', this)" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
                         <label for="slot-file-${item.id}" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg cursor-pointer border border-slate-300 shadow-sm flex items-center gap-1">
-                            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-600"></i> ${fileInfo ? 'Converter/Substituir' : 'Enviar Foto/PDF'}
+                            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-600"></i> ${fileInfo ? 'Adicionar/Mudar Múltiplos' : 'Enviar Fotos/PDFs'}
                         </label>
                     </div>
                 `;
@@ -1129,30 +1134,32 @@
         }
 
         function handleSlotFileUpload(slotId, standardName, inputEl) {
-            const file = inputEl.files[0];
-            if (!file) return;
+            const files = inputEl.files;
+            if (!files || files.length === 0) return;
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                if (!client.files) client.files = {};
-                let mimeType = file.type || 'application/pdf';
-                let base64Data = e.target.result.split(',')[1];
+            // Processar múltiplos arquivos por item do checklist
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (!client.files) client.files = {};
+                    let mimeType = file.type || 'application/pdf';
+                    let base64Data = e.target.result.split(',')[1];
+                    const customName = files.length > 1 ? `${index + 1}_${standardName}` : standardName;
 
-                if (file.type.startsWith('image/')) {
-                    mimeType = 'application/pdf';
-                    showToast(`🤖 Agente IA: Foto convertida e padronizada em PDF oficial (${standardName})!`);
-                } else {
-                    showToast(`Documento ${standardName} anexado com sucesso!`);
-                }
+                    if (file.type.startsWith('image/')) {
+                        mimeType = 'application/pdf';
+                    }
 
-                client.files[slotId] = { name: file.name, standardizedName: standardName, mimeType: mimeType, base64: base64Data };
-                localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-                renderPFChecklist();
-                syncWithGoogleDriveQuiet(client);
-            };
-            reader.readAsDataURL(file);
+                    client.files[`${slotId}_${index}`] = { name: file.name, standardizedName: customName, mimeType: mimeType, base64: base64Data };
+                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                    renderPFChecklist();
+                    syncWithGoogleDriveQuiet(client);
+                };
+                reader.readAsDataURL(file);
+            });
+            showToast(`🤖 Agente IA: ${files.length} arquivo(s) processado(s) e unificados!`);
         }
 
         function syncWithGoogleDrive() {
@@ -1455,9 +1462,21 @@
         }
 
         function copyNewClientLink() {
-            const link = `${window.location.origin}${window.location.pathname}?novo-cadastro=true`;
-            navigator.clipboard.writeText(link);
-            showToast('Link limpo para novo cliente copiado para a área de transferência!');
+            // Garante o link limpo e correto baseado no domínio atual da aplicação
+            const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '');
+            const link = `${baseUrl}?novo-cadastro=true`;
+            
+            const tempInput = document.createElement('input');
+            tempInput.value = link;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                showToast('Link limpo para novo cliente copiado com sucesso!');
+            } catch (err) {
+                prompt('Copie o link do novo cliente abaixo:', link);
+            }
+            document.body.removeChild(tempInput);
         }
 
         function deleteClient(id) {
