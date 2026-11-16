@@ -105,6 +105,10 @@
                     <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-blue-400"></i>
                     <span>Google Drive</span>
                 </button>
+                <button onclick="openDispatcherSettingsModal()" class="text-xs flex items-center space-x-1.5 text-amber-300 hover:text-white bg-pf-800 hover:bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold" title="Configurar Telefone e E-mail do Despachante">
+                    <i data-lucide="user-cog" class="w-3.5 h-3.5"></i>
+                    <span>Meus Dados (Despachante)</span>
+                </button>
                 <button onclick="openDriveConfigModal()" class="text-xs flex items-center space-x-1 text-slate-300 hover:text-white bg-pf-800 p-1.5 rounded-lg border border-slate-600/50 transition-colors" title="Configurar API Google Drive">
                     <i data-lucide="settings" class="w-3.5 h-3.5"></i>
                 </button>
@@ -554,6 +558,35 @@
         </div>
     </div>
 
+    <!-- MODAL DE DADOS DO DESPACHANTE (PARA NOTIFICAÇÃO DO CLIENTE) -->
+    <div id="dispatcher-settings-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900">Configuração do Despachante (Notificações)</h3>
+                <button onclick="closeDispatcherSettingsModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <p class="text-slate-600 leading-relaxed">Estes dados são usados pelo sistema para que, quando o cliente concluir o cadastro no link, o alerta e o WhatsApp sejam direcionados corretamente para você.</p>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Seu Nome / Nome do Escritório *</label>
+                    <input type="text" id="disp-setting-name" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="Despachante CAC & SINARM">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Seu WhatsApp (com DDD para receber avisos) *</label>
+                    <input type="text" id="disp-setting-phone" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="33999999999" value="33999250819">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Seu E-mail (Recebimento de Cadastros) *</label>
+                    <input type="email" id="disp-setting-email" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="waglima01@gmail.com">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="closeDispatcherSettingsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button>
+                    <button onclick="saveDispatcherSettingsData()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold">Salvar Dados do Despachante</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE DADOS DA ARMA (ATUALIZADO PARA ANEXO I E TERMO DE DOAÇÃO) -->
     <div id="weapon-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -881,6 +914,36 @@
             renderDashboard();
         }
 
+        // Configurações do Despachante
+        function getDispatcherConfig() {
+            return JSON.parse(localStorage.getItem('pf_dispatcher_config_v1') || JSON.stringify({
+                name: 'Despachante CAC & SINARM',
+                phone: '33999250819',
+                email: 'waglima01@gmail.com'
+            }));
+        }
+
+        function openDispatcherSettingsModal() {
+            const cfg = getDispatcherConfig();
+            document.getElementById('disp-setting-name').value = cfg.name;
+            document.getElementById('disp-setting-phone').value = cfg.phone;
+            document.getElementById('disp-setting-email').value = cfg.email;
+            document.getElementById('dispatcher-settings-modal').classList.remove('hidden');
+        }
+
+        function closeDispatcherSettingsModal() {
+            document.getElementById('dispatcher-settings-modal').classList.add('hidden');
+        }
+
+        function saveDispatcherSettingsData() {
+            const name = document.getElementById('disp-setting-name').value.trim();
+            const phone = document.getElementById('disp-setting-phone').value.trim();
+            const email = document.getElementById('disp-setting-email').value.trim();
+            localStorage.setItem('pf_dispatcher_config_v1', JSON.stringify({ name, phone, email }));
+            closeDispatcherSettingsModal();
+            showToast('✅ Configurações do despachante salvas com sucesso!');
+        }
+
         // Capturar dados transmitidos via URL (Payload Base64) ou Webhook Google Drive
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
@@ -1153,6 +1216,7 @@
             syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: client });
 
             if (notify) {
+                const dispCfg = getDispatcherConfig();
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('novo-cadastro') || urlParams.get('client') || urlParams.get('payload')) {
                     const payloadStr = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(client)))));
@@ -1168,7 +1232,7 @@
                     } catch(e) {}
                     document.body.removeChild(tempInput);
 
-                    alert('Cadastro concluído com sucesso! Seus dados foram salvos. Clique em OK para notificar seu despachante.');
+                    alert(`Cadastro concluído com sucesso!\n\nSeus dados foram enviados para o despachante (${dispCfg.name} - E-mail: ${dispCfg.email}). Clique em OK para finalizar.`);
                     
                     // Redirecionar com payload para ingestão automática no painel do despachante
                     window.location.href = returnUrl;
