@@ -517,6 +517,22 @@
                 </div>
             </div>
         </section>
+
+        <!-- TELA DE SUCESSO DO CLIENTE (NÃO ABRE O PAINEL DO DESPACHANTE) -->
+        <section id="client-success-screen" class="hidden max-w-xl mx-auto py-12 px-6 bg-white rounded-3xl shadow-xl border border-slate-200 text-center space-y-6 mt-10">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <i data-lucide="check-circle-2" class="w-10 h-10"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-2xl font-extrabold text-slate-900">Cadastro Concluído com Sucesso!</h2>
+                <p class="text-sm text-slate-600 leading-relaxed">Seus dados e documentos obrigatórios (itens 05 a 09) foram transmitidos com segurança para o escritório do despachante (<span id="success-disp-name" class="font-bold">Despachante CAC & SINARM</span>).</p>
+            </div>
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-700 space-y-1">
+                <p class="font-bold text-slate-900">Próximos Passos:</p>
+                <p>O despachante irá conferir a documentação e iniciar o protocolo junto à Polícia Federal. Você receberá atualizações em breve via WhatsApp ou E-mail.</p>
+            </div>
+            <p class="text-xs text-slate-400">Você já pode fechar esta página com segurança.</p>
+        </section>
     </main>
 
     <!-- MODAL DE PRÉ-VISUALIZAÇÃO / IMPRESSÃO -->
@@ -954,14 +970,12 @@
                     upsertClient(decodedClient);
                     syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: decodedClient });
                     
-                    // Salvar também no localStorage global compartilhado
                     let allClients = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
                     let idx = allClients.findIndex(c => c.id === decodedClient.id || c.cpf === decodedClient.cpf);
                     if (idx >= 0) allClients[idx] = decodedClient;
                     else allClients.push(decodedClient);
                     localStorage.setItem('pf_cr_clients_v3', JSON.stringify(allClients));
 
-                    // Disparar Webhook para o Google Apps Script para salvar o cadastro em nuvem para o despachante
                     const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
                     if (webhookUrl) {
                         fetch(webhookUrl, {
@@ -1207,7 +1221,6 @@
             const selCaliber = document.getElementById('field-selectedCaliber');
             if (selCaliber) client.selectedCaliber = selCaliber.value;
 
-            // Salvar na lista local e no localStorage compartilhado
             let existingIndex = clientsData.findIndex(c => c.id === client.id);
             if (existingIndex >= 0) clientsData[existingIndex] = client;
             else clientsData.push(client);
@@ -1220,22 +1233,30 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('novo-cadastro') || urlParams.get('client') || urlParams.get('payload')) {
                     const payloadStr = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(client)))));
-                    const returnUrl = window.location.origin + window.location.pathname + '?payload=' + payloadStr;
                     
-                    // Copiar link de retorno para o despachante e instruir
-                    const tempInput = document.createElement('textarea');
-                    tempInput.value = returnUrl;
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
-                    try {
-                        document.execCommand('copy');
-                    } catch(e) {}
-                    document.body.removeChild(tempInput);
+                    // Disparar Webhook para o Google Apps Script para salvar o cadastro em nuvem para o despachante e enviar e-mail automático
+                    const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
+                    if (webhookUrl) {
+                        fetch(webhookUrl, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'register', client: client, sendEmail: true })
+                        }).catch(() => {});
+                    }
 
-                    alert(`Cadastro concluído com sucesso!\n\nSeus dados foram enviados para o despachante (${dispCfg.name} - E-mail: ${dispCfg.email}). Clique em OK para finalizar.`);
-                    
-                    // Redirecionar com payload para ingestão automática no painel do despachante
-                    window.location.href = returnUrl;
+                    // Exibir tela de sucesso elegante para o cliente (sem abrir o painel do despachante)
+                    const portal = document.getElementById('client-portal');
+                    const successScreen = document.getElementById('client-success-screen');
+                    if (portal) portal.classList.add('hidden');
+                    if (successScreen) {
+                        successScreen.classList.remove('hidden');
+                        const dispNameEl = document.getElementById('success-disp-name');
+                        if (dispNameEl) dispNameEl.innerText = dispCfg.name;
+                    }
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons();
+                    }
                 } else {
                     showToast('🚀 Ficha salva com sucesso! Sincronizada no painel.');
                 }
