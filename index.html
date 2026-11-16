@@ -885,7 +885,7 @@
             const clientPayload = params.get('payload');
             if (clientPayload) {
                 try {
-                    const decodedClient = JSON.parse(atob(clientPayload));
+                    const decodedClient = JSON.parse(atob(decodeURIComponent(clientPayload)));
                     let existingIndex = clientsData.findIndex(c => c.id === decodedClient.id || c.cpf === decodedClient.cpf);
                     if (existingIndex >= 0) {
                         clientsData[existingIndex] = decodedClient;
@@ -897,9 +897,11 @@
                     // Disparar transmissão para outros aparelhos abertos
                     syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: decodedClient });
 
-                    showToast('📥 Novo cadastro de cliente recebido e sincronizado com sucesso!');
+                    showToast('📥 Novo cadastro de cliente recebido e sincronizado com sucesso no painel!');
                     window.history.replaceState({}, document.title, window.location.pathname);
-                } catch(e) {}
+                } catch(e) {
+                    console.error("Erro ao decodificar payload do cliente", e);
+                }
             }
         });
 
@@ -1139,10 +1141,10 @@
             if (notify) {
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('novo-cadastro') || urlParams.get('client') || urlParams.get('payload')) {
-                    const payloadStr = btoa(unescape(encodeURIComponent(JSON.stringify(client))));
-                    const returnUrl = window.location.origin + window.location.pathname + '?payload=' + encodeURIComponent(payloadStr);
+                    const payloadStr = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(client)))));
+                    const returnUrl = window.location.origin + window.location.pathname + '?payload=' + payloadStr;
                     
-                    alert('Cadastro concluído com sucesso! Seus dados foram enviados ao seu despachante.');
+                    alert('Cadastro concluído com sucesso! Clique em OK para enviar os dados ao seu despachante.');
                     
                     const tempInput = document.createElement('textarea');
                     tempInput.value = returnUrl;
