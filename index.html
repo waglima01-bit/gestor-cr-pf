@@ -570,7 +570,7 @@
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
         }
 
-        // Recupera dados que possam ter vindo via URL de retorno (payload criptografado/codificado)
+        // Tratamento seguro de payload de retorno por URL (sem duplicar se já existir o mesmo CPF)
         const urlParams = new URLSearchParams(window.location.search);
         const payloadData = urlParams.get('payload');
         if (payloadData) {
@@ -757,14 +757,12 @@
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client || !client.fullname || !client.cpf) { showToast('⚠️ Preencha seu Nome e CPF.'); return; }
 
-            // Gera link de retorno com payload codificado para garantir que o notebook receba ao clicar
             const encodedPayload = btoa(JSON.stringify(client));
             const returnUrl = `${window.location.origin + window.location.pathname.replace(/\/$/, '')}?payload=${encodedPayload}`;
             
             const dispCfg = getDispatcherConfig();
             const msg = `Olá *${dispCfg.name}*! Concluí meu cadastro no Portal PF.\n\n👤 *Nome:* ${client.fullname}\n🆔 *CPF:* ${client.cpf}\n📱 *Tel:* ${client.phone}\n🔫 *Arma:* ${client.selectedWeapon} (${client.selectedCaliber})\n\n🔗 *Clique no link abaixo para importar meu cadastro direto para o seu painel:* \n${returnUrl}`;
 
-            // Dispara webhook se houver
             const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
             if (webhookUrl) {
                 fetch(webhookUrl, {
@@ -773,7 +771,6 @@
                 }).catch(() => {});
             }
 
-            // Abre WhatsApp do despachante instantaneamente no dispositivo do cliente para garantir entrega ao notebook
             const waUrl = `https://wa.me/55${dispCfg.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
 
@@ -958,9 +955,22 @@
         window.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
             const p = new URLSearchParams(window.location.search);
-            if (p.get('client')) openClientPortal(p.get('client'));
-            else if (p.get('novo-cadastro')) createNewClient();
-            else renderDashboard();
+            if (p.get('client')) {
+                openClientPortal(p.get('client'));
+            } else if (p.get('novo-cadastro')) {
+                // Impede recriação infinita caso a página seja atualizada no celular
+                let currentLinkClient = localStorage.getItem('pf_current_link_client_id');
+                if (!currentLinkClient) {
+                    currentLinkClient = 'cli_link_' + Date.now();
+                    localStorage.setItem('pf_current_link_client_id', currentLinkClient);
+                    const nc = { id: currentLinkClient, fullname: '', cpf: '', phone: '', email: '', serviceType: 'Concessão de CR (Atirador)', selectedWeapon: '', selectedCaliber: '', files: {} };
+                    clientsData.push(nc);
+                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                }
+                openClientPortal(currentLinkClient);
+            } else {
+                renderDashboard();
+            }
         });
     </script>
 </body>
