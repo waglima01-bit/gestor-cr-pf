@@ -1144,7 +1144,7 @@
             const selCaliber = document.getElementById('field-selectedCaliber');
             if (selCaliber) client.selectedCaliber = selCaliber.value;
 
-            // Salvar na lista local e no localStorage
+            // Salvar na lista local e no localStorage compartilhado
             let existingIndex = clientsData.findIndex(c => c.id === client.id);
             if (existingIndex >= 0) clientsData[existingIndex] = client;
             else clientsData.push(client);
@@ -1158,8 +1158,7 @@
                     const payloadStr = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(client)))));
                     const returnUrl = window.location.origin + window.location.pathname + '?payload=' + payloadStr;
                     
-                    alert('Cadastro concluído com sucesso! Clique em OK para enviar os dados ao seu despachante.');
-                    
+                    // Copiar link de retorno para o despachante e instruir
                     const tempInput = document.createElement('textarea');
                     tempInput.value = returnUrl;
                     document.body.appendChild(tempInput);
@@ -1169,6 +1168,9 @@
                     } catch(e) {}
                     document.body.removeChild(tempInput);
 
+                    alert('Cadastro concluído com sucesso! Seus dados foram salvos. Clique em OK para notificar seu despachante.');
+                    
+                    // Redirecionar com payload para ingestão automática no painel do despachante
                     window.location.href = returnUrl;
                 } else {
                     showToast('🚀 Ficha salva com sucesso! Sincronizada no painel.');
