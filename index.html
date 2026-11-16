@@ -226,7 +226,6 @@
                         <span>Salvar Ficha</span>
                     </button>
                 </div>
-                <!-- Botão superior oculto para o cliente conforme diretriz -->
                 <div id="client-only-save-bar" class="hidden"></div>
             </div>
 
@@ -855,20 +854,12 @@
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
         }
 
-        // Canal de Sincronização em Tempo Real entre Dispositivos (BroadcastChannel / Storage Sync)
+        // Canal de Sincronização em Tempo Real (BroadcastChannel + Cloud Webhook Sync)
         const syncChannel = new BroadcastChannel('pf_cr_sync_channel');
         syncChannel.onmessage = function(event) {
             if (event.data && event.data.type === 'NEW_CLIENT_SUBMISSION') {
                 const incomingClient = event.data.client;
-                let existingIndex = clientsData.findIndex(c => c.id === incomingClient.id || c.cpf === incomingClient.cpf);
-                if (existingIndex >= 0) {
-                    clientsData[existingIndex] = incomingClient;
-                } else {
-                    clientsData.push(incomingClient);
-                }
-                localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-                showToast('📥 Novo cadastro de cliente recebido em tempo real!');
-                renderDashboard();
+                upsertClient(incomingClient);
             }
         };
 
@@ -879,25 +870,39 @@
             }
         });
 
-        // Capturar dados transmitidos via URL se o cliente concluiu o cadastro por link externo
+        function upsertClient(client) {
+            let existingIndex = clientsData.findIndex(c => c.id === client.id || (c.cpf && c.cpf === client.cpf));
+            if (existingIndex >= 0) {
+                clientsData[existingIndex] = client;
+            } else {
+                clientsData.push(client);
+            }
+            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            renderDashboard();
+        }
+
+        // Capturar dados transmitidos via URL (Payload Base64) ou Webhook Google Drive
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const clientPayload = params.get('payload');
             if (clientPayload) {
                 try {
                     const decodedClient = JSON.parse(atob(decodeURIComponent(clientPayload)));
-                    let existingIndex = clientsData.findIndex(c => c.id === decodedClient.id || c.cpf === decodedClient.cpf);
-                    if (existingIndex >= 0) {
-                        clientsData[existingIndex] = decodedClient;
-                    } else {
-                        clientsData.push(decodedClient);
-                    }
-                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-                    
-                    // Disparar transmissão para outros aparelhos abertos
+                    upsertClient(decodedClient);
                     syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: decodedClient });
+                    
+                    // Disparar Webhook para o Google Apps Script para salvar o cadastro em nuvem para o despachante
+                    const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
+                    if (webhookUrl) {
+                        fetch(webhookUrl, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'register', client: decodedClient })
+                        }).catch(() => {});
+                    }
 
-                    showToast('📥 Novo cadastro de cliente recebido e sincronizado com sucesso no painel!');
+                    showToast('📥 Novo cadastro de cliente recebido e sincronizado no painel!');
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } catch(e) {
                     console.error("Erro ao decodificar payload do cliente", e);
@@ -993,14 +998,13 @@
             const clientBottomSubmit = document.getElementById('client-bottom-submit-container');
 
             if (isClientLink) {
-                // Restrição estrita para o cliente final: ocultar cabeçalho, minutas PF, botão de voltar ao painel e botões de despachante
                 if (appHeader) appHeader.style.display = 'none';
                 if (item3) item3.style.display = 'none';
                 if (dispatcherActions) dispatcherActions.style.display = 'none';
                 if (btnBackDashboard) btnBackDashboard.style.display = 'none';
                 if (clientSaveBar) clientSaveBar.style.display = 'none';
                 if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'none';
-                if (clientBottomSubmit) clientBottomSubmit.style.display = 'block'; // Exibe o botão concluir no final
+                if (clientBottomSubmit) clientBottomSubmit.style.display = 'block';
             } else {
                 if (appHeader) appHeader.style.display = 'block';
                 if (item3) item3.style.display = 'block';
@@ -1134,8 +1138,6 @@
             if (selCaliber) client.selectedCaliber = selCaliber.value;
 
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            
-            // Sincronizar via BroadcastChannel para aparelhos na mesma rede / sessão
             syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: client });
 
             if (notify) {
@@ -1160,29 +1162,6 @@
                     showToast('🚀 Ficha salva com sucesso! Sincronizada no painel.');
                 }
             }
-        }
-
-        function triggerDispatcherWhatsAppForClient(clientId) {
-            const client = clientsData.find(c => c.id === clientId);
-            if (!client || !client.phone) {
-                showToast('Telefone do cliente não cadastrado.');
-                return;
-            }
-            const clientPhone = client.phone.replace(/\D/g, '');
-            const msg = encodeURIComponent(
-                `Olá *${client.fullname || 'Prezado(a)'}*! Aqui é do setor de Atendimento e Assessoria Bélica. Recebemos seu preenchimento de cadastro para o processo de *${client.serviceType || 'Concessão de CR / SINARM'}*.\n\n` +
-                `Para darmos andamento imediato ao seu processo perante a Polícia Federal, você deverá providenciar exclusivamente os seguintes documentos obrigatórios (Itens 05 a 09):\n\n` +
-                `📋 *CHECKLIST OBRIGATÓRIO PF (05 A 09):*\n` +
-                `• *05.* Comprovante de ocupação lícita ou aposentadoria\n` +
-                `• *06.* Comprovante de residência fixa atualizado\n` +
-                `• *07.* Comprovante de segundo endereço para guarda do acervo (se aplicável)\n` +
-                `• *08.* Laudo de capacidade técnica para o manuseio de arma de fogo\n` +
-                `• *09.* Laudo de aptidão psicológica para o manuseio de arma de fogo\n\n` +
-                `Por favor, envie fotos ou PDFs legíveis desses documentos respondendo a esta mensagem ou através do seu link exclusivo!`
-            );
-            // Dispara diretamente do seu WhatsApp (notebook)
-            window.open(`https://wa.me/55${clientPhone}?text=${msg}`, '_blank');
-            showToast('📲 WhatsApp de cobrança do checklist disparado do seu número!');
         }
 
         function onCepInput(val) {
@@ -1257,7 +1236,6 @@
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
 
-            // Processar múltiplos arquivos por item do checklist
             Array.from(files).forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
