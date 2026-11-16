@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor CR & SINARM-CAC | Polícia Federal</title>
+    <title>GESTOR CR & SINARM-CAC Pro | Polícia Federal & Exército</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter -->
@@ -42,30 +42,27 @@
                 </div>
                 <div>
                     <div class="flex items-center space-x-2">
-                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">GESTOR CR & SINARM-CAC</h1>
-                        <span class="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">Portal PF / Gov.br</span>
+                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">GESTOR CR & SINARM-CAC Pro</h1>
+                        <span class="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">Portaria COLOG / PF</span>
                     </div>
                     <p class="text-[11px] text-slate-400">Assessoria Bélica, Concessão de CR, Posse, Porte & Transferências</p>
                 </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <button onclick="copyNewClientLink()" class="text-xs flex items-center space-x-1.5 text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-500/40 transition-colors font-semibold" title="Copiar Link de Registro Automático para o Cliente">
+                <button onclick="copyNewClientLink()" class="text-xs flex items-center space-x-1.5 text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-500/40 transition-colors font-semibold" title="Copiar Link de Registro para o Cliente">
                     <i data-lucide="link" class="w-3.5 h-3.5"></i>
                     <span>Link Novo Cliente</span>
                 </button>
-                <button onclick="syncWithGoogleDrive()" class="text-xs flex items-center space-x-1.5 text-blue-300 hover:text-white bg-pf-800 hover:bg-blue-900/50 px-3 py-1.5 rounded-lg border border-blue-500/40 transition-colors font-semibold" title="Salvar Pasta do Cliente no Google Drive (waglima01@gmail.com)">
+                <button onclick="syncWithGoogleDrive()" class="text-xs flex items-center space-x-1.5 text-blue-300 hover:text-white bg-pf-800 hover:bg-blue-900/50 px-3 py-1.5 rounded-lg border border-blue-500/40 transition-colors font-semibold" title="Google Drive (waglima01@gmail.com)">
                     <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-blue-400"></i>
                     <span>Google Drive</span>
                 </button>
-                <button onclick="openDispatcherSettingsModal()" class="text-xs flex items-center space-x-1.5 text-amber-300 hover:text-white bg-pf-800 hover:bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold" title="Configurar Telefone e E-mail do Despachante">
+                <button onclick="openDispatcherSettingsModal()" class="text-xs flex items-center space-x-1.5 text-amber-300 hover:text-white bg-pf-800 hover:bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold">
                     <i data-lucide="user-cog" class="w-3.5 h-3.5"></i>
                     <span>Meus Dados</span>
                 </button>
-                <button onclick="openDriveConfigModal()" class="text-xs flex items-center space-x-1 text-slate-300 hover:text-white bg-pf-800 p-1.5 rounded-lg border border-slate-600/50 transition-colors" title="Configurar API Google Drive">
-                    <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                </button>
-                <button onclick="openAIAgentModal()" class="text-xs flex items-center space-x-1.5 text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 px-3 py-1.5 rounded-lg border border-indigo-400/50 shadow-sm transition-all font-semibold" title="Agente de IA Técnico & Consultor WhatsApp">
+                <button onclick="openAIAgentModal()" class="text-xs flex items-center space-x-1.5 text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 px-3 py-1.5 rounded-lg border border-indigo-400/50 shadow-sm transition-all font-semibold">
                     <i data-lucide="bot" class="w-3.5 h-3.5 text-amber-300"></i>
                     <span>Agente IA & WhatsApp</span>
                 </button>
@@ -115,17 +112,17 @@
                 </div>
             </div>
 
-            <!-- Lista de Clientes & Sincronização Cloud -->
+            <!-- Lista de Clientes & Sincronização Automática em Nuvem -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70">
                     <div>
-                        <h2 class="text-base font-bold text-slate-800">Processos & Clientes Cadastrados</h2>
-                        <p class="text-xs text-slate-500">Cadastros preenchidos via link chegam automaticamente em tempo real.</p>
+                        <h2 class="text-base font-bold text-slate-800">Processos & Clientes Cadastrados (Central do Notebook)</h2>
+                        <p class="text-xs text-slate-500">Cadastros preenchidos via link pelos clientes entram automaticamente aqui.</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="fetchCloudSubmissions()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm" title="Baixar cadastros da nuvem do Google Apps Script">
+                        <button onclick="fetchCloudSubmissions()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm" title="Baixar cadastros da nuvem">
                             <i data-lucide="cloud-download" class="w-3.5 h-3.5"></i>
-                            <span>☁️ Sincronizar Central</span>
+                            <span>☁️ Sincronizar Nuvem</span>
                         </button>
                         <button onclick="refreshDashboardData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
@@ -166,7 +163,7 @@
                     </button>
                     <div>
                         <h2 id="portal-client-title" class="text-sm sm:text-base font-extrabold text-slate-900">Ficha Cadastral SINARM / Portal PF</h2>
-                        <p class="text-xs text-slate-500">Preencha os dados e anexe os documentos oficiais exigidos pela Polícia Federal.</p>
+                        <p class="text-xs text-slate-500">Preencha seus dados e anexe os documentos obrigatórios exigidos pela Polícia Federal.</p>
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2" id="dispatcher-only-portal-actions">
@@ -454,7 +451,7 @@
                 <p class="text-sm text-slate-600">Suas informações e documentos obrigatórios foram transmitidos para <span id="success-disp-name" class="font-bold">Despachante CAC</span>.</p>
             </div>
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-900 font-semibold space-y-1">
-                <p>✅ O despachante já recebeu sua ficha em tempo real na central.</p>
+                <p>✅ O despachante já recebeu sua ficha em tempo real na central do notebook.</p>
                 <p>Você já pode fechar esta página com segurança.</p>
             </div>
         </section>
@@ -474,25 +471,6 @@
         </div>
     </div>
 
-    <div id="drive-config-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-base text-slate-900">Configuração Google Drive (waglima01@gmail.com)</h3>
-                <button onclick="closeDriveConfigModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">URL do Web App (Google Apps Script) *</label>
-                    <input type="text" id="drive-webhook-url-input" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono text-[11px]" placeholder="https://script.google.com/macros/s/.../exec">
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button onclick="closeDriveConfigModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button>
-                    <button onclick="saveDriveWebhookUrl()" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold">Salvar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="dispatcher-settings-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -503,6 +481,7 @@
                 <div><label class="block font-bold text-slate-700 mb-1">Nome *</label><input type="text" id="disp-setting-name" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="Despachante CAC"></div>
                 <div><label class="block font-bold text-slate-700 mb-1">WhatsApp *</label><input type="text" id="disp-setting-phone" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="33999250819"></div>
                 <div><label class="block font-bold text-slate-700 mb-1">E-mail *</label><input type="email" id="disp-setting-email" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="waglima01@gmail.com"></div>
+                <div><label class="block font-bold text-slate-700 mb-1">Webhook URL (Google Apps Script / Supabase)</label><input type="text" id="disp-setting-webhook" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono text-[11px]" placeholder="https://script.google.com/macros/s/.../exec"></div>
                 <div class="flex justify-end gap-2 pt-2"><button onclick="closeDispatcherSettingsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button><button onclick="saveDispatcherSettingsData()" class="px-4 py-2 bg-amber-600 text-white rounded-xl font-bold">Salvar</button></div>
             </div>
         </div>
@@ -561,16 +540,16 @@
 
     <!-- SCRIPT CORE -->
     <script>
-        let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
+        let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v4') || '[]');
         if (clientsData.length === 0) {
             clientsData = [
                 { id: 'cli_1', fullname: 'JARDEL MESQUITA', cpf: '087.781.426-01', birthdate: '1985-06-15', rg: '1234567', rgIssuer: 'PC MG', rgDate: '2010-01-01', voterId: '000000000000', maritalStatus: 'Solteiro(a)', birthCity: 'GOVERNADOR VALADARES', birthState: 'MINAS GERAIS', fatherName: 'PAI', motherName: 'MAE', profession: 'EMPRESÁRIO', phone: '33988650173', email: 'waglima01@gmail.com', serviceType: 'Concessão de CR (Atirador)', cep: '35010000', street: 'RUA AFONSO PENA', number: '100', neighborhood: 'CENTRO', city: 'GOVERNADOR VALADARES', state: 'MG', selectedWeapon: 'Pistola Taurus G2C', selectedCaliber: '.38 TPC', files: {} },
                 { id: 'cli_2', fullname: 'MANOEL MESSIAS DO ESPIRITO SANTO', cpf: '055.131.656-00', birthdate: '1978-03-09', rg: '9143092', rgIssuer: 'PC MG', rgDate: '2015-05-10', voterId: '144442090248', maritalStatus: 'Casado(a)', birthCity: 'TARUMIRIM', birthState: 'MINAS GERAIS', fatherName: 'VIVALDO', motherName: 'MARIA', profession: 'VIGILANTE', phone: '33999250819', email: 'waglima01@gmail.com', serviceType: 'Transferência SIGMA -> SINARM', cep: '35010000', street: 'RUA AFONSO PENA', number: '2230', neighborhood: 'CENTRO', city: 'GOVERNADOR VALADARES', state: 'MG', selectedWeapon: 'Pistola Taurus G2C', selectedCaliber: '.38 TPC', files: {} }
             ];
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
         }
 
-        // Tratamento seguro de payload de retorno por URL (sem duplicar se já existir o mesmo CPF)
+        // Auto-sincronização por URL Payload recebida do cliente
         const urlParams = new URLSearchParams(window.location.search);
         const payloadData = urlParams.get('payload');
         if (payloadData) {
@@ -583,13 +562,13 @@
                     } else {
                         clientsData.push(decodedClient);
                     }
-                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                    localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
                 }
             } catch(e) {}
         }
 
         function getDispatcherConfig() {
-            return JSON.parse(localStorage.getItem('pf_dispatcher_config_v1') || JSON.stringify({ name: 'Despachante CAC', phone: '33999250819', email: 'waglima01@gmail.com' }));
+            return JSON.parse(localStorage.getItem('pf_dispatcher_config_v2') || JSON.stringify({ name: 'Despachante CAC', phone: '33999250819', email: 'waglima01@gmail.com', webhook: '' }));
         }
 
         function openDispatcherSettingsModal() {
@@ -597,14 +576,16 @@
             document.getElementById('disp-setting-name').value = cfg.name;
             document.getElementById('disp-setting-phone').value = cfg.phone;
             document.getElementById('disp-setting-email').value = cfg.email;
+            document.getElementById('disp-setting-webhook').value = cfg.webhook || '';
             document.getElementById('dispatcher-settings-modal').classList.remove('hidden');
         }
         function closeDispatcherSettingsModal() { document.getElementById('dispatcher-settings-modal').classList.add('hidden'); }
         function saveDispatcherSettingsData() {
-            localStorage.setItem('pf_dispatcher_config_v1', JSON.stringify({
+            localStorage.setItem('pf_dispatcher_config_v2', JSON.stringify({
                 name: document.getElementById('disp-setting-name').value,
                 phone: document.getElementById('disp-setting-phone').value,
-                email: document.getElementById('disp-setting-email').value
+                email: document.getElementById('disp-setting-email').value,
+                webhook: document.getElementById('disp-setting-webhook').value.trim()
             }));
             closeDispatcherSettingsModal();
             showToast('✅ Configurações salvas!');
@@ -630,7 +611,7 @@
         function createNewClient() {
             const nc = { id: 'cli_' + Date.now(), fullname: '', cpf: '', phone: '', email: '', serviceType: 'Concessão de CR (Atirador)', selectedWeapon: '', selectedCaliber: '', files: {} };
             clientsData.push(nc);
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
             openClientPortal(nc.id);
         }
 
@@ -681,21 +662,21 @@
         }
 
         function refreshDashboardData() {
-            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
+            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v4') || '[]');
             renderDashboard();
             showToast('🔄 Lista atualizada!');
         }
 
         function fetchCloudSubmissions() {
-            const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
-            if (!webhookUrl) { openDriveConfigModal(); showToast('Configure a URL do Webhook primeiro.'); return; }
-            showToast('☁️ Consultando nuvem...');
-            fetch(webhookUrl + '?action=get_submissions')
+            const cfg = getDispatcherConfig();
+            if (!cfg.webhook) { openDispatcherSettingsModal(); showToast('Configure a URL do Webhook nas Configurações.'); return; }
+            showToast('☁️ Sincronizando com a nuvem...');
+            fetch(cfg.webhook + '?action=get_submissions')
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.clients && Array.isArray(data.clients)) {
                         clientsData = data.clients;
-                        localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                        localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
                         renderDashboard();
                         showToast(`✅ Sincronizados ${clientsData.length} cadastros!`);
                     } else { showToast('ℹ️ Nenhum cadastro novo.'); }
@@ -703,7 +684,7 @@
         }
 
         function renderDashboard() {
-            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
+            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v4') || '[]');
             const tbody = document.getElementById('clients-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
@@ -748,7 +729,7 @@
 
             const idx = clientsData.findIndex(c => c.id === client.id);
             if (idx >= 0) clientsData[idx] = client; else clientsData.push(client);
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
             if (notify) showToast('🚀 Ficha salva!');
         }
 
@@ -763,9 +744,8 @@
             const dispCfg = getDispatcherConfig();
             const msg = `Olá *${dispCfg.name}*! Concluí meu cadastro no Portal PF.\n\n👤 *Nome:* ${client.fullname}\n🆔 *CPF:* ${client.cpf}\n📱 *Tel:* ${client.phone}\n🔫 *Arma:* ${client.selectedWeapon} (${client.selectedCaliber})\n\n🔗 *Clique no link abaixo para importar meu cadastro direto para o seu painel:* \n${returnUrl}`;
 
-            const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
-            if (webhookUrl) {
-                fetch(webhookUrl, {
+            if (dispCfg.webhook) {
+                fetch(dispCfg.webhook, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'register', firstLetter: client.fullname.charAt(0).toUpperCase(), clientName: client.fullname, client: client, files: Object.values(client.files || {}) })
                 }).catch(() => {});
@@ -846,7 +826,7 @@
                 reader.onload = function(e) {
                     if (!client.files) client.files = {};
                     client.files[`${slotId}_${index}`] = { name: file.name, standardizedName: files.length > 1 ? `${index+1}_${standardName}` : standardName, mimeType: file.type || 'application/pdf', base64: e.target.result.split(',')[1] };
-                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                    localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
                     renderPFChecklist();
                 };
                 reader.readAsDataURL(file);
@@ -855,24 +835,16 @@
         }
 
         function syncWithGoogleDrive() {
-            const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
-            if (!webhookUrl) { openDriveConfigModal(); showToast('Configure o Webhook do Drive.'); return; }
+            const cfg = getDispatcherConfig();
+            if (!cfg.webhook) { openDispatcherSettingsModal(); showToast('Configure o Webhook nas Configurações.'); return; }
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client || !client.fullname) { showToast('Preencha o nome do cliente.'); return; }
 
             showToast('🔄 Sincronizando com o Google Drive...');
-            fetch(webhookUrl, {
+            fetch(cfg.webhook, {
                 method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'register', firstLetter: client.fullname.charAt(0).toUpperCase(), clientName: client.fullname, client: client, files: Object.values(client.files || {}) })
             }).then(() => showToast('✅ Sincronizado com o Google Drive!')).catch(() => showToast('⚠️ Erro ao enviar.'));
-        }
-
-        function openDriveConfigModal() { document.getElementById('drive-config-modal').classList.remove('hidden'); document.getElementById('drive-webhook-url-input').value = localStorage.getItem('pf_drive_webhook_url') || ''; }
-        function closeDriveConfigModal() { document.getElementById('drive-config-modal').classList.add('hidden'); }
-        function saveDriveWebhookUrl() {
-            localStorage.setItem('pf_drive_webhook_url', document.getElementById('drive-webhook-url-input').value.trim());
-            closeDriveConfigModal();
-            showToast('URL salva!');
         }
 
         function openWeaponModal() { document.getElementById('weapon-modal').classList.remove('hidden'); }
@@ -886,7 +858,7 @@
             client.weaponSerial = document.getElementById('weapon-serial').value;
             client.weaponSigma = document.getElementById('weapon-sigma').value;
             client.weaponSinarm = document.getElementById('weapon-sinarm').value;
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
             closeWeaponModal();
             showToast('Arma salva!');
         }
@@ -898,7 +870,7 @@
             if (!client) return;
             client.alienatorName = document.getElementById('alienator-name').value;
             client.alienatorCpf = document.getElementById('alienator-cpf').value;
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
             closeAlienatorModal();
             showToast('Alienante salvo!');
         }
@@ -931,14 +903,23 @@
         }
 
         function copyNewClientLink() {
-            const link = `${window.location.origin + window.location.pathname.replace(/\/$/, '')}?novo-cadastro=true`;
-            navigator.clipboard.writeText(link).then(() => showToast('✅ Link copiado!')).catch(() => prompt('Copie:', link));
+            const cleanBase = window.location.origin + window.location.pathname.replace(/\/$/, '');
+            const link = `${cleanBase}?novo-cadastro=true`;
+            navigator.clipboard.writeText(link).then(() => showToast('✅ Link copiado com sucesso!')).catch(() => {
+                const tempInput = document.createElement('input');
+                tempInput.value = link;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast('✅ Link copiado!');
+            });
         }
 
         function deleteClient(id) {
             if (confirm('Deseja excluir este cliente?')) {
                 clientsData = clientsData.filter(c => c.id !== id);
-                localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
                 renderDashboard();
                 showToast('Excluído.');
             }
@@ -958,14 +939,13 @@
             if (p.get('client')) {
                 openClientPortal(p.get('client'));
             } else if (p.get('novo-cadastro')) {
-                // Impede recriação infinita caso a página seja atualizada no celular
-                let currentLinkClient = localStorage.getItem('pf_current_link_client_id');
-                if (!currentLinkClient) {
+                let currentLinkClient = localStorage.getItem('pf_current_link_client_id_v2');
+                if (!currentLinkClient || !clientsData.some(c => c.id === currentLinkClient)) {
                     currentLinkClient = 'cli_link_' + Date.now();
-                    localStorage.setItem('pf_current_link_client_id', currentLinkClient);
+                    localStorage.setItem('pf_current_link_client_id_v2', currentLinkClient);
                     const nc = { id: currentLinkClient, fullname: '', cpf: '', phone: '', email: '', serviceType: 'Concessão de CR (Atirador)', selectedWeapon: '', selectedCaliber: '', files: {} };
                     clientsData.push(nc);
-                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                    localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
                 }
                 openClientPortal(currentLinkClient);
             } else {
