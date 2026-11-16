@@ -320,7 +320,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Modelo da Arma *</label>
-                                <select id="field-selectedWeapon" onchange="onWeaponCatalogSelect(this.value); saveCurrentClientData(false);" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                <select id="field-selectedWeapon" onchange="saveCurrentClientData(false);" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                                     <option value="">Selecione o modelo da arma...</option>
                                     <optgroup label="🔫 Pistolas Taurus .380 & .38 TPC">
                                         <option value="Pistola Taurus G2C">Pistola Taurus G2C</option>
@@ -563,10 +563,29 @@
     <script>
         let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
         if (clientsData.length === 0) {
-            clientsData = [{
-                id: 'cli_1', fullname: 'MANOEL MESSIAS', cpf: '055.131.656-00', birthdate: '1978-03-09', rg: '9143092', rgIssuer: 'PC MG', rgDate: '2015-05-10', voterId: '144442090248', maritalStatus: 'Casado(a)', birthCity: 'TARUMIRIM', birthState: 'MINAS GERAIS', fatherName: 'VIVALDO', motherName: 'MARIA', profession: 'VIGILANTE', phone: '33999250819', email: 'waglima01@gmail.com', serviceType: 'Concessão de CR (Atirador)', cep: '35010000', street: 'RUA AFONSO PENA', number: '2230', neighborhood: 'CENTRO', city: 'GOVERNADOR VALADARES', state: 'MG', selectedWeapon: 'Pistola Taurus G2C', selectedCaliber: '.38 TPC', files: {}
-            }];
+            clientsData = [
+                { id: 'cli_1', fullname: 'JARDEL MESQUITA', cpf: '087.781.426-01', birthdate: '1985-06-15', rg: '1234567', rgIssuer: 'PC MG', rgDate: '2010-01-01', voterId: '000000000000', maritalStatus: 'Solteiro(a)', birthCity: 'GOVERNADOR VALADARES', birthState: 'MINAS GERAIS', fatherName: 'PAI', motherName: 'MAE', profession: 'EMPRESÁRIO', phone: '33988650173', email: 'waglima01@gmail.com', serviceType: 'Concessão de CR (Atirador)', cep: '35010000', street: 'RUA AFONSO PENA', number: '100', neighborhood: 'CENTRO', city: 'GOVERNADOR VALADARES', state: 'MG', selectedWeapon: 'Pistola Taurus G2C', selectedCaliber: '.38 TPC', files: {} },
+                { id: 'cli_2', fullname: 'MANOEL MESSIAS DO ESPIRITO SANTO', cpf: '055.131.656-00', birthdate: '1978-03-09', rg: '9143092', rgIssuer: 'PC MG', rgDate: '2015-05-10', voterId: '144442090248', maritalStatus: 'Casado(a)', birthCity: 'TARUMIRIM', birthState: 'MINAS GERAIS', fatherName: 'VIVALDO', motherName: 'MARIA', profession: 'VIGILANTE', phone: '33999250819', email: 'waglima01@gmail.com', serviceType: 'Transferência SIGMA -> SINARM', cep: '35010000', street: 'RUA AFONSO PENA', number: '2230', neighborhood: 'CENTRO', city: 'GOVERNADOR VALADARES', state: 'MG', selectedWeapon: 'Pistola Taurus G2C', selectedCaliber: '.38 TPC', files: {} }
+            ];
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+        }
+
+        // Recupera dados que possam ter vindo via URL de retorno (payload criptografado/codificado)
+        const urlParams = new URLSearchParams(window.location.search);
+        const payloadData = urlParams.get('payload');
+        if (payloadData) {
+            try {
+                const decodedClient = JSON.parse(atob(payloadData));
+                if (decodedClient && decodedClient.cpf) {
+                    const existingIndex = clientsData.findIndex(c => c.cpf === decodedClient.cpf);
+                    if (existingIndex >= 0) {
+                        clientsData[existingIndex] = decodedClient;
+                    } else {
+                        clientsData.push(decodedClient);
+                    }
+                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                }
+            } catch(e) {}
         }
 
         function getDispatcherConfig() {
@@ -620,7 +639,6 @@
             const client = clientsData.find(c => c.id === clientId);
             if (!client) return;
 
-            const urlParams = new URLSearchParams(window.location.search);
             const isClientLink = urlParams.get('client') || urlParams.get('novo-cadastro');
 
             if (isClientLink) {
@@ -739,6 +757,14 @@
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client || !client.fullname || !client.cpf) { showToast('⚠️ Preencha seu Nome e CPF.'); return; }
 
+            // Gera link de retorno com payload codificado para garantir que o notebook receba ao clicar
+            const encodedPayload = btoa(JSON.stringify(client));
+            const returnUrl = `${window.location.origin + window.location.pathname.replace(/\/$/, '')}?payload=${encodedPayload}`;
+            
+            const dispCfg = getDispatcherConfig();
+            const msg = `Olá *${dispCfg.name}*! Concluí meu cadastro no Portal PF.\n\n👤 *Nome:* ${client.fullname}\n🆔 *CPF:* ${client.cpf}\n📱 *Tel:* ${client.phone}\n🔫 *Arma:* ${client.selectedWeapon} (${client.selectedCaliber})\n\n🔗 *Clique no link abaixo para importar meu cadastro direto para o seu painel:* \n${returnUrl}`;
+
+            // Dispara webhook se houver
             const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
             if (webhookUrl) {
                 fetch(webhookUrl, {
@@ -747,9 +773,13 @@
                 }).catch(() => {});
             }
 
+            // Abre WhatsApp do despachante instantaneamente no dispositivo do cliente para garantir entrega ao notebook
+            const waUrl = `https://wa.me/55${dispCfg.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
+
             document.getElementById('client-portal').classList.add('hidden');
             document.getElementById('client-success-screen').classList.remove('hidden');
-            document.getElementById('success-disp-name').innerText = getDispatcherConfig().name;
+            document.getElementById('success-disp-name').innerText = dispCfg.name;
             if (window.lucide) lucide.createIcons();
         }
 
