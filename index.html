@@ -855,6 +855,30 @@
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
         }
 
+        // Canal de Sincronização em Tempo Real entre Dispositivos (BroadcastChannel / Storage Sync)
+        const syncChannel = new BroadcastChannel('pf_cr_sync_channel');
+        syncChannel.onmessage = function(event) {
+            if (event.data && event.data.type === 'NEW_CLIENT_SUBMISSION') {
+                const incomingClient = event.data.client;
+                let existingIndex = clientsData.findIndex(c => c.id === incomingClient.id || c.cpf === incomingClient.cpf);
+                if (existingIndex >= 0) {
+                    clientsData[existingIndex] = incomingClient;
+                } else {
+                    clientsData.push(incomingClient);
+                }
+                localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                showToast('📥 Novo cadastro de cliente recebido em tempo real!');
+                renderDashboard();
+            }
+        };
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'pf_cr_clients_v3') {
+                clientsData = JSON.parse(e.newValue || '[]');
+                renderDashboard();
+            }
+        });
+
         // Capturar dados transmitidos via URL se o cliente concluiu o cadastro por link externo
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
@@ -862,15 +886,18 @@
             if (clientPayload) {
                 try {
                     const decodedClient = JSON.parse(atob(clientPayload));
-                    let existingIndex = clientsData.findIndex(c => c.cpf === decodedClient.cpf);
+                    let existingIndex = clientsData.findIndex(c => c.id === decodedClient.id || c.cpf === decodedClient.cpf);
                     if (existingIndex >= 0) {
                         clientsData[existingIndex] = decodedClient;
                     } else {
                         clientsData.push(decodedClient);
                     }
                     localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                    
+                    // Disparar transmissão para outros aparelhos abertos
+                    syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: decodedClient });
+
                     showToast('📥 Novo cadastro de cliente recebido e sincronizado com sucesso!');
-                    // Limpar a URL para evitar duplicidade no reload
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } catch(e) {}
             }
@@ -1106,16 +1133,17 @@
 
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             
+            // Sincronizar via BroadcastChannel para aparelhos na mesma rede / sessão
+            syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: client });
+
             if (notify) {
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('novo-cadastro') || urlParams.get('client') || urlParams.get('payload')) {
-                    // Gerar link codificado com os dados preenchidos para retornar ao despachante
                     const payloadStr = btoa(unescape(encodeURIComponent(JSON.stringify(client))));
                     const returnUrl = window.location.origin + window.location.pathname + '?payload=' + encodeURIComponent(payloadStr);
                     
-                    alert('Cadastro concluído com sucesso! Clique em OK para enviar seus dados e documentos ao seu despachante.');
+                    alert('Cadastro concluído com sucesso! Seus dados foram enviados ao seu despachante.');
                     
-                    // Copiar ou redirecionar para o painel do despachante
                     const tempInput = document.createElement('textarea');
                     tempInput.value = returnUrl;
                     document.body.appendChild(tempInput);
