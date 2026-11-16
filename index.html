@@ -170,9 +170,13 @@
                         <p class="text-xs text-slate-500">Cadastros preenchidos via link chegam automaticamente em tempo real.</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="refreshDashboardData()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm" title="Sincronizar cadastros recebidos na nuvem">
+                        <button onclick="fetchCloudSubmissions()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm" title="Baixar cadastros da nuvem do Google Apps Script">
+                            <i data-lucide="cloud-download" class="w-3.5 h-3.5"></i>
+                            <span>☁️ Buscar da Nuvem</span>
+                        </button>
+                        <button onclick="refreshDashboardData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm" title="Atualizar lista local">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                            <span>🔄 Sincronizar Cadastros</span>
+                            <span>🔄 Atualizar Lista</span>
                         </button>
                         <div class="relative w-full sm:w-64">
                             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
@@ -887,32 +891,6 @@
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
         }
 
-        // Sincronização Automática via BroadcastChannel e Eventos de Storage Compartilhados
-        const syncChannel = new BroadcastChannel('pf_cr_sync_channel');
-        syncChannel.onmessage = function(event) {
-            if (event.data && event.data.type === 'NEW_CLIENT_SUBMISSION') {
-                upsertClient(event.data.client);
-            }
-        };
-
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'pf_cr_clients_v3') {
-                clientsData = JSON.parse(e.newValue || '[]');
-                renderDashboard();
-            }
-        });
-
-        function upsertClient(client) {
-            let existingIndex = clientsData.findIndex(c => c.id === client.id || (c.cpf && c.cpf === client.cpf));
-            if (existingIndex >= 0) {
-                clientsData[existingIndex] = client;
-            } else {
-                clientsData.unshift(client); // Coloca no topo da lista
-            }
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            renderDashboard();
-        }
-
         function getDispatcherConfig() {
             return JSON.parse(localStorage.getItem('pf_dispatcher_config_v1') || JSON.stringify({
                 name: 'Despachante CAC & SINARM',
@@ -941,34 +919,6 @@
             closeDispatcherSettingsModal();
             showToast('✅ Configurações do despachante salvas!');
         }
-
-        // Capturar dados transmitidos via URL (Payload Automático)
-        window.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const clientPayload = params.get('payload');
-            if (clientPayload) {
-                try {
-                    const decodedClient = JSON.parse(atob(decodeURIComponent(clientPayload)));
-                    upsertClient(decodedClient);
-                    syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: decodedClient });
-
-                    const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
-                    if (webhookUrl) {
-                        fetch(webhookUrl, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'register', client: decodedClient })
-                        }).catch(() => {});
-                    }
-
-                    showToast('📥 Cadastro recebido e integrado no painel do despachante!');
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                } catch(e) {
-                    console.error("Erro ao decodificar payload", e);
-                }
-            }
-        });
 
         window.activeClientId = null;
 
@@ -1141,7 +1091,33 @@
         function refreshDashboardData() {
             clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]') || [];
             renderDashboard();
-            showToast('🔄 Lista de cadastros sincronizada com sucesso!');
+            showToast('🔄 Lista local atualizada!');
+        }
+
+        // Nova Função: Buscar Cadastros da Nuvem via Google Apps Script Webhook
+        function fetchCloudSubmissions() {
+            const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
+            if (!webhookUrl) {
+                openDriveConfigModal();
+                showToast('Configure a URL do Google Apps Script primeiro.');
+                return;
+            }
+            showToast('☁️ Consultando cadastros na nuvem...');
+            fetch(webhookUrl + '?action=get_submissions')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.clients && Array.isArray(data.clients)) {
+                        clientsData = data.clients;
+                        localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+                        renderDashboard();
+                        showToast(`✅ Sincronizados ${clientsData.length} cadastros da nuvem!`);
+                    } else {
+                        showToast('ℹ️ Nenhum cadastro novo na nuvem.');
+                    }
+                })
+                .catch(() => {
+                    showToast('⚠️ Erro ao consultar nuvem. Verifique a URL do Web App.');
+                });
         }
 
         function renderDashboard() {
@@ -1201,19 +1177,17 @@
             else clientsData.push(client);
 
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: client });
 
             if (notify) {
                 showToast('🚀 Ficha salva com sucesso!');
             }
         }
 
-        // Função de Conclusão Automática do Cliente (Sem Burocracia)
+        // Função de Conclusão Automática do Cliente (Envia para o Webhook do Google Drive)
         function submitClientRegistrationOnline() {
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
 
-            // Salvar dados atuais do formulário
             const fields = ['fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId', 'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName', 'profession', 'functionalId', 'phone', 'email', 'serviceType', 'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'crNumber', 'crExpiry'];
             fields.forEach(f => {
                 const el = document.getElementById(`field-${f}`);
@@ -1225,18 +1199,29 @@
                 return;
             }
 
-            // Atualizar armazenamento local e broadcast
+            // Salvar localmente
             upsertClient(client);
-            syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: client });
 
-            // Disparar Webhook para o Google Drive / Central do Despachante se configurado
+            // Enviar para o Webhook Cloud (Google Drive / Central)
             const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
             if (webhookUrl) {
+                const firstLetter = client.fullname.charAt(0).toUpperCase();
+                const filesMap = {};
+                if (client.files) {
+                    Object.keys(client.files).forEach(k => {
+                        const f = client.files[k];
+                        if (f && f.standardizedName && f.base64) {
+                            filesMap[f.standardizedName] = f;
+                        }
+                    });
+                }
+                const filesPayload = Object.values(filesMap);
+
                 fetch(webhookUrl, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'register', client: client, sendEmail: true })
+                    body: JSON.stringify({ action: 'register', firstLetter: firstLetter, clientName: client.fullname, client: client, files: filesPayload })
                 }).catch(() => {});
             }
 
@@ -1253,6 +1238,17 @@
             if (window.lucide && typeof window.lucide.createIcons === 'function') {
                 window.lucide.createIcons();
             }
+        }
+
+        function upsertClient(client) {
+            let existingIndex = clientsData.findIndex(c => c.id === client.id || (c.cpf && c.cpf === client.cpf));
+            if (existingIndex >= 0) {
+                clientsData[existingIndex] = client;
+            } else {
+                clientsData.unshift(client);
+            }
+            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
+            renderDashboard();
         }
 
         function onCepInput(val) {
@@ -1376,8 +1372,10 @@
             const filesPayload = Object.values(filesMap);
 
             const payload = {
+                action: 'register',
                 firstLetter: firstLetter,
                 clientName: client.fullname,
+                client: client,
                 files: filesPayload
             };
 
@@ -1562,14 +1560,6 @@
             window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}`, '_blank');
         }
 
-        function calculateAge(birthdateStr) {
-            if (!birthdateStr) return '--';
-            const dob = new Date(birthdateStr);
-            const today = new Date();
-            let age = today.getFullYear() - dob.getFullYear();
-            return isNaN(age) ? '--' : age;
-        }
-
         function sendPsychologistWhatsApp() {
             const client = clientsData.find(c => c.id === window.activeClientId) || {};
             const msg = encodeURIComponent(`Olá Maria Damasceno, solicito agendamento de Exame Psicológico para ${client.fullname || 'Cliente'} (CPF: ${client.cpf || ''}).`);
@@ -1604,7 +1594,6 @@
         function openDocumentPreview(docType) {
             const client = clientsData.find(c => c.id === window.activeClientId) || {};
             const printArea = document.getElementById('print-area');
-            const modalTitle = document.getElementById('preview-modal-title');
             if (!printArea) return;
             const fullAddress = `${client.street || 'TRAVESSA AUGUSTO DE LIMA'}, nº ${client.number || '25'}, Bairro ${client.neighborhood || 'CENTRO'} - ${client.city || 'TARUMIRIM'}/${client.state || 'MG'}`;
 
