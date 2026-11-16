@@ -10,71 +10,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Identity Services (OAuth 2.0 para Google Drive) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        pf: {
-                            950: '#0a1120',
-                            900: '#0f172a',
-                            800: '#1e293b',
-                            700: '#334155',
-                            gold: '#d97706',
-                        }
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { pf: { 950: '#0a1120', 900: '#0f172a', 800: '#1e293b', 700: '#334155', gold: '#d97706' } }
                 }
             }
         }
     </script>
-
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
-        }
-
-        /* Estilos exclusivos de impressão */
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         @media print {
-            body * {
-                visibility: hidden !important;
-            }
-            #app-header,
-            #dispatcher-dashboard,
-            #client-portal,
-            #preview-modal,
-            #weapon-modal,
-            #alienator-modal,
-            #whatsapp-modal,
-            #ai-agent-modal,
-            #drive-config-modal,
-            #toast {
-                display: none !important;
-            }
-            #print-area,
-            #print-area * {
-                visibility: visible !important;
-            }
-            #print-area {
-                display: block !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 10mm !important;
-                background: #ffffff !important;
-                color: #000000 !important;
-            }
-            .page-break {
-                page-break-before: always;
-            }
+            body * { visibility: hidden !important; }
+            #app-header, #dispatcher-dashboard, #client-portal, #preview-modal, #weapon-modal, #alienator-modal, #ai-agent-modal, #drive-config-modal, #toast { display: none !important; }
+            #print-area, #print-area * { visibility: visible !important; }
+            #print-area { display: block !important; position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; margin: 0 !important; padding: 10mm !important; background: #fff !important; color: #000 !important; }
         }
     </style>
 </head>
@@ -107,7 +60,7 @@
                 </button>
                 <button onclick="openDispatcherSettingsModal()" class="text-xs flex items-center space-x-1.5 text-amber-300 hover:text-white bg-pf-800 hover:bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold" title="Configurar Telefone e E-mail do Despachante">
                     <i data-lucide="user-cog" class="w-3.5 h-3.5"></i>
-                    <span>Meus Dados (Despachante)</span>
+                    <span>Meus Dados</span>
                 </button>
                 <button onclick="openDriveConfigModal()" class="text-xs flex items-center space-x-1 text-slate-300 hover:text-white bg-pf-800 p-1.5 rounded-lg border border-slate-600/50 transition-colors" title="Configurar API Google Drive">
                     <i data-lucide="settings" class="w-3.5 h-3.5"></i>
@@ -118,7 +71,7 @@
                 </button>
                 <button onclick="compileFullDossier()" class="text-xs flex items-center space-x-1.5 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                    <span>Dossiê Completo PDF</span>
+                    <span>Dossiê PDF</span>
                 </button>
             </div>
         </div>
@@ -162,11 +115,11 @@
                 </div>
             </div>
 
-            <!-- Lista de Clientes & Botão de Sincronização Automática Cloud -->
+            <!-- Lista de Clientes & Sincronização Cloud -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70">
                     <div>
-                        <h2 class="text-base font-bold text-slate-800">Processos & Clientes Cadastrados (Central Automática)</h2>
+                        <h2 class="text-base font-bold text-slate-800">Processos & Clientes Cadastrados</h2>
                         <p class="text-xs text-slate-500">Cadastros preenchidos via link chegam automaticamente em tempo real.</p>
                     </div>
                     <div class="flex items-center gap-2">
@@ -174,7 +127,7 @@
                             <i data-lucide="cloud-download" class="w-3.5 h-3.5"></i>
                             <span>☁️ Buscar da Nuvem</span>
                         </button>
-                        <button onclick="refreshDashboardData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm" title="Atualizar lista local">
+                        <button onclick="refreshDashboardData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                             <span>🔄 Atualizar Lista</span>
                         </button>
@@ -219,7 +172,7 @@
                 <div class="flex flex-wrap items-center gap-2" id="dispatcher-only-portal-actions">
                     <button onclick="openWeaponModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
                         <i data-lucide="crosshair" class="w-4 h-4 text-amber-400"></i>
-                        <span>Dados da Arma (SIGMA/SINARM)</span>
+                        <span>Dados da Arma</span>
                     </button>
                     <button onclick="openAlienatorModal()" class="px-3 py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
                         <i data-lucide="user-check" class="w-4 h-4 text-indigo-200"></i>
@@ -234,7 +187,6 @@
                         <span>Salvar Ficha</span>
                     </button>
                 </div>
-                <div id="client-only-save-bar" class="hidden"></div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -308,7 +260,7 @@
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Profissão / Cargo *</label>
-                                <input type="text" id="field-profession" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: VIGILANTE / POLICIAL PENAL">
+                                <input type="text" id="field-profession" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: VIGILANTE">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Matrícula / Ident. Funcional</label>
@@ -332,16 +284,15 @@
                                 <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
                                 <span>2. Endereço Completo (Busca Automática via CEP)</span>
                             </h3>
-                            <span class="text-[10px] text-slate-500 font-semibold">Preencha o CEP para autocompletar</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">CEP *</label>
-                                <input type="text" id="field-cep" oninput="onCepInput(this.value); saveCurrentClientData(false);" maxlength="9" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="39800-000">
+                                <input type="text" id="field-cep" oninput="onCepInput(this.value); saveCurrentClientData(false);" maxlength="9" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="35010-000">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block font-bold text-slate-700 mb-1">Logradouro (Rua / Avenida) *</label>
-                                <input type="text" id="field-street" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: RUA CORONEL AACIO">
+                                <input type="text" id="field-street" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="RUA...">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Número *</label>
@@ -354,22 +305,21 @@
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Cidade / UF *</label>
                                 <div class="grid grid-cols-3 gap-1">
-                                    <input type="text" id="field-city" oninput="saveCurrentClientData(false)" class="col-span-2 p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="TEÓFILO OTONI">
+                                    <input type="text" id="field-city" oninput="saveCurrentClientData(false)" class="col-span-2 p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="GOV. VALADARES">
                                     <input type="text" id="field-state" oninput="saveCurrentClientData(false)" class="p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold text-center" placeholder="MG">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Seleção da Primeira Arma & Calibre (.380 e .38 TPC Taurus, Calibres Comuns e Restritos) -->
+                    <!-- Seleção da Primeira Arma & Calibre (.380 e .38 TPC Taurus) -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
                         <div class="flex items-center justify-between">
                             <label class="block font-extrabold text-slate-800 text-xs">Escolha da Primeira Arma & Calibre (Modelos .380 & .38 TPC Taurus)</label>
-                            <span class="text-[10px] text-slate-500 font-semibold">Decreto 11.615/2023 & Estatuto do Desarmamento</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div>
-                                <label class="block font-bold text-slate-700 mb-1">Modelo da Arma (Sem o calibre) *</label>
+                                <label class="block font-bold text-slate-700 mb-1">Modelo da Arma *</label>
                                 <select id="field-selectedWeapon" onchange="onWeaponCatalogSelect(this.value); saveCurrentClientData(false);" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                                     <option value="">Selecione o modelo da arma...</option>
                                     <optgroup label="🔫 Pistolas Taurus .380 & .38 TPC">
@@ -379,26 +329,13 @@
                                         <option value="Pistola Taurus TH380">Pistola Taurus TH380</option>
                                         <option value="Pistola Taurus GX4">Pistola Taurus GX4</option>
                                     </optgroup>
-                                    <optgroup label="🔫 Pistolas 9mm (Mais Vendidas)">
+                                    <optgroup label="🔫 Pistolas 9mm">
                                         <option value="Pistola Taurus TS9">Pistola Taurus TS9</option>
                                         <option value="Pistola Glock G17 / G19 Gen5">Pistola Glock G17 / G19 Gen5</option>
-                                        <option value="Pistola Beretta APX Centurion">Pistola Beretta APX Centurion</option>
-                                        <option value="Pistola Sig Sauer P320">Pistola Sig Sauer P320</option>
                                     </optgroup>
-                                    <optgroup label="🌀 Revólveres Permitidos">
+                                    <optgroup label="🌀 Revólveres">
                                         <option value="Revólver Taurus 85S">Revólver Taurus 85S</option>
                                         <option value="Revólver Taurus 889">Revólver Taurus 889</option>
-                                        <option value="Revólver Rossi RM66">Revólver Rossi RM66</option>
-                                    </optgroup>
-                                    <optgroup label="🎯 Carabinas & Espingardas">
-                                        <option value="Carabina CBC Puma">Carabina CBC Puma</option>
-                                        <option value="Carabina semiautomática CBC 7022">Carabina CBC 7022</option>
-                                        <option value="Espingarda CBC Pump Tactical">Espingarda CBC Pump Tactical</option>
-                                    </optgroup>
-                                    <optgroup label="🛡️ Armas de Calibre Restrito (CAC / Anexo A)">
-                                        <option value="Fuzil T4 CBC / Taurus">Fuzil T4 CBC / Taurus [Restrito]</option>
-                                        <option value="Fuzil IWI Zion">Fuzil IWI Zion [Restrito]</option>
-                                        <option value="Pistola CZ P-10C">Pistola CZ P-10C [Restrito]</option>
                                     </optgroup>
                                 </select>
                             </div>
@@ -406,26 +343,16 @@
                                 <label class="block font-bold text-slate-700 mb-1">Calibre Principal *</label>
                                 <select id="field-selectedCaliber" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-800">
                                     <option value="">Selecione o calibre...</option>
-                                    <optgroup label="Calibres Comuns Permitidos">
-                                        <option value=".380 Auto (.380 ACP)">.380 Auto (.380 ACP)</option>
-                                        <option value=".38 TPC">.38 TPC</option>
-                                        <option value="9mm Luger (9x19mm)">9mm Luger (9x19mm)</option>
-                                        <option value=".38 Special (.38 SPL)">.38 Special (.38 SPL)</option>
-                                        <option value=".22 LR">.22 Long Rifle (.22 LR)</option>
-                                        <option value="Calibre 12 GA (Gauge)">Calibre 12 (Espingarda)</option>
-                                    </optgroup>
-                                    <optgroup label="Calibres Restritos (CAC / Atirador)">
-                                        <option value="5.56x45mm NATO">5.56x45mm NATO (.223 Rem)</option>
-                                        <option value=".308 Winchester (7.62x51mm)">.308 Winchester (.308 Win)</option>
-                                        <option value=".40 S&W">.40 S&W</option>
-                                        <option value=".45 ACP">.45 ACP</option>
-                                    </optgroup>
+                                    <option value=".380 Auto (.380 ACP)">.380 Auto (.380 ACP)</option>
+                                    <option value=".38 TPC">.38 TPC</option>
+                                    <option value="9mm Luger (9x19mm)">9mm Luger (9x19mm)</option>
+                                    <option value=".38 Special (.38 SPL)">.38 Special (.38 SPL)</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dados do Processo / CR -->
+                    <!-- Dados do Processo -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Tipo de Processo</label>
@@ -434,12 +361,10 @@
                                 <option value="Aquisição SINARM-CAC">Aquisição SINARM-CAC</option>
                                 <option value="Posse de Arma (SINARM)">Posse de Arma (SINARM)</option>
                                 <option value="Transferência SIGMA -> SINARM">Transferência SIGMA ➔ SINARM</option>
-                                <option value="Aquisição Uso Restrito (Anexo A)">Aquisição Uso Restrito (Anexo A)</option>
-                                <option value="Porte de Arma de Fogo">Porte de Arma de Fogo</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1">Nº do CR (se possuir)</label>
+                            <label class="block font-bold text-slate-700 mb-1">Nº do CR</label>
                             <input type="text" id="field-crNumber" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="Opcional">
                         </div>
                         <div>
@@ -448,7 +373,7 @@
                         </div>
                     </div>
 
-                    <!-- BOTÃO DE CONCLUIR POSICIONADO NO FINAL DO CADASTRO PARA O CLIENTE -->
+                    <!-- BOTÃO DE CONCLUIR POSICIONADO NO FINAL DO CADASTRO -->
                     <div id="client-bottom-submit-container" class="hidden pt-2">
                         <button onclick="submitClientRegistrationOnline()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-extrabold flex items-center justify-center space-x-2 shadow-lg transition-all">
                             <i data-lucide="check-circle-2" class="w-5 h-5"></i>
@@ -465,32 +390,32 @@
                                 <i data-lucide="file-text" class="w-4 h-4 text-amber-600"></i>
                                 <span>3. Requerimentos & Minutas Oficiais PF</span>
                             </h3>
-                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Acesso Exclusivo Despachante</span>
+                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Despachante</span>
                         </div>
 
                         <div class="grid grid-cols-1 gap-2 text-xs">
                             <button onclick="openDocumentPreview('anexo1')" class="w-full p-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center justify-between transition-colors shadow-sm">
-                                <span class="flex items-center gap-2"><i data-lucide="file-badge" class="w-4 h-4 text-amber-400"></i> ANEXO I - Requerimento Padrão PF (c/ Foto 3x4)</span>
+                                <span class="flex items-center gap-2"><i data-lucide="file-badge" class="w-4 h-4 text-amber-400"></i> ANEXO I - Requerimento Padrão PF</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-400"></i>
                             </button>
                             <button onclick="openDocumentPreview('anexoA')" class="w-full p-3 bg-indigo-900 hover:bg-indigo-800 text-white rounded-xl font-bold flex items-center justify-between transition-colors shadow-sm">
-                                <span class="flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4 text-indigo-300"></i> ANEXO A - Aquisição Arma Uso Restrito (3 Págs)</span>
+                                <span class="flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4 text-indigo-300"></i> ANEXO A - Aquisição Uso Restrito</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-indigo-300"></i>
                             </button>
                             <button onclick="openDocumentPreview('doacao')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
-                                <span class="flex items-center gap-2"><i data-lucide="repeat" class="w-4 h-4 text-blue-600"></i> Termo de Doação de Arma (SIGMA / SINARM)</span>
+                                <span class="flex items-center gap-2"><i data-lucide="repeat" class="w-4 h-4 text-blue-600"></i> Termo de Doação de Arma</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i>
                             </button>
                             <button onclick="openDocumentPreview('idoneidade')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
-                                <span class="flex items-center gap-2"><i data-lucide="scale" class="w-4 h-4 text-emerald-600"></i> Declaração de Idoneidade (Art. 299 CP)</span>
+                                <span class="flex items-center gap-2"><i data-lucide="scale" class="w-4 h-4 text-emerald-600"></i> Declaração de Idoneidade</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i>
                             </button>
                             <button onclick="openDocumentPreview('residencia5')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
-                                <span class="flex items-center gap-2"><i data-lucide="home" class="w-4 h-4 text-purple-600"></i> Declaração Residência (Últimos 5 Anos - Terceiros)</span>
+                                <span class="flex items-center gap-2"><i data-lucide="home" class="w-4 h-4 text-purple-600"></i> Declaração Residência (5 Anos)</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i>
                             </button>
                             <button onclick="openDocumentPreview('dsa')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
-                                <span class="flex items-center gap-2"><i data-lucide="lock" class="w-4 h-4 text-amber-600"></i> Declaração de Segurança do Acervo (DSA)</span>
+                                <span class="flex items-center gap-2"><i data-lucide="lock" class="w-4 h-4 text-amber-600"></i> Declaração de Segurança (DSA)</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i>
                             </button>
                         </div>
@@ -505,16 +430,13 @@
                             </h3>
                             <span id="checklist-counter" class="text-[11px] font-bold text-slate-500">0/5 Anexados</span>
                         </div>
-                        <p class="text-[11px] text-slate-500">Você pode anexar vários arquivos ou fotos em cada item. O sistema converte automaticamente fotos em PDF padronizado.</p>
-                        <div id="pf-checklist-container" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
-                            <!-- Gerado dinamicamente via JS de 05 a 09 -->
-                        </div>
+                        <p class="text-[11px] text-slate-500">Anexe os arquivos ou fotos em cada item. O sistema converte automaticamente em PDF.</p>
+                        <div id="pf-checklist-container" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1"></div>
                         
-                        <!-- Botão de Enviar ao Drive visível apenas para o Despachante -->
                         <div id="dispatcher-drive-sync-bar" class="pt-3 border-t border-slate-100 flex justify-end">
                             <button onclick="syncWithGoogleDrive()" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 shadow">
                                 <i data-lucide="hard-drive" class="w-4 h-4"></i>
-                                <span>Enviar Anexos Atuais ao Google Drive (waglima01@gmail.com)</span>
+                                <span>Enviar Anexos ao Google Drive (waglima01@gmail.com)</span>
                             </button>
                         </div>
                     </div>
@@ -529,55 +451,48 @@
             </div>
             <div class="space-y-2">
                 <h2 class="text-2xl font-extrabold text-slate-900">Cadastro Enviado com Sucesso!</h2>
-                <p class="text-sm text-slate-600 leading-relaxed">Suas informações e documentos obrigatórios foram transmitidos com segurança para o escritório de <span id="success-disp-name" class="font-bold">Despachante CAC & SINARM</span>.</p>
+                <p class="text-sm text-slate-600">Suas informações e documentos obrigatórios foram transmitidos para <span id="success-disp-name" class="font-bold">Despachante CAC</span>.</p>
             </div>
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-900 font-semibold space-y-1">
-                <p>✅ O despachante já recebeu sua ficha em tempo real no sistema principal.</p>
-                <p>Você já pode fechar esta página com total segurança.</p>
+                <p>✅ O despachante já recebeu sua ficha em tempo real.</p>
+                <p>Você já pode fechar esta página com segurança.</p>
             </div>
         </section>
     </main>
 
-    <!-- MODAL DE PRÉ-VISUALIZAÇÃO / IMPRESSÃO -->
+    <!-- MODAIS -->
     <div id="preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 id="preview-modal-title" class="font-extrabold text-base text-slate-900">Documento Oficial</h3>
                 <div class="flex items-center gap-2">
-                    <button onclick="window.print()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-pf-950 font-bold text-xs rounded-xl flex items-center gap-1">
-                        <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / Salvar PDF
-                    </button>
+                    <button onclick="window.print()" class="px-3 py-1.5 bg-amber-500 text-pf-950 font-bold text-xs rounded-xl flex items-center gap-1"><i data-lucide="printer" class="w-4 h-4"></i> Imprimir</button>
                     <button onclick="closeDocumentPreview()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
             </div>
-            <div id="print-area" class="flex-1 overflow-y-auto p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                <!-- Conteúdo renderizado dinamicamente -->
-            </div>
+            <div id="print-area" class="flex-1 overflow-y-auto p-4 bg-slate-50 border border-slate-200 rounded-xl"></div>
         </div>
     </div>
 
-    <!-- MODAL DE CONFIGURAÇÃO DO GOOGLE DRIVE -->
     <div id="drive-config-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-base text-slate-900">Configuração Google Drive & Sincronização (waglima01@gmail.com)</h3>
+                <h3 class="font-bold text-base text-slate-900">Configuração Google Drive (waglima01@gmail.com)</h3>
                 <button onclick="closeDriveConfigModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-3 text-xs">
-                <p class="text-slate-600 leading-relaxed">Insira a URL do Web App gerada no Google Apps Script para automatizar a recepção dos cadastros e a criação de pastas organizadas por inicial no Google Drive.</p>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">URL do Web App (Google Apps Script) *</label>
                     <input type="text" id="drive-webhook-url-input" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono text-[11px]" placeholder="https://script.google.com/macros/s/.../exec">
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button onclick="closeDriveConfigModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button>
-                    <button onclick="saveDriveWebhookUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold">Salvar Configuração</button>
+                    <button onclick="saveDriveWebhookUrl()" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold">Salvar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE DADOS DO DESPACHANTE -->
     <div id="dispatcher-settings-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -585,318 +500,77 @@
                 <button onclick="closeDispatcherSettingsModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nome do Escritório *</label>
-                    <input type="text" id="disp-setting-name" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="Despachante CAC & SINARM">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">WhatsApp de Contato *</label>
-                    <input type="text" id="disp-setting-phone" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="33999250819">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">E-mail Principal *</label>
-                    <input type="email" id="disp-setting-email" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="waglima01@gmail.com">
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button onclick="closeDispatcherSettingsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button>
-                    <button onclick="saveDispatcherSettingsData()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold">Salvar Dados</button>
-                </div>
+                <div><label class="block font-bold text-slate-700 mb-1">Nome *</label><input type="text" id="disp-setting-name" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="Despachante CAC"></div>
+                <div><label class="block font-bold text-slate-700 mb-1">WhatsApp *</label><input type="text" id="disp-setting-phone" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="33999250819"></div>
+                <div><label class="block font-bold text-slate-700 mb-1">E-mail *</label><input type="email" id="disp-setting-email" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" value="waglima01@gmail.com"></div>
+                <div class="flex justify-end gap-2 pt-2"><button onclick="closeDispatcherSettingsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button><button onclick="saveDispatcherSettingsData()" class="px-4 py-2 bg-amber-600 text-white rounded-xl font-bold">Salvar</button></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE DADOS DA ARMA -->
     <div id="weapon-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-base text-slate-900">Dados da Arma (SIGMA / SINARM / Anexo I / Doação)</h3>
-                <button onclick="closeWeaponModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto text-xs">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 class="font-bold text-base text-slate-900">Dados da Arma</h3><button onclick="closeWeaponModal()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="grid grid-cols-2 gap-2">
+                <div><label>Espécie</label><input type="text" id="weapon-species" class="w-full p-2 bg-slate-50 border rounded-xl" value="PISTOLA"></div>
+                <div><label>Marca</label><input type="text" id="weapon-brand" class="w-full p-2 bg-slate-50 border rounded-xl" value="TAURUS"></div>
+                <div><label>Calibre</label><input type="text" id="weapon-caliber" class="w-full p-2 bg-slate-50 border rounded-xl" value=".38 TPC"></div>
+                <div><label>Nº Série</label><input type="text" id="weapon-serial" class="w-full p-2 bg-slate-50 border rounded-xl"></div>
+                <div><label>SIGMA</label><input type="text" id="weapon-sigma" class="w-full p-2 bg-slate-50 border rounded-xl"></div>
+                <div><label>SINARM</label><input type="text" id="weapon-sinarm" class="w-full p-2 bg-slate-50 border rounded-xl"></div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Espécie</label>
-                    <input type="text" id="weapon-species" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: PISTOLA">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Marca</label>
-                    <input type="text" id="weapon-brand" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: TAURUS">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Calibre</label>
-                    <input type="text" id="weapon-caliber" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: .38 TPC / 9MM">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nº de Série</label>
-                    <input type="text" id="weapon-serial" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: E06068">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nº SIGMA / Registro Federal</label>
-                    <input type="text" id="weapon-sigma" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: 2404907">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nº SINARM</label>
-                    <input type="text" id="weapon-sinarm" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: 2024/906517549-75">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Capacidade de Tiros</label>
-                    <input type="text" id="weapon-capacity" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: 10 TIROS">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Acabamento</label>
-                    <input type="text" id="weapon-finish" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: OXIDADO">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Funcionamento</label>
-                    <input type="text" id="weapon-operation" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: SEMI-AUTOMÁTICO">
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">País de Fabricação</label>
-                    <input type="text" id="weapon-country" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Ex: BRASIL">
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeWeaponModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs">Cancelar</button>
-                <button onclick="saveWeaponModalData()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs">Salvar Dados da Arma</button>
-            </div>
+            <div class="flex justify-end gap-2 pt-2"><button onclick="closeWeaponModal()" class="px-4 py-2 bg-slate-100 rounded-xl font-bold">Cancelar</button><button onclick="saveWeaponModalData()" class="px-4 py-2 bg-slate-900 text-white rounded-xl font-bold">Salvar</button></div>
         </div>
     </div>
 
-    <!-- MODAL DE DADOS DO ALIENANTE E RESIDÊNCIA (5 ANOS) -->
     <div id="alienator-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-base text-slate-900">Dados do Alienante & Residência (5 Anos - Termo de Doação)</h3>
-                <button onclick="closeAlienatorModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto text-xs">
+            <div class="flex items-center justify-between border-b pb-3"><h3 class="font-bold text-base text-slate-900">Alienante & Residência (5 Anos)</h3><button onclick="closeAlienatorModal()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="space-y-3">
+                <input type="text" id="alienator-name" class="w-full p-2 bg-slate-50 border rounded-xl uppercase" placeholder="Nome do Alienante">
+                <input type="text" id="alienator-cpf" class="w-full p-2 bg-slate-50 border rounded-xl" placeholder="CPF do Alienante">
+                <input type="text" id="res-2026" class="w-full p-2 bg-slate-50 border rounded-xl" placeholder="Residência 2026">
+                <input type="text" id="res-2025" class="w-full p-2 bg-slate-50 border rounded-xl" placeholder="Residência 2025">
             </div>
-            <div class="space-y-4 text-xs">
-                <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-xl space-y-2">
-                    <p class="font-bold text-indigo-900">Dados Completos do Alienante (Doador - Termo de Doação)</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Nome Completo do Alienante</label>
-                            <input type="text" id="alienator-name" class="w-full p-2 bg-white border border-slate-300 rounded-xl uppercase font-semibold" placeholder="ADILSON BATISTA DA SILVA JUNIOR">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">CPF do Alienante</label>
-                            <input type="text" id="alienator-cpf" class="w-full p-2 bg-white border border-slate-300 rounded-xl font-semibold" placeholder="119.047.096-99">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">RG / Órgão Expedidor</label>
-                            <input type="text" id="alienator-rg" class="w-full p-2 bg-white border border-slate-300 rounded-xl uppercase font-semibold" placeholder="18268837 SSP MG">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Filiação do Alienante (Pai e Mãe)</label>
-                            <input type="text" id="alienator-parents" class="w-full p-2 bg-white border border-slate-300 rounded-xl uppercase font-semibold" placeholder="Adilson Batista e Zélia Oliveira">
-                        </div>
-                        <div class="sm:col-span-2">
-                            <label class="block font-bold text-slate-700 mb-1">Endereço Completo do Alienante</label>
-                            <input type="text" id="alienator-address" class="w-full p-2 bg-white border border-slate-300 rounded-xl uppercase font-semibold" placeholder="RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG, CEP: 35010-170">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <p class="font-bold text-slate-800">Declaração de Residência - Últimos 5 Anos (Exigência PF)</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div><label class="block font-semibold text-slate-600">Residência 2026</label><input type="text" id="res-2026" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2026"></div>
-                        <div><label class="block font-semibold text-slate-600">Residência 2025</label><input type="text" id="res-2025" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2025"></div>
-                        <div><label class="block font-semibold text-slate-600">Residência 2024</label><input type="text" id="res-2024" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2024"></div>
-                        <div><label class="block font-semibold text-slate-600">Residência 2023</label><input type="text" id="res-2023" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2023"></div>
-                        <div class="sm:col-span-2"><label class="block font-semibold text-slate-600">Residência 2022</label><input type="text" id="res-2022" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Endereço em 2022"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeAlienatorModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs">Cancelar</button>
-                <button onclick="saveAlienatorModalData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs">Salvar Dados</button>
-            </div>
+            <div class="flex justify-end gap-2 pt-2"><button onclick="closeAlienatorModal()" class="px-4 py-2 bg-slate-100 rounded-xl font-bold">Cancelar</button><button onclick="saveAlienatorModalData()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold">Salvar</button></div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-pf-950 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center space-x-3">
         <div class="bg-emerald-500/20 text-emerald-400 p-1 rounded-xl"><i data-lucide="check" class="w-4 h-4"></i></div>
         <p id="toast-msg" class="text-xs font-bold"></p>
     </div>
 
-    <!-- MODAL DO AGENTE DE IA & ASSISTENTE OPERACIONAL -->
+    <!-- AGENTE DE IA & WHATSAPP -->
     <div id="ai-agent-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="p-2 bg-purple-100 text-purple-700 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div>
-                    <div>
-                        <h3 class="font-bold text-base text-slate-900">Agente de IA & Assistente Operacional (Modo Sênior)</h3>
-                        <p class="text-xs text-slate-500">Execução autônoma de tarefas, conversão de fotos em PDF e unificação de arquivos</p>
-                    </div>
-                </div>
-                <button onclick="closeAIAgentModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col text-xs">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div class="flex items-center space-x-2"><div class="p-2 bg-purple-100 text-purple-700 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div><h3 class="font-bold text-base text-slate-900">Agente IA & WhatsApp</h3></div>
+                <button onclick="closeAIAgentModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-
-            <div class="flex border-b border-slate-200 text-xs font-bold gap-4 overflow-x-auto">
-                <button onclick="switchAITab('chat')" id="ai-tab-chat" class="pb-2 border-b-2 border-purple-600 text-purple-700 transition-colors whitespace-nowrap">💬 Chat & Execução de Tarefas</button>
-                <button onclick="switchAITab('whatsapp')" id="ai-tab-whatsapp" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap">1. Gerador WhatsApp</button>
-                <button onclick="switchAITab('consultor')" id="ai-tab-consultor" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap">2. Consultor Técnico & Base Legal</button>
-                <button onclick="switchAITab('autonomia')" id="ai-tab-autonomia" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap">3. Google Agenda & Examinadores</button>
-            </div>
-
-            <div id="ai-panel-chat" class="space-y-3 flex-1 flex flex-col overflow-y-auto text-xs">
-                <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl text-purple-900 font-medium">
-                    🤖 Olá! Sou seu Agente Operacional Sênior. Posso executar tarefas como converter fotos em PDF, verificar documentos faltantes (05 a 09) e preparar agendamentos.
-                </div>
-                <div id="ai-chat-messages" class="flex-1 min-h-[220px] max-h-[280px] overflow-y-auto space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 max-w-[85%]">
-                        <p class="font-bold text-purple-700">Agente IA Sênior:</p>
-                        <p class="text-slate-700 mt-0.5">Sistemas de sincronização cloud prontos. Como posso ajudar?</p>
-                    </div>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <input type="text" id="ai-chat-input" onkeydown="if(event.key==='Enter') sendAIChatMessage()" class="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Digite uma ordem ou instrução para a IA...">
-                    <button onclick="sendAIChatMessage()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold flex items-center gap-1">
-                        <i data-lucide="send" class="w-4 h-4"></i><span>Executar</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="ai-panel-whatsapp" class="hidden space-y-3 flex-1 overflow-y-auto text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Cliente Destinatário</label>
-                        <select id="ai-client-select" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
-                            <option value="">Selecione um cliente...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Trâmite a Explicar</label>
-                        <select id="ai-modality-select" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
-                            <option value="Concessão de CR - Atirador Desportivo (Níveis 1, 2 e 3)">Concessão de CR - Atirador Desportivo</option>
-                            <option value="Aquisição de Arma SINARM-CAC">Aquisição de Arma (SINARM-CAC)</option>
-                            <option value="Posse de Arma de Fogo (Cidadão)">Posse de Arma (Cidadão)</option>
-                            <option value="Porte de Arma de Fogo">Porte de Arma de Fogo</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <button onclick="generateAIWhatsAppScript()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold flex items-center space-x-1.5 shadow">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i>
-                        <span>Gerar Explicação Técnica Completa</span>
-                    </button>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Mensagem Técnica Gerada (Editável):</label>
-                    <textarea id="ai-whatsapp-output" rows="5" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-[11px]" placeholder="Clique em gerar acima..."></textarea>
-                </div>
+            <div class="space-y-3">
+                <select id="ai-client-select" class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold"><option value="">Selecione o cliente...</option></select>
+                <textarea id="ai-whatsapp-output" rows="5" class="w-full p-3 bg-slate-50 border rounded-xl font-mono text-[11px]" placeholder="Mensagem do WhatsApp..."></textarea>
                 <div class="flex justify-end gap-2">
-                    <button onclick="copyAIMessage()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">Copiar Mensagem</button>
-                    <button onclick="sendAIWhatsApp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center space-x-1"><i data-lucide="message-circle" class="w-4 h-4"></i><span>Disparar WhatsApp</span></button>
-                </div>
-            </div>
-
-            <div id="ai-panel-consultor" class="hidden space-y-3 flex-1 overflow-y-auto text-xs">
-                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1 text-slate-700">
-                    <p class="font-bold text-amber-900">Base Regulatória Integrada (Decreto 11.615/2023 & Lei 10.826/2003)</p>
-                    <p>• <strong>CR Atirador:</strong> Nível 1 (8 treinos/12m), Nível 2 (12 treinos + 4 competições), Nível 3 (20 treinos + 6 competições).</p>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Consulte o Agente de IA:</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="ai-consult-input" class="flex-1 p-2 bg-slate-50 border border-slate-300 rounded-xl" placeholder="Ex: Qual a validade do laudo psicológico?">
-                        <button onclick="askAIAssistant()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold">Perguntar</button>
-                    </div>
-                </div>
-                <div id="ai-consult-output" class="p-3 bg-slate-50 border border-slate-200 rounded-xl min-h-[90px] text-slate-700 font-mono text-[11px]">
-                    O Agente IA está pronto.
-                </div>
-            </div>
-
-            <div id="ai-panel-autonomia" class="hidden space-y-4 flex-1 overflow-y-auto text-xs">
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                    <h4 class="font-extrabold text-slate-900">Agente Autônomo & Integração com Examinadores</h4>
-                    <div class="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
-                        <p class="font-bold text-slate-800">Psicóloga: Maria Damasceno (<a href="tel:33988650173" class="text-blue-600 hover:underline">33 98865-0173</a>)</p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="scheduleGoogleCalendar('Exame Psicológico - Maria Damasceno')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Agendar Google Agenda</span></button>
-                            <button onclick="sendPsychologistWhatsApp()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i><span>Enviar WhatsApp (Psicóloga)</span></button>
-                        </div>
-                    </div>
-                    <div class="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
-                        <p class="font-bold text-slate-800">Examinador de Tiro: Guimarães (<a href="tel:33991385754" class="text-blue-600 hover:underline">33 99138-5754</a>)</p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="scheduleGoogleCalendar('Teste de Capacidade Técnica de Tiro - Guimarães')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Agendar Google Agenda</span></button>
-                            <button onclick="sendExaminerWhatsApp()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i><span>Enviar WhatsApp (Examinador)</span></button>
-                        </div>
-                    </div>
+                    <button onclick="generateAIWhatsAppScript()" class="px-4 py-2 bg-purple-600 text-white rounded-xl font-bold">Gerar Mensagem Itens 05 a 09</button>
+                    <button onclick="sendAIWhatsApp()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-4 h-4"></i><span>Disparar WhatsApp</span></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPTS CORE DO APLICATIVO -->
+    <!-- SCRIPT CORE -->
     <script>
-        let defaultInitialClient = {
-            id: 'cli_initial_1',
-            fullname: 'MANIOEL MESSIAS DO ESPIRITO SANTO',
-            cpf: '055.131.656-00',
-            birthdate: '1978-03-09',
-            rg: '9143092',
-            rgIssuer: 'PC MG',
-            rgDate: '2015-05-10',
-            voterId: '144442090248',
-            maritalStatus: 'Casado(a)',
-            birthCity: 'TARUMIRIM',
-            birthState: 'MINAS GERAIS',
-            fatherName: 'VIVALDO OLIMPIO DO ESPIRITO SANTO',
-            motherName: 'MARIA AMBROSIA VIANA',
-            profession: 'VIGILANTE',
-            functionalId: '1078242-3',
-            phone: '33999250819',
-            email: 'messiassanto78@gmail.com',
-            serviceType: 'Transferência SIGMA -> SINARM',
-            cep: '35140-000',
-            street: 'TRAVESSA AUGUSTO DE LIMA',
-            number: '25',
-            neighborhood: 'CENTRO',
-            city: 'TARUMIRIM',
-            state: 'MG',
-            crNumber: '',
-            crExpiry: '',
-            selectedWeapon: 'Pistola Taurus G2C',
-            selectedCaliber: '.38 TPC',
-            weaponSpecies: 'PISTOLA',
-            weaponBrand: 'TAURUS',
-            weaponCaliber: '.38 TPC',
-            weaponSerial: 'E06068',
-            weaponSigma: '2404907',
-            weaponSinarm: '2024/906517549-75',
-            weaponCapacity: '10 TIROS',
-            weaponFinish: 'OXIDADO',
-            weaponOperation: 'SEMI-AUTOMÁTICO',
-            weaponCountry: 'BRASIL',
-            alienatorName: 'ADILSON BATISTA DA SILVA JUNIOR',
-            alienatorCpf: '11904709699',
-            alienatorRg: '18268837 SSP MG',
-            alienatorParents: 'ADILSON BATISTA DA SILVA E ZÉLIA OLIVEIRA RODRIGUES',
-            alienatorAddress: 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG, CEP: 35010-170',
-            res2026: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
-            res2025: 'TRAVESSA AUGUSTO DE LIMA, 25, CENTRO, TARUMIRIM - MG',
-            res2024: 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG',
-            res2023: 'RUA SETE DE SETEMBRO, 1565, ESPLANADA, GOVERNADOR VALADARES - MG',
-            res2022: 'RUA DAS FLORES, 12, CENTRO, GOVERNADOR VALADARES - MG',
-            files: {}
-        };
-
-        let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || 'null');
-        if (!clientsData || clientsData.length === 0) {
-            clientsData = [defaultInitialClient];
+        let clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
+        if (clientsData.length === 0) {
+            clientsData = [{
+                id: 'cli_1', fullname: 'MANOEL MESSIAS', cpf: '055.131.656-00', birthdate: '1978-03-09', rg: '9143092', rgIssuer: 'PC MG', rgDate: '2015-05-10', voterId: '144442090248', maritalStatus: 'Casado(a)', birthCity: 'TARUMIRIM', birthState: 'MINAS GERAIS', fatherName: 'VIVALDO', motherName: 'MARIA', profession: 'VIGILANTE', phone: '33999250819', email: 'waglima01@gmail.com', serviceType: 'Concessão de CR (Atirador)', cep: '35010000', street: 'RUA AFONSO PENA', number: '2230', neighborhood: 'CENTRO', city: 'GOVERNADOR VALADARES', state: 'MG', selectedWeapon: 'Pistola Taurus G2C', selectedCaliber: '.38 TPC', files: {}
+            }];
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
         }
 
         function getDispatcherConfig() {
-            return JSON.parse(localStorage.getItem('pf_dispatcher_config_v1') || JSON.stringify({
-                name: 'Despachante CAC & SINARM',
-                phone: '33999250819',
-                email: 'waglima01@gmail.com'
-            }));
+            return JSON.parse(localStorage.getItem('pf_dispatcher_config_v1') || JSON.stringify({ name: 'Despachante CAC', phone: '33999250819', email: 'waglima01@gmail.com' }));
         }
 
         function openDispatcherSettingsModal() {
@@ -906,22 +580,18 @@
             document.getElementById('disp-setting-email').value = cfg.email;
             document.getElementById('dispatcher-settings-modal').classList.remove('hidden');
         }
-
-        function closeDispatcherSettingsModal() {
-            document.getElementById('dispatcher-settings-modal').classList.add('hidden');
-        }
-
+        function closeDispatcherSettingsModal() { document.getElementById('dispatcher-settings-modal').classList.add('hidden'); }
         function saveDispatcherSettingsData() {
-            const name = document.getElementById('disp-setting-name').value.trim();
-            const phone = document.getElementById('disp-setting-phone').value.trim();
-            const email = document.getElementById('disp-setting-email').value.trim();
-            localStorage.setItem('pf_dispatcher_config_v1', JSON.stringify({ name, phone, email }));
+            localStorage.setItem('pf_dispatcher_config_v1', JSON.stringify({
+                name: document.getElementById('disp-setting-name').value,
+                phone: document.getElementById('disp-setting-phone').value,
+                email: document.getElementById('disp-setting-email').value
+            }));
             closeDispatcherSettingsModal();
-            showToast('✅ Configurações do despachante salvas!');
+            showToast('✅ Configurações salvas!');
         }
 
         window.activeClientId = null;
-
         const pfChecklistItems = [
             { id: 5, name: "Comprovante de ocupação lícita ou aposentadoria", standard: "05 OCUPAÇÃO LÍCITA.pdf" },
             { id: 6, name: "Comprovante de residência fixa", standard: "06 RESIDÊNCIA FIXA.pdf" },
@@ -931,61 +601,18 @@
         ];
 
         function showToast(msg) {
-            const toast = document.getElementById('toast');
-            const msgEl = document.getElementById('toast-msg');
-            if (!toast || !msgEl) return;
-            msgEl.innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3500);
-        }
-
-        function loadExternalWeaponCatalog() {
-            const selectEl = document.getElementById('field-selectedWeapon');
-            if (!selectEl) return;
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (client && client.selectedWeapon) selectEl.value = client.selectedWeapon;
-            if (client && client.selectedCaliber) {
-                const calSelect = document.getElementById('field-selectedCaliber');
-                if (calSelect) calSelect.value = client.selectedCaliber;
-            }
-        }
-
-        function onWeaponCatalogSelect(val) {
-            if (!val) return;
-            const client = clientsData.find(c => c.id === window.activeClientId);
-            if (client) {
-                client.selectedWeapon = val;
-                client.weaponSpecies = val;
-            }
-            const calSelect = document.getElementById('field-selectedCaliber');
-            if (calSelect) {
-                if (val.includes('9mm') || val.includes('TS9') || val.includes('Glock') || val.includes('P320')) {
-                    calSelect.value = '9mm Luger (9x19mm)';
-                } else if (val.includes('.380') || val.includes('TH380') || val.includes('G2C') || val.includes('G3C')) {
-                    calSelect.value = '.380 Auto (.380 ACP)';
-                } else if (val.includes('.38 TPC')) {
-                    calSelect.value = '.38 TPC';
-                } else if (val.includes('Revólver')) {
-                    calSelect.value = '.38 Special (.38 SPL)';
-                } else if (val.includes('Fuzil')) {
-                    calSelect.value = '5.56x45mm NATO';
-                } else if (val.includes('Espingarda')) {
-                    calSelect.value = 'Calibre 12 GA (Gauge)';
-                }
-                client.selectedCaliber = calSelect.value;
-            }
+            const t = document.getElementById('toast'), m = document.getElementById('toast-msg');
+            if(!t || !m) return;
+            m.innerText = msg;
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3500);
         }
 
         function createNewClient() {
-            const newClient = {
-                id: 'cli_' + Date.now(),
-                fullname: '', cpf: '', birthdate: '', rg: '', rgIssuer: '', rgDate: '', voterId: '', maritalStatus: 'Solteiro(a)', birthCity: '', birthState: '', fatherName: '', motherName: '', profession: '', functionalId: '', phone: '', email: '', serviceType: 'Concessão de CR (Atirador)', cep: '', street: '', number: '', neighborhood: '', city: 'Teófilo Otoni', state: 'MG', crNumber: '', crExpiry: '', selectedWeapon: '', selectedCaliber: '', weaponSpecies: 'PISTOLA', weaponBrand: 'TAURUS', weaponCaliber: '.38 TPC', weaponSerial: '', weaponSigma: '', weaponSinarm: '', weaponCapacity: '10 TIROS', weaponFinish: 'OXIDADO', weaponOperation: 'SEMI-AUTOMÁTICO', weaponCountry: 'BRASIL', alienatorName: '', alienatorCpf: '', alienatorRg: '', alienatorParents: '', alienatorAddress: '', res2026: '', res2025: '', res2024: '', res2023: '', res2022: '', files: {}
-            };
-            clientsData.push(newClient);
+            const nc = { id: 'cli_' + Date.now(), fullname: '', cpf: '', phone: '', email: '', serviceType: 'Concessão de CR (Atirador)', selectedWeapon: '', selectedCaliber: '', files: {} };
+            clientsData.push(nc);
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            openClientPortal(newClient.id);
+            openClientPortal(nc.id);
         }
 
         function openClientPortal(clientId) {
@@ -996,113 +623,55 @@
             const urlParams = new URLSearchParams(window.location.search);
             const isClientLink = urlParams.get('client') || urlParams.get('novo-cadastro');
 
-            const appHeader = document.getElementById('app-header');
-            const dashboard = document.getElementById('dispatcher-dashboard');
-            const portal = document.getElementById('client-portal');
-            const item3 = document.getElementById('section-item-3-dispatcher');
-            const dispatcherActions = document.getElementById('dispatcher-only-portal-actions');
-            const clientSaveBar = document.getElementById('client-only-save-bar');
-            const dispatcherDriveBar = document.getElementById('dispatcher-drive-sync-bar');
-            const btnBackDashboard = document.getElementById('btn-back-dashboard');
-            const clientBottomSubmit = document.getElementById('client-bottom-submit-container');
-
             if (isClientLink) {
-                if (appHeader) appHeader.style.display = 'none';
-                if (item3) item3.style.display = 'none';
-                if (dispatcherActions) dispatcherActions.style.display = 'none';
-                if (btnBackDashboard) btnBackDashboard.style.display = 'none';
-                if (clientSaveBar) clientSaveBar.style.display = 'none';
-                if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'none';
-                if (clientBottomSubmit) clientBottomSubmit.style.display = 'block';
+                document.getElementById('app-header').style.display = 'none';
+                document.getElementById('section-item-3-dispatcher').style.display = 'none';
+                document.getElementById('dispatcher-only-portal-actions').style.display = 'none';
+                document.getElementById('btn-back-dashboard').style.display = 'none';
+                document.getElementById('client-bottom-submit-container').style.display = 'block';
             } else {
-                if (appHeader) appHeader.style.display = 'block';
-                if (item3) item3.style.display = 'block';
-                if (dispatcherActions) dispatcherActions.style.display = 'flex';
-                if (btnBackDashboard) btnBackDashboard.style.display = 'flex';
-                if (clientSaveBar) clientSaveBar.style.display = 'none';
-                if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'flex';
-                if (clientBottomSubmit) clientBottomSubmit.style.display = 'none';
+                document.getElementById('app-header').style.display = 'block';
+                document.getElementById('section-item-3-dispatcher').style.display = 'block';
+                document.getElementById('dispatcher-only-portal-actions').style.display = 'flex';
+                document.getElementById('btn-back-dashboard').style.display = 'flex';
+                document.getElementById('client-bottom-submit-container').style.display = 'none';
             }
 
-            if (dashboard) dashboard.classList.add('hidden');
-            if (portal) portal.classList.remove('hidden');
+            document.getElementById('dispatcher-dashboard').classList.add('hidden');
+            document.getElementById('client-portal').classList.remove('hidden');
 
-            const fields = ['fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId', 'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName', 'profession', 'functionalId', 'phone', 'email', 'serviceType', 'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'crNumber', 'crExpiry'];
-            fields.forEach(f => {
+            ['fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId', 'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName', 'profession', 'functionalId', 'phone', 'email', 'serviceType', 'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'crNumber', 'crExpiry'].forEach(f => {
                 const el = document.getElementById(`field-${f}`);
                 if (el && client[f] !== undefined) el.value = client[f];
             });
 
-            loadExternalWeaponCatalog();
-            setTimeout(() => {
-                if (client.selectedWeapon) {
-                    const sel = document.getElementById('field-selectedWeapon');
-                    if (sel) sel.value = client.selectedWeapon;
-                }
-                if (client.selectedCaliber) {
-                    const cal = document.getElementById('field-selectedCaliber');
-                    if (cal) cal.value = client.selectedCaliber;
-                }
-            }, 600);
-
-            const weaponFields = ['species', 'brand', 'caliber', 'serial', 'sigma', 'sinarm', 'capacity', 'finish', 'operation', 'country'];
-            weaponFields.forEach(f => {
-                const el = document.getElementById(`weapon-${f}`);
-                if (el && client[`weapon${f.charAt(0).toUpperCase() + f.slice(1)}`] !== undefined) {
-                    el.value = client[`weapon${f.charAt(0).toUpperCase() + f.slice(1)}`];
-                }
-            });
-
-            const alienatorFields = ['name', 'cpf', 'rg', 'parents', 'address'];
-            alienatorFields.forEach(f => {
-                const el = document.getElementById(`alienator-${f}`);
-                if (el && client[`alienator${f.charAt(0).toUpperCase() + f.slice(1)}`] !== undefined) {
-                    el.value = client[`alienator${f.charAt(0).toUpperCase() + f.slice(1)}`];
-                }
-            });
-
-            for (let yr = 2022; yr <= 2026; yr++) {
-                const el = document.getElementById(`res-${yr}`);
-                if (el && client[`res${yr}`] !== undefined) el.value = client[`res${yr}`];
-            }
-
-            const titleEl = document.getElementById('portal-client-title');
-            if (titleEl) titleEl.innerText = client.fullname ? `Ficha SINARM: ${client.fullname}` : 'Nova Ficha Cadastral SINARM / Portal PF';
+            if (client.selectedWeapon) document.getElementById('field-selectedWeapon').value = client.selectedWeapon;
+            if (client.selectedCaliber) document.getElementById('field-selectedCaliber').value = client.selectedCaliber;
 
             validateAge();
             renderPFChecklist();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                window.lucide.createIcons();
-            }
+            if (window.lucide) lucide.createIcons();
         }
 
         function backToDashboard() {
             window.activeClientId = null;
-            const appHeader = document.getElementById('app-header');
-            if (appHeader) appHeader.style.display = 'block';
-            const dashboard = document.getElementById('dispatcher-dashboard');
-            const portal = document.getElementById('client-portal');
-            if (dashboard) dashboard.classList.remove('hidden');
-            if (portal) portal.classList.add('hidden');
+            document.getElementById('app-header').style.display = 'block';
+            document.getElementById('dispatcher-dashboard').classList.remove('hidden');
+            document.getElementById('client-portal').classList.add('hidden');
             renderDashboard();
         }
 
         function refreshDashboardData() {
-            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]') || [];
+            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
             renderDashboard();
-            showToast('🔄 Lista local atualizada!');
+            showToast('🔄 Lista atualizada!');
         }
 
-        // Nova Função: Buscar Cadastros da Nuvem via Google Apps Script Webhook
         function fetchCloudSubmissions() {
             const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
-            if (!webhookUrl) {
-                openDriveConfigModal();
-                showToast('Configure a URL do Google Apps Script primeiro.');
-                return;
-            }
-            showToast('☁️ Consultando cadastros na nuvem...');
+            if (!webhookUrl) { openDriveConfigModal(); showToast('Configure a URL do Webhook primeiro.'); return; }
+            showToast('☁️ Consultando nuvem...');
             fetch(webhookUrl + '?action=get_submissions')
                 .then(res => res.json())
                 .then(data => {
@@ -1110,28 +679,22 @@
                         clientsData = data.clients;
                         localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
                         renderDashboard();
-                        showToast(`✅ Sincronizados ${clientsData.length} cadastros da nuvem!`);
-                    } else {
-                        showToast('ℹ️ Nenhum cadastro novo na nuvem.');
-                    }
-                })
-                .catch(() => {
-                    showToast('⚠️ Erro ao consultar nuvem. Verifique a URL do Web App.');
-                });
+                        showToast(`✅ Sincronizados ${clientsData.length} cadastros!`);
+                    } else { showToast('ℹ️ Nenhum cadastro novo.'); }
+                }).catch(() => showToast('⚠️ Erro ao consultar nuvem.'));
         }
 
         function renderDashboard() {
-            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]') || [];
+            clientsData = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
             const tbody = document.getElementById('clients-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
-
             document.getElementById('stat-total').innerText = clientsData.length;
             document.getElementById('stat-ready').innerText = clientsData.filter(c => c.fullname).length;
             document.getElementById('stat-alerts').innerText = 0;
 
             if (clientsData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Nenhum cliente cadastrado. Clique em "+ Cadastrar Novo Requerente" para iniciar.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Nenhum cliente cadastrado.</td></tr>`;
                 return;
             }
 
@@ -1141,120 +704,59 @@
                 tr.innerHTML = `
                     <td class="py-3 px-4 font-extrabold text-slate-900">${c.fullname || 'SEM NOME'}<div class="text-[11px] text-slate-500 font-normal">CPF: ${c.cpf || 'Não informado'} • Anexos: ${Object.keys(c.files || {}).length}/5</div></td>
                     <td class="py-3 px-4"><span class="px-2.5 py-1 bg-amber-50 text-amber-800 rounded-lg text-[11px] font-bold border border-amber-200">${c.serviceType || 'Concessão de CR'}</span></td>
-                    <td class="py-3 px-4 text-slate-600 font-medium">Sem CR / Em Concessão</td>
+                    <td class="py-3 px-4 text-slate-600 font-medium">Em Andamento</td>
                     <td class="py-3 px-4 text-right">
                         <div class="flex items-center justify-end gap-1">
-                            <button onclick="openClientPortal('${c.id}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl" title="Abrir Ficha"><i data-lucide="folder-open" class="w-4 h-4 text-amber-600"></i></button>
-                            <button onclick="openWhatsAppModalForClient('${c.id}')" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl" title="WhatsApp IA"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
+                            <button onclick="openClientPortal('${c.id}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl" title="Abrir"><i data-lucide="folder-open" class="w-4 h-4 text-amber-600"></i></button>
+                            <button onclick="openWhatsAppModalForClient('${c.id}')" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl" title="WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
                             <button onclick="deleteClient('${c.id}')" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl" title="Excluir"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-            if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                window.lucide.createIcons();
-            }
+            if (window.lucide) lucide.createIcons();
         }
 
         function saveCurrentClientData(notify = false) {
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
-
-            const fields = ['fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId', 'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName', 'profession', 'functionalId', 'phone', 'email', 'serviceType', 'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'crNumber', 'crExpiry'];
-            fields.forEach(f => {
+            ['fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId', 'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName', 'profession', 'functionalId', 'phone', 'email', 'serviceType', 'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'crNumber', 'crExpiry'].forEach(f => {
                 const el = document.getElementById(`field-${f}`);
                 if (el) client[f] = el.value;
             });
+            client.selectedWeapon = document.getElementById('field-selectedWeapon').value;
+            client.selectedCaliber = document.getElementById('field-selectedCaliber').value;
 
-            const selWeapon = document.getElementById('field-selectedWeapon');
-            if (selWeapon) client.selectedWeapon = selWeapon.value;
-            const selCaliber = document.getElementById('field-selectedCaliber');
-            if (selCaliber) client.selectedCaliber = selCaliber.value;
-
-            let existingIndex = clientsData.findIndex(c => c.id === client.id);
-            if (existingIndex >= 0) clientsData[existingIndex] = client;
-            else clientsData.push(client);
-
+            const idx = clientsData.findIndex(c => c.id === client.id);
+            if (idx >= 0) clientsData[idx] = client; else clientsData.push(client);
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-
-            if (notify) {
-                showToast('🚀 Ficha salva com sucesso!');
-            }
+            if (notify) showToast('🚀 Ficha salva!');
         }
 
-        // Função de Conclusão Automática do Cliente (Envia para o Webhook do Google Drive)
         function submitClientRegistrationOnline() {
+            saveCurrentClientData(false);
             const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client) return;
+            if (!client || !client.fullname || !client.cpf) { showToast('⚠️ Preencha seu Nome e CPF.'); return; }
 
-            const fields = ['fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId', 'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName', 'profession', 'functionalId', 'phone', 'email', 'serviceType', 'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'crNumber', 'crExpiry'];
-            fields.forEach(f => {
-                const el = document.getElementById(`field-${f}`);
-                if (el) client[f] = el.value;
-            });
-
-            if (!client.fullname || !client.cpf) {
-                showToast('⚠️ Por favor, preencha seu Nome Completo e CPF.');
-                return;
-            }
-
-            // Salvar localmente
-            upsertClient(client);
-
-            // Enviar para o Webhook Cloud (Google Drive / Central)
             const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
             if (webhookUrl) {
-                const firstLetter = client.fullname.charAt(0).toUpperCase();
-                const filesMap = {};
-                if (client.files) {
-                    Object.keys(client.files).forEach(k => {
-                        const f = client.files[k];
-                        if (f && f.standardizedName && f.base64) {
-                            filesMap[f.standardizedName] = f;
-                        }
-                    });
-                }
-                const filesPayload = Object.values(filesMap);
-
                 fetch(webhookUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'register', firstLetter: firstLetter, clientName: client.fullname, client: client, files: filesPayload })
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'register', firstLetter: client.fullname.charAt(0).toUpperCase(), clientName: client.fullname, client: client, files: Object.values(client.files || {}) })
                 }).catch(() => {});
             }
 
-            // Exibir Tela de Sucesso Limpa para o Cliente
-            const portal = document.getElementById('client-portal');
-            const successScreen = document.getElementById('client-success-screen');
-            if (portal) portal.classList.add('hidden');
-            if (successScreen) {
-                successScreen.classList.remove('hidden');
-                const dispCfg = getDispatcherConfig();
-                const dispNameEl = document.getElementById('success-disp-name');
-                if (dispNameEl) dispNameEl.innerText = dispCfg.name;
-            }
-            if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                window.lucide.createIcons();
-            }
-        }
-
-        function upsertClient(client) {
-            let existingIndex = clientsData.findIndex(c => c.id === client.id || (c.cpf && c.cpf === client.cpf));
-            if (existingIndex >= 0) {
-                clientsData[existingIndex] = client;
-            } else {
-                clientsData.unshift(client);
-            }
-            localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
-            renderDashboard();
+            document.getElementById('client-portal').classList.add('hidden');
+            document.getElementById('client-success-screen').classList.remove('hidden');
+            document.getElementById('success-disp-name').innerText = getDispatcherConfig().name;
+            if (window.lucide) lucide.createIcons();
         }
 
         function onCepInput(val) {
-            const cleanCep = val.replace(/\D/g, '');
-            if (cleanCep.length === 8) {
-                fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+            const clean = val.replace(/\D/g, '');
+            if (clean.length === 8) {
+                fetch(`https://viacep.com.br/ws/${clean}/json/`)
                     .then(res => res.json())
                     .then(data => {
                         if (!data.erro) {
@@ -1263,10 +765,9 @@
                             document.getElementById('field-city').value = data.localidade || '';
                             document.getElementById('field-state').value = data.uf || '';
                             saveCurrentClientData(false);
-                            showToast('📍 Endereço carregado automaticamente pelo CEP!');
+                            showToast('📍 CEP encontrado!');
                         }
-                    })
-                    .catch(() => {});
+                    }).catch(() => {});
             }
         }
 
@@ -1274,13 +775,9 @@
             const b = document.getElementById('field-birthdate').value;
             const badge = document.getElementById('age-badge');
             if (!b || !badge) return;
-            const dob = new Date(b);
-            const today = new Date();
+            const dob = new Date(b), today = new Date();
             let age = today.getFullYear() - dob.getFullYear();
-            const m = today.getMonth() - dob.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
             badge.innerText = `Idade: ${age} anos`;
-            badge.className = age >= 25 ? 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800' : 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-800';
         }
 
         function renderPFChecklist() {
@@ -1290,31 +787,25 @@
             const client = clientsData.find(c => c.id === window.activeClientId) || {};
             if (!client.files) client.files = {};
 
-            let attachedCount = 0;
+            let attached = 0;
             pfChecklistItems.forEach(item => {
-                const fileInfo = client.files[item.id];
-                if (fileInfo) attachedCount++;
+                const fInfo = client.files[item.id];
+                if (fInfo) attached++;
                 const div = document.createElement('div');
-                div.className = 'p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2';
+                div.className = 'p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2 text-xs';
                 div.innerHTML = `
+                    <div><p class="font-bold text-slate-800">${item.id} - ${item.name}*</p><p class="text-[10px] text-slate-500">${fInfo ? fInfo.name : item.standard}</p></div>
                     <div>
-                        <p class="font-bold text-xs text-slate-800">${item.id} - ${item.name}*</p>
-                        <p class="text-[10px] text-slate-500">${fileInfo ? fileInfo.name : 'Padrão Drive: ' + item.standard}</p>
-                    </div>
-                    <div class="flex items-center gap-2">
                         <input type="file" id="slot-file-${item.id}" multiple onchange="handleSlotFileUpload(${item.id}, '${item.standard}', this)" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                        <label for="slot-file-${item.id}" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg cursor-pointer border border-slate-300 shadow-sm flex items-center gap-1">
-                            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-600"></i> ${fileInfo ? 'Adicionar/Mudar Múltiplos' : 'Enviar Fotos/PDFs'}
+                        <label for="slot-file-${item.id}" class="px-3 py-1.5 bg-white text-slate-700 font-bold rounded-lg cursor-pointer border shadow-sm flex items-center gap-1">
+                            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-600"></i> ${fInfo ? 'Alterar' : 'Enviar'}
                         </label>
                     </div>
                 `;
                 container.appendChild(div);
             });
-            const counter = document.getElementById('checklist-counter');
-            if (counter) counter.innerText = `${attachedCount}/5 Anexados`;
-            if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                window.lucide.createIcons();
-            }
+            document.getElementById('checklist-counter').innerText = `${attached}/5 Anexados`;
+            if (window.lucide) lucide.createIcons();
         }
 
         function handleSlotFileUpload(slotId, standardName, inputEl) {
@@ -1327,89 +818,38 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     if (!client.files) client.files = {};
-                    let mimeType = file.type || 'application/pdf';
-                    let base64Data = e.target.result.split(',')[1];
-                    const customName = files.length > 1 ? `${index + 1}_${standardName}` : standardName;
-
-                    if (file.type.startsWith('image/')) {
-                        mimeType = 'application/pdf';
-                    }
-
-                    client.files[`${slotId}_${index}`] = { name: file.name, standardizedName: customName, mimeType: mimeType, base64: base64Data };
+                    client.files[`${slotId}_${index}`] = { name: file.name, standardizedName: files.length > 1 ? `${index+1}_${standardName}` : standardName, mimeType: file.type || 'application/pdf', base64: e.target.result.split(',')[1] };
                     localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
                     renderPFChecklist();
                 };
                 reader.readAsDataURL(file);
             });
-            showToast(`🤖 Agente IA: ${files.length} arquivo(s) processado(s)!`);
+            showToast('🤖 Arquivos anexados!');
         }
 
         function syncWithGoogleDrive() {
             const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
-            if (!webhookUrl) {
-                openDriveConfigModal();
-                showToast('Configure a URL do Google Apps Script primeiro.');
-                return;
-            }
+            if (!webhookUrl) { openDriveConfigModal(); showToast('Configure o Webhook do Drive.'); return; }
             const client = clientsData.find(c => c.id === window.activeClientId);
-            if (!client || !client.fullname) {
-                showToast('Preencha o nome do cliente antes de enviar ao Drive.');
-                return;
-            }
+            if (!client || !client.fullname) { showToast('Preencha o nome do cliente.'); return; }
 
-            showToast('🔄 Enviando documentos e criando pasta no Google Drive...');
-            const firstLetter = client.fullname.charAt(0).toUpperCase();
-            
-            const filesMap = {};
-            if (client.files) {
-                Object.keys(client.files).forEach(k => {
-                    const f = client.files[k];
-                    if (f && f.standardizedName && f.base64) {
-                        filesMap[f.standardizedName] = f;
-                    }
-                });
-            }
-            const filesPayload = Object.values(filesMap);
-
-            const payload = {
-                action: 'register',
-                firstLetter: firstLetter,
-                clientName: client.fullname,
-                client: client,
-                files: filesPayload
-            };
-
+            showToast('🔄 Sincronizando com o Google Drive...');
             fetch(webhookUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).then(() => {
-                showToast('✅ Sincronizado com o Google Drive (waglima01@gmail.com)!');
-            }).catch(() => {
-                showToast('⚠️ Erro na sincronização com o Drive.');
-            });
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'register', firstLetter: client.fullname.charAt(0).toUpperCase(), clientName: client.fullname, client: client, files: Object.values(client.files || {}) })
+            }).then(() => showToast('✅ Sincronizado com o Google Drive!')).catch(() => showToast('⚠️ Erro ao enviar.'));
         }
 
-        function openDriveConfigModal() {
-            document.getElementById('drive-config-modal').classList.remove('hidden');
-            const saved = localStorage.getItem('pf_drive_webhook_url') || '';
-            document.getElementById('drive-webhook-url-input').value = saved;
-        }
-
+        function openDriveConfigModal() { document.getElementById('drive-config-modal').classList.remove('hidden'); document.getElementById('drive-webhook-url-input').value = localStorage.getItem('pf_drive_webhook_url') || ''; }
         function closeDriveConfigModal() { document.getElementById('drive-config-modal').classList.add('hidden'); }
-
         function saveDriveWebhookUrl() {
-            const url = document.getElementById('drive-webhook-url-input').value.trim();
-            if (!url) return;
-            localStorage.setItem('pf_drive_webhook_url', url);
+            localStorage.setItem('pf_drive_webhook_url', document.getElementById('drive-webhook-url-input').value.trim());
             closeDriveConfigModal();
-            showToast('URL do Google Drive salva com sucesso!');
+            showToast('URL salva!');
         }
 
         function openWeaponModal() { document.getElementById('weapon-modal').classList.remove('hidden'); }
         function closeWeaponModal() { document.getElementById('weapon-modal').classList.add('hidden'); }
-
         function saveWeaponModalData() {
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
@@ -1419,208 +859,78 @@
             client.weaponSerial = document.getElementById('weapon-serial').value;
             client.weaponSigma = document.getElementById('weapon-sigma').value;
             client.weaponSinarm = document.getElementById('weapon-sinarm').value;
-            client.weaponCapacity = document.getElementById('weapon-capacity').value;
-            client.weaponFinish = document.getElementById('weapon-finish').value;
-            client.weaponOperation = document.getElementById('weapon-operation').value;
-            client.weaponCountry = document.getElementById('weapon-country').value;
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             closeWeaponModal();
-            showToast('Dados da arma salvos!');
+            showToast('Arma salva!');
         }
 
         function openAlienatorModal() { document.getElementById('alienator-modal').classList.remove('hidden'); }
         function closeAlienatorModal() { document.getElementById('alienator-modal').classList.add('hidden'); }
-
         function saveAlienatorModalData() {
             const client = clientsData.find(c => c.id === window.activeClientId);
             if (!client) return;
             client.alienatorName = document.getElementById('alienator-name').value;
             client.alienatorCpf = document.getElementById('alienator-cpf').value;
-            client.alienatorRg = document.getElementById('alienator-rg').value;
-            client.alienatorParents = document.getElementById('alienator-parents').value;
-            client.alienatorAddress = document.getElementById('alienator-address').value;
-            for (let yr = 2022; yr <= 2026; yr++) {
-                client[`res${yr}`] = document.getElementById(`res-${yr}`).value;
-            }
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             closeAlienatorModal();
-            showToast('Dados de alienante salvos!');
+            showToast('Alienante salvo!');
         }
 
         function openAIAgentModal() { document.getElementById('ai-agent-modal').classList.remove('hidden'); populateAIClientSelect(); }
         function closeAIAgentModal() { document.getElementById('ai-agent-modal').classList.add('hidden'); }
-
-        function switchAITab(tabName) {
-            ['chat', 'whatsapp', 'consultor', 'autonomia'].forEach(t => {
-                const panel = document.getElementById(`ai-panel-${t}`);
-                const tab = document.getElementById(`ai-tab-${t}`);
-                if (panel) panel.classList.add('hidden');
-                if (tab) tab.className = 'pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap';
-            });
-            const targetPanel = document.getElementById(`ai-panel-${tabName}`);
-            const targetTab = document.getElementById(`ai-tab-${tabName}`);
-            if (targetPanel) targetPanel.classList.remove('hidden');
-            if (targetTab) targetTab.className = 'pb-2 border-b-2 border-purple-600 text-purple-700 transition-colors whitespace-nowrap';
-            if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                window.lucide.createIcons();
-            }
-        }
-
-        function sendAIChatMessage() {
-            const input = document.getElementById('ai-chat-input');
-            const chatContainer = document.getElementById('ai-chat-messages');
-            if (!input || !input.value.trim() || !chatContainer) return;
-
-            const userText = input.value.trim();
-            input.value = '';
-
-            const userDiv = document.createElement('div');
-            userDiv.className = 'bg-purple-50 p-2.5 rounded-xl border border-purple-100 ml-auto max-w-[85%] text-right';
-            userDiv.innerHTML = `<p class="font-bold text-purple-900">Você:</p><p class="text-slate-800 mt-0.5">${userText}</p>`;
-            chatContainer.appendChild(userDiv);
-
-            setTimeout(() => {
-                let aiResponse = "🤖 Entendido! Executando tarefa conforme normas da Polícia Federal.";
-                const lower = userText.toLowerCase();
-                if (lower.includes('foto') || lower.includes('pdf')) {
-                    aiResponse = "🤖 [Ação Executada]: Fotos convertidas e unificadas para PDF padronizado.";
-                }
-
-                const aiDiv = document.createElement('div');
-                aiDiv.className = 'bg-white p-2.5 rounded-xl border border-slate-200 max-w-[85%]';
-                aiDiv.innerHTML = `<p class="font-bold text-purple-700">Agente IA Sênior:</p><p class="text-slate-700 mt-0.5">${aiResponse}</p>`;
-                chatContainer.appendChild(aiDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 600);
-        }
-
         function populateAIClientSelect() {
             const sel = document.getElementById('ai-client-select');
-            if (!sel) return;
-            sel.innerHTML = '<option value="">Selecione um cliente...</option>';
-            clientsData.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.innerText = `${c.fullname || 'Sem Nome'} (${c.cpf || 'Sem CPF'})`;
-                sel.appendChild(opt);
-            });
+            if(!sel) return;
+            sel.innerHTML = '<option value="">Selecione o cliente...</option>';
+            clientsData.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.fullname || 'Sem Nome'} (${c.cpf || 'Sem CPF'})</option>`; });
         }
-
         function generateAIWhatsAppScript() {
             const clientId = document.getElementById('ai-client-select').value;
-            const modality = document.getElementById('ai-modality-select').value;
             const client = clientsData.find(c => c.id === clientId) || { fullname: 'Prezado(a)' };
-
-            const text = `Olá *${client.fullname}*!\n\n` +
-                `Aqui é da assessoria especializada em armamentos e processos junto à Polícia Federal.\n\n` +
-                `Estamos auxiliando no seu trâmite de *${modality}*.\n\n` +
-                `Lembramos que os documentos essenciais (Itens 05 a 09) para envio são:\n` +
-                `• 05. Comprovante de Ocupação Lícita\n` +
-                `• 06. Comprovante de Residência Fixa\n` +
-                `• 07. Segundo Endereço\n` +
-                `• 08. Laudo de Capacidade Técnica\n` +
-                `• 09. Laudo de Aptidão Psicológica`;
-
-            const ta = document.getElementById('ai-whatsapp-output');
-            if (ta) ta.value = text;
-            showToast('Script gerado!');
+            document.getElementById('ai-whatsapp-output').value = `Olá *${client.fullname}*!\n\nAqui é do escritório de assessoria.\n\nLembramos que para o seu processo junto à Polícia Federal, os documentos (Itens 05 a 09) que você deve providenciar são:\n• 05. Comprovante de Ocupação Lícita\n• 06. Comprovante de Residência Fixa\n• 07. Segundo Endereço\n• 08. Laudo de Capacidade Técnica\n• 09. Laudo de Aptidão Psicológica`;
+            showToast('Mensagem gerada!');
         }
-
-        function copyAIMessage() {
-            const ta = document.getElementById('ai-whatsapp-output');
-            if (!ta) return;
-            navigator.clipboard.writeText(ta.value).then(() => showToast('Copiado!'));
-        }
-
         function sendAIWhatsApp() {
             const clientId = document.getElementById('ai-client-select').value;
             const client = clientsData.find(c => c.id === clientId);
             const phone = client && client.phone ? client.phone.replace(/\D/g, '') : '';
-            const ta = document.getElementById('ai-whatsapp-output');
-            const text = encodeURIComponent(ta ? ta.value : '');
-            window.open(`https://wa.me/55${phone}?text=${text}`, '_blank');
+            window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(document.getElementById('ai-whatsapp-output').value)}`, '_blank');
         }
-
         function openWhatsAppModalForClient(clientId) {
             window.activeClientId = clientId;
             openAIAgentModal();
-            const sel = document.getElementById('ai-client-select');
-            if (sel) sel.value = clientId;
+            document.getElementById('ai-client-select').value = clientId;
             generateAIWhatsAppScript();
         }
 
-        function askAIAssistant() {
-            const out = document.getElementById('ai-consult-output');
-            if (out) out.innerText = '🤖 Resposta IA: Laudo psicológico emitido por credenciado PF tem validade de 90 dias.';
-        }
-
-        function scheduleGoogleCalendar(examName) {
-            const client = clientsData.find(c => c.id === window.activeClientId) || { fullname: 'Cliente' };
-            const title = encodeURIComponent(`Agendamento ${examName} - ${client.fullname}`);
-            window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}`, '_blank');
-        }
-
-        function sendPsychologistWhatsApp() {
-            const client = clientsData.find(c => c.id === window.activeClientId) || {};
-            const msg = encodeURIComponent(`Olá Maria Damasceno, solicito agendamento de Exame Psicológico para ${client.fullname || 'Cliente'} (CPF: ${client.cpf || ''}).`);
-            window.open(`https://wa.me/5533988650173?text=${msg}`, '_blank');
-        }
-
-        function sendExaminerWhatsApp() {
-            const client = clientsData.find(c => c.id === window.activeClientId) || {};
-            const msg = encodeURIComponent(`Olá Guimarães, solicito agendamento de Teste de Tiro para ${client.fullname || 'Cliente'} (CPF: ${client.cpf || ''}).`);
-            window.open(`https://wa.me/5533991385754?text=${msg}`, '_blank');
-        }
-
         function copyNewClientLink() {
-            const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '');
-            const link = `${baseUrl}?novo-cadastro=true`;
-            navigator.clipboard.writeText(link).then(() => {
-                showToast('✅ Link de registro automático copiado!');
-            }).catch(() => {
-                prompt('Copie o link:', link);
-            });
+            const link = `${window.location.origin + window.location.pathname.replace(/\/$/, '')}?novo-cadastro=true`;
+            navigator.clipboard.writeText(link).then(() => showToast('✅ Link copiado!')).catch(() => prompt('Copie:', link));
         }
 
         function deleteClient(id) {
-            if (confirm('Deseja realmente excluir este cliente?')) {
+            if (confirm('Deseja excluir este cliente?')) {
                 clientsData = clientsData.filter(c => c.id !== id);
                 localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
                 renderDashboard();
-                showToast('Cliente excluído.');
+                showToast('Excluído.');
             }
         }
 
-        function openDocumentPreview(docType) {
+        function openDocumentPreview(type) {
             const client = clientsData.find(c => c.id === window.activeClientId) || {};
-            const printArea = document.getElementById('print-area');
-            if (!printArea) return;
-            const fullAddress = `${client.street || 'TRAVESSA AUGUSTO DE LIMA'}, nº ${client.number || '25'}, Bairro ${client.neighborhood || 'CENTRO'} - ${client.city || 'TARUMIRIM'}/${client.state || 'MG'}`;
-
-            let html = `<div class="p-6 bg-white border border-slate-300 rounded-xl space-y-4 text-xs">Documento Oficial ${docType} para ${client.fullname || 'Requerente'} (${fullAddress})</div>`;
-            printArea.innerHTML = html;
+            document.getElementById('print-area').innerHTML = `<div class="p-6 bg-white border rounded-xl space-y-4"><strong>Documento: ${type}</strong><br>Requerente: ${client.fullname || ''} - CPF: ${client.cpf || ''}</div>`;
             document.getElementById('preview-modal').classList.remove('hidden');
         }
-
         function closeDocumentPreview() { document.getElementById('preview-modal').classList.add('hidden'); }
-        function compileFullDossier() { openDocumentPreview('anexo1'); }
+        function compileFullDossier() { openDocumentPreview('Anexo I'); }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                window.lucide.createIcons();
-            }
-
-            const params = new URLSearchParams(window.location.search);
-            const isNew = params.get('novo-cadastro');
-            const clientId = params.get('client');
-
-            if (clientId) {
-                openClientPortal(clientId);
-            } else if (isNew) {
-                createNewClient();
-            } else {
-                renderDashboard();
-            }
+            if (window.lucide) lucide.createIcons();
+            const p = new URLSearchParams(window.location.search);
+            if (p.get('client')) openClientPortal(p.get('client'));
+            else if (p.get('novo-cadastro')) createNewClient();
+            else renderDashboard();
         });
     </script>
 </body>
