@@ -226,12 +226,8 @@
                         <span>Salvar Ficha</span>
                     </button>
                 </div>
-                <div id="client-only-save-bar" class="hidden">
-                    <button onclick="saveCurrentClientData(true); syncWithGoogleDrive();" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 shadow">
-                        <i data-lucide="check-circle" class="w-4 h-4"></i>
-                        <span>Concluir & Enviar Meus Dados ao Drive</span>
-                    </button>
-                </div>
+                <!-- Botão superior oculto para o cliente conforme diretriz -->
+                <div id="client-only-save-bar" class="hidden"></div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -443,6 +439,14 @@
                             <label class="block font-bold text-slate-700 mb-1">Validade do CR</label>
                             <input type="date" id="field-crExpiry" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                         </div>
+                    </div>
+
+                    <!-- BOTÃO DE CONCLUIR POSICIONADO NO FINAL DO CADASTRO PARA O CLIENTE -->
+                    <div id="client-bottom-submit-container" class="hidden pt-2">
+                        <button onclick="saveCurrentClientData(true)" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-extrabold flex items-center justify-center space-x-2 shadow-lg transition-all">
+                            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            <span>Concluir & Enviar Meus Dados</span>
+                        </button>
                     </div>
                 </div>
 
@@ -936,6 +940,7 @@
             const clientSaveBar = document.getElementById('client-only-save-bar');
             const dispatcherDriveBar = document.getElementById('dispatcher-drive-sync-bar');
             const btnBackDashboard = document.getElementById('btn-back-dashboard');
+            const clientBottomSubmit = document.getElementById('client-bottom-submit-container');
 
             if (isClientLink) {
                 // Restrição estrita para o cliente final: ocultar cabeçalho, minutas PF, botão de voltar ao painel e botões de despachante
@@ -943,8 +948,9 @@
                 if (item3) item3.style.display = 'none';
                 if (dispatcherActions) dispatcherActions.style.display = 'none';
                 if (btnBackDashboard) btnBackDashboard.style.display = 'none';
-                if (clientSaveBar) clientSaveBar.style.display = 'block';
+                if (clientSaveBar) clientSaveBar.style.display = 'none';
                 if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'none';
+                if (clientBottomSubmit) clientBottomSubmit.style.display = 'block'; // Exibe o botão concluir no final
             } else {
                 if (appHeader) appHeader.style.display = 'block';
                 if (item3) item3.style.display = 'block';
@@ -952,6 +958,7 @@
                 if (btnBackDashboard) btnBackDashboard.style.display = 'flex';
                 if (clientSaveBar) clientSaveBar.style.display = 'none';
                 if (dispatcherDriveBar) dispatcherDriveBar.style.display = 'flex';
+                if (clientBottomSubmit) clientBottomSubmit.style.display = 'none';
             }
 
             if (dashboard) dashboard.classList.add('hidden');
@@ -1080,10 +1087,10 @@
             if (notify) {
                 showToast('🚀 Ficha salva com sucesso!');
                 
-                // Salva silenciosamente se houver webhook configurado, sem pedir nada ao cliente
-                syncWithGoogleDriveQuiet(client);
+                // O ato de criar a pasta no Google Drive AGORA fica reservado exclusivamente
+                // para quando o despachante acionar na tela principal do aplicativo após a chegada do cadastro.
+                // O cliente apenas salva localmente e dispara o WhatsApp de boas-vindas.
 
-                // Disparo de confirmação automática e instruções dos itens 05 a 09 via WhatsApp para o cliente direto do seu notebook
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('novo-cadastro') || urlParams.get('client')) {
                     sendClientWelcomeWhatsApp(client);
