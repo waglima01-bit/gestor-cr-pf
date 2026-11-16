@@ -891,6 +891,13 @@
                     upsertClient(decodedClient);
                     syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: decodedClient });
                     
+                    // Salvar também no localStorage global compartilhado
+                    let allClients = JSON.parse(localStorage.getItem('pf_cr_clients_v3') || '[]');
+                    let idx = allClients.findIndex(c => c.id === decodedClient.id || c.cpf === decodedClient.cpf);
+                    if (idx >= 0) allClients[idx] = decodedClient;
+                    else allClients.push(decodedClient);
+                    localStorage.setItem('pf_cr_clients_v3', JSON.stringify(allClients));
+
                     // Disparar Webhook para o Google Apps Script para salvar o cadastro em nuvem para o despachante
                     const webhookUrl = localStorage.getItem('pf_drive_webhook_url');
                     if (webhookUrl) {
@@ -1136,6 +1143,11 @@
             if (selWeapon) client.selectedWeapon = selWeapon.value;
             const selCaliber = document.getElementById('field-selectedCaliber');
             if (selCaliber) client.selectedCaliber = selCaliber.value;
+
+            // Salvar na lista local e no localStorage
+            let existingIndex = clientsData.findIndex(c => c.id === client.id);
+            if (existingIndex >= 0) clientsData[existingIndex] = client;
+            else clientsData.push(client);
 
             localStorage.setItem('pf_cr_clients_v3', JSON.stringify(clientsData));
             syncChannel.postMessage({ type: 'NEW_CLIENT_SUBMISSION', client: client });
