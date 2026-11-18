@@ -519,15 +519,33 @@
     <div id="ai-agent-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col text-xs">
             <div class="flex items-center justify-between border-b pb-3">
-                <div class="flex items-center space-x-2"><div class="p-2 bg-purple-100 text-purple-700 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div><h3 class="font-bold text-base text-slate-900">Agente IA & WhatsApp</h3></div>
+                <div class="flex items-center space-x-2"><div class="p-2 bg-purple-100 text-purple-700 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div><h3 class="font-bold text-base text-slate-900">Agente IA & WhatsApp (Parceiros & Profissionais)</h3></div>
                 <button onclick="closeAIAgentModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="space-y-3">
-                <select id="ai-client-select" class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold"><option value="">Selecione o cliente...</option></select>
-                <textarea id="ai-whatsapp-output" rows="5" class="w-full p-3 bg-slate-50 border rounded-xl font-mono text-[11px]" placeholder="Mensagem do WhatsApp..."></textarea>
-                <div class="flex justify-end gap-2">
-                    <button onclick="generateAIWhatsAppScript()" class="px-4 py-2 bg-purple-600 text-white rounded-xl font-bold">Gerar Mensagem Itens 05 a 09</button>
-                    <button onclick="sendAIWhatsApp()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-4 h-4"></i><span>Disparar WhatsApp</span></button>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Selecionar Requerente / Processo *</label>
+                    <select id="ai-client-select" class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold"><option value="">Selecione o cliente...</option></select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Profissional / Parceiro Destino *</label>
+                    <select id="ai-professional-select" class="w-full p-2.5 bg-slate-50 border rounded-xl font-bold text-purple-900">
+                        <option value="damasceno">Maria Damasceno (33 98865-0173)</option>
+                        <option value="guimaraes">Guimarães (33 99138-5754)</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">Mensagem Direta Personalizada (Itens 05 a 09)</label>
+                <textarea id="ai-whatsapp-output" rows="6" class="w-full p-3 bg-slate-50 border rounded-xl font-mono text-[11px]" placeholder="Mensagem do WhatsApp..."></textarea>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
+                <div class="flex items-center gap-2">
+                    <button onclick="scheduleGoogleCalendar()" class="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl font-bold flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i><span>Salvar Exame Agenda Google</span></button>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="generateAIWhatsAppScript()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold">Gerar Mensagem Direta</button>
+                    <button onclick="sendAIWhatsApp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-1"><i data-lucide="message-circle" class="w-4 h-4"></i><span>Disparar WhatsApp</span></button>
                 </div>
             </div>
         </div>
@@ -544,7 +562,6 @@
             localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
         }
 
-        // Auto-sincronização por URL Payload (quando o despachante clica no link recebido no WhatsApp)
         const urlParams = new URLSearchParams(window.location.search);
         const payloadData = urlParams.get('payload');
         if (payloadData) {
@@ -559,7 +576,7 @@
                     }
                     localStorage.setItem('pf_cr_clients_v4', JSON.stringify(clientsData));
                     alert(`✅ Cadastro de ${decodedClient.fullname} importado com sucesso para o seu painel!`);
-                    window.location.href = window.location.pathname; // Limpa a URL
+                    window.location.href = window.location.pathname;
                 }
             } catch(e) {}
         }
@@ -712,7 +729,6 @@
             if (notify) showToast('🚀 Ficha salva!');
         }
 
-        // AÇÃO MAGNÍFICA DE CAPTAÇÃO: O cliente preenche e ao concluir os dados vão para o WhatsApp do Despachante instantaneamente
         function submitClientRegistrationOnline() {
             saveCurrentClientData(false);
             const client = clientsData.find(c => c.id === window.activeClientId);
@@ -840,31 +856,58 @@
             showToast('Alienante salvo!');
         }
 
-        function openAIAgentModal() { document.getElementById('ai-agent-modal').classList.remove('hidden'); populateAIClientSelect(); }
+        function openAIAgentModal() {
+            document.getElementById('ai-agent-modal').classList.remove('hidden');
+            populateAIClientSelect();
+            generateAIWhatsAppScript();
+        }
         function closeAIAgentModal() { document.getElementById('ai-agent-modal').classList.add('hidden'); }
+        
         function populateAIClientSelect() {
             const sel = document.getElementById('ai-client-select');
             if(!sel) return;
             sel.innerHTML = '<option value="">Selecione o cliente...</option>';
             clientsData.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.fullname || 'Sem Nome'} (${c.cpf || 'Sem CPF'})</option>`; });
         }
+
         function generateAIWhatsAppScript() {
             const clientId = document.getElementById('ai-client-select').value;
-            const client = clientsData.find(c => c.id === clientId) || { fullname: 'Prezado(a)' };
-            document.getElementById('ai-whatsapp-output').value = `Olá *${client.fullname}*!\n\nAqui é do escritório de assessoria.\n\nLembramos que para o seu processo junto à Polícia Federal, os documentos (Itens 05 a 09) que você deve providenciar são:\n• 05. Comprovante de Ocupação Lícita\n• 06. Comprovante de Residência Fixa\n• 07. Segundo Endereço\n• 08. Laudo de Capacidade Técnica\n• 09. Laudo de Aptidão Psicológica`;
-            showToast('Mensagem gerada!');
+            const profType = document.getElementById('ai-professional-select').value;
+            const client = clientsData.find(c => c.id === clientId) || { fullname: 'CLIENTE', cpf: '000.000.000-00', phone: '(33) 99999-9999' };
+            
+            let targetName = profType === 'damasceno' ? 'Maria Damasceno' : 'Guimarães';
+            let msg = `Olá *${targetName}*! Tudo bem?\n\nEncaminho os dados do requerente para agendamento dos exames / laudos obrigatórios (Itens 05 a 09):\n\n👤 *Nome:* ${client.fullname || 'Não informado'}\n🆔 *CPF:* ${client.cpf || 'Não informado'}\n📱 *Contato:* ${client.phone || 'Não informado'}\n📍 *Endereço:* ${client.street || ''}, ${client.number || ''} - ${client.neighborhood || ''} (${client.city || ''}/${client.state || ''})\n\nPor favor, confirme a data e horário agendados para darmos andamento ao processo na Polícia Federal. Obrigado!`;
+            
+            const textarea = document.getElementById('ai-whatsapp-output');
+            if (textarea) textarea.value = msg;
+            showToast('Mensagem gerada para ' + targetName + '!');
         }
+
         function sendAIWhatsApp() {
-            const clientId = document.getElementById('ai-client-select').value;
-            const client = clientsData.find(c => c.id === clientId);
-            const phone = client && client.phone ? client.phone.replace(/\D/g, '') : '';
-            window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(document.getElementById('ai-whatsapp-output').value)}`, '_blank');
+            const profType = document.getElementById('ai-professional-select').value;
+            const targetPhone = profType === 'damasceno' ? '5533988650173' : '5533991385754';
+            const msg = document.getElementById('ai-whatsapp-output').value;
+            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
+
+        function scheduleGoogleCalendar() {
+            const clientId = document.getElementById('ai-client-select').value;
+            const client = clientsData.find(c => c.id === clientId) || { fullname: 'Exame CAC' };
+            const title = encodeURIComponent(`Exame / Laudo PF - ${client.fullname}`);
+            const details = encodeURIComponent(`Agendamento de laudos obrigatórios (Itens 05 a 09) para ${client.fullname}, CPF: ${client.cpf}`);
+            const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}`;
+            window.open(calUrl, '_blank');
+            showToast('📅 Redirecionando para o Google Calendar...');
+        }
+
         function openWhatsAppModalForClient(clientId) {
             window.activeClientId = clientId;
             openAIAgentModal();
-            document.getElementById('ai-client-select').value = clientId;
-            generateAIWhatsAppScript();
+            const sel = document.getElementById('ai-client-select');
+            if (sel) {
+                sel.value = clientId;
+                generateAIWhatsAppScript();
+            }
         }
 
         function copyNewClientLink() {
