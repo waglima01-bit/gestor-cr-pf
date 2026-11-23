@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestor CAC & Exames | Wagner Lima Consultoria Bélica</title>
+  <title>Gestor CAC & Pastas | Wagner Lima Consultoria Bélica</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -12,86 +12,133 @@
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col">
 
-  <!-- TOPO -->
-  <header class="bg-slate-950 text-white border-b border-slate-800 sticky top-0 z-20">
-    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400">
-          <i data-lucide="shield-check" class="w-5 h-5"></i>
-        </div>
+  <!-- MODO CLIENTE (QUANDO ACESSA ?cadastro=1) -->
+  <div id="modo-cliente" class="hidden min-h-screen bg-slate-950 text-white py-8 px-4">
+    <div class="max-w-xl mx-auto bg-white text-slate-900 rounded-2xl p-6 shadow-xl space-y-5">
+      <div class="border-b border-slate-200 pb-3">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Ficha de Cadastro Online</span>
+        <h1 class="text-lg font-extrabold text-slate-900">Wagner Lima Consultoria Bélica</h1>
+        <p class="text-xs text-slate-500">Preencha seus dados abaixo para iniciar seu processo e preparar sua pasta e avaliação psicológica.</p>
+      </div>
+
+      <form id="form-link-cliente" class="space-y-3 text-sm">
         <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight">Wagner Lima Consultoria Bélica</h1>
-          <p class="text-xs text-slate-400">CAC • Aquisição • Porte • Clube de Tiro • Exames & Google Drive</p>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nome Completo *</label>
+          <input id="lc-nome" type="text" required placeholder="EX: JOÃO DA SILVA SANTOS" class="w-full rounded-xl border border-slate-300 px-3 py-2 uppercase focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">CPF *</label>
+            <input id="lc-cpf" type="text" required placeholder="000.000.000-00" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">WhatsApp *</label>
+            <input id="lc-fone" type="text" required placeholder="(33) 99999-9999" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Modalidade</label>
+            <select id="lc-modalidade" class="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="Concessão de CR">Concessão de CR</option>
+              <option value="Aquisição de Arma">Aquisição de Arma</option>
+              <option value="Porte de Arma">Porte de Arma</option>
+              <option value="Clube de Tiro / Rotina">Clube de Tiro / Rotina</option>
+              <option value="Renovação / Atualização">Renovação / Atualização</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Data Preferencial Psicológico</label>
+            <input id="lc-data-psico" type="date" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Observações / Objetivo</label>
+          <textarea id="lc-obs" rows="2" placeholder="Ex: Primeiro CR para tiro desportivo..." class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 transition">
+          Enviar Cadastro & Gerar Link de Importação
+        </button>
+      </form>
+
+      <div id="lc-resultado" class="hidden p-4 rounded-xl bg-emerald-50 border border-emerald-300 space-y-2 text-xs text-emerald-950">
+        <p class="font-bold">Cadastro preparado com sucesso!</p>
+        <p>Envie o link abaixo para o painel da consultoria importar automaticamente e criar a pasta em CAIXA ALTA e o exame psicológico:</p>
+        <input id="lc-link-retorno" type="text" readonly class="w-full rounded-lg border border-emerald-300 bg-white px-2.5 py-1.5 text-[11px] font-mono" />
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button id="lc-btn-copiar" type="button" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-semibold">Copiar Link</button>
+          <a id="lc-btn-wa" href="#" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold">Enviar no WhatsApp</a>
         </div>
       </div>
-
-      <div class="flex items-center gap-2 text-xs">
-        <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-amber-300 font-medium">
-          waglima01@gmail.com
-        </span>
-      </div>
     </div>
-  </header>
+  </div>
 
-  <!-- NAVEGAÇÃO PRINCIPAL -->
-  <nav class="bg-white border-b border-slate-200">
-    <div class="max-w-6xl mx-auto px-4 flex gap-2 overflow-x-auto">
-      <button id="tab-clientes" type="button" class="px-4 py-3 text-sm font-semibold border-b-2 border-amber-500 text-slate-900 flex items-center gap-2 whitespace-nowrap">
-        <i data-lucide="users" class="w-4 h-4"></i>
-        Clientes & CAC
-      </button>
-      <button id="tab-exames" type="button" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
-        <i data-lucide="calendar-check" class="w-4 h-4"></i>
-        Agendamento de Exames
-      </button>
-      <button id="tab-drive" type="button" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
-        <i data-lucide="hard-drive" class="w-4 h-4"></i>
-        Google Drive (waglima01@gmail.com)
-      </button>
-    </div>
-  </nav>
-
-  <!-- CONTEÚDO -->
-  <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-1 space-y-6">
-
-    <!-- AVISO DE ARMAZENAMENTO -->
-    <div id="storage-notice" class="hidden rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-xs text-amber-900 flex items-center justify-between gap-3">
-      <span>Seu navegador bloqueou o armazenamento local (Tracking Prevention). O app continua funcionando na sessão e você pode baixar/exportar o backup JSON pelo Google Drive.</span>
-    </div>
-
-    <!-- ABA 1: CLIENTES & CAC -->
-    <section id="view-clientes" class="space-y-6">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
-          <p class="text-xs text-slate-500 font-medium">Clientes Cadastrados</p>
-          <p id="kpi-clientes" class="text-2xl font-bold text-slate-900 mt-1">0</p>
+  <!-- MODO ESCRITÓRIO (PAINEL PRINCIPAL) -->
+  <div id="modo-escritorio" class="flex-1 flex flex-col">
+    <header class="bg-slate-950 text-white border-b border-slate-800 sticky top-0 z-20">
+      <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400">
+            <i data-lucide="folder-kanban" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-base sm:text-lg font-bold tracking-tight">Wagner Lima Consultoria Bélica</h1>
+            <p class="text-xs text-slate-400">Link do Cliente • Exame Psicológico • Pastas em CAIXA ALTA & Drive</p>
+          </div>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
-          <p class="text-xs text-slate-500 font-medium">Exames Agendados</p>
-          <p id="kpi-exames" class="text-2xl font-bold text-amber-600 mt-1">0</p>
-        </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
-          <p class="text-xs text-slate-500 font-medium">Atendimento Consultoria</p>
-          <p class="text-sm font-bold text-slate-800 mt-1">Seg–Sex • 09h às 18h</p>
-          <p class="text-xs text-slate-500">Gov. Valadares/MG • (33) 98852-2101</p>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-copiar-link-cliente" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="link" class="w-3.5 h-3.5"></i>
+            Copiar Link do Cliente
+          </button>
+          <span class="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-amber-300 text-xs font-medium">
+            waglima01@gmail.com
+          </span>
         </div>
       </div>
+    </header>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- FORMULÁRIO NOVO CLIENTE -->
+    <nav class="bg-white border-b border-slate-200">
+      <div class="max-w-6xl mx-auto px-4 flex gap-2 overflow-x-auto">
+        <button id="tab-clientes" type="button" class="px-4 py-3 text-sm font-semibold border-b-2 border-amber-500 text-slate-900 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          Clientes & CAC
+        </button>
+        <button id="tab-pastas" type="button" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="folder" class="w-4 h-4"></i>
+          Pastas & Documentos (CAIXA ALTA)
+        </button>
+        <button id="tab-exames" type="button" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="brain" class="w-4 h-4"></i>
+          Exames (Psicológico & CAC)
+        </button>
+        <button id="tab-drive" type="button" class="px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="hard-drive" class="w-4 h-4"></i>
+          Google Drive
+        </button>
+      </div>
+    </nav>
+
+    <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-1 space-y-6">
+      <div id="storage-notice" class="hidden rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-xs text-amber-900">
+        Armazenamento local restrito pelo navegador. Dados ativos na sessão; use a aba Google Drive para exportar/importar backup JSON.
+      </div>
+
+      <!-- ABA 1: CLIENTES -->
+      <section id="view-clientes" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
-          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-            <i data-lucide="user-plus" class="w-4 h-4 text-amber-600"></i>
-            Novo Cliente / Processo CAC
-          </h2>
-
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Novo Cliente (Gera Pasta & Psicológico)</h2>
           <form id="form-cliente" class="space-y-3 text-sm">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Nome Completo *</label>
-              <input id="cli-nome" type="text" required placeholder="Nome do requerente" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              <input id="cli-nome" type="text" required placeholder="Nome do cliente" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
             </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">CPF</label>
                 <input id="cli-cpf" type="text" placeholder="000.000.000-00" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
@@ -101,439 +148,509 @@
                 <input id="cli-fone" type="text" placeholder="(33) 99999-9999" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
               </div>
             </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Modalidade / Foco</label>
-                <select id="cli-modalidade" class="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
-                  <option value="Concessão de CR">Concessão de CR</option>
-                  <option value="Aquisição de Arma">Aquisição de Arma</option>
-                  <option value="Porte de Arma">Porte de Arma</option>
-                  <option value="Clube de Tiro / Rotina">Clube de Tiro / Rotina</option>
-                  <option value="Renovação / Atualização">Renovação / Atualização</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Validade do CR</label>
-                <input id="cli-validade" type="date" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
-              </div>
-            </div>
-
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Próximo Passo / Observações</label>
-              <textarea id="cli-obs" rows="2" placeholder="Ex: Agendar avaliação psicológica e teste de capacidade técnica..." class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Modalidade</label>
+              <select id="cli-modalidade" class="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <option value="Concessão de CR">Concessão de CR</option>
+                <option value="Aquisição de Arma">Aquisição de Arma</option>
+                <option value="Porte de Arma">Porte de Arma</option>
+                <option value="Clube de Tiro / Rotina">Clube de Tiro / Rotina</option>
+                <option value="Renovação / Atualização">Renovação / Atualização</option>
+              </select>
             </div>
-
-            <button type="submit" class="w-full rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 transition flex items-center justify-center gap-2">
-              <i data-lucide="check" class="w-4 h-4"></i>
-              Salvar Cliente
+            <label class="flex items-center gap-2 text-xs text-slate-700 pt-1">
+              <input id="cli-auto-psico" type="checkbox" checked class="rounded border-slate-300 text-amber-600 focus:ring-amber-500" />
+              Criar automaticamente rascunho de <strong>Exame Psicológico</strong>
+            </label>
+            <button type="submit" class="w-full rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 transition">
+              Cadastrar Cliente
             </button>
           </form>
         </div>
 
-        <!-- LISTA DE CLIENTES -->
         <div class="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-              <i data-lucide="list" class="w-4 h-4 text-slate-600"></i>
-              Carteira de Clientes
-            </h2>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Clientes Ativos</h2>
             <input id="busca-cliente" type="text" placeholder="Buscar por nome ou CPF..." class="rounded-xl border border-slate-300 px-3 py-1.5 text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-amber-500" />
           </div>
-
           <div id="lista-clientes" class="divide-y divide-slate-100"></div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ABA 2: AGENDAMENTO DE EXAMES -->
-    <section id="view-exames" class="hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- FORMULÁRIO DE EXAME -->
+      <!-- ABA 2: GESTOR DE PASTAS & DOCUMENTOS (CAIXA ALTA) -->
+      <section id="view-pastas" class="hidden space-y-4">
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
-          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-            <i data-lucide="calendar-plus" class="w-4 h-4 text-amber-600"></i>
-            Marcar / Agendar Exame
-          </h2>
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Gestor de Pastas e Documentos por Cliente</h2>
+              <p class="text-xs text-slate-500">Pastas padronizadas em <strong>CAIXA ALTA</strong> com o nome completo do cliente para organização local e no Google Drive (waglima01@gmail.com).</p>
+            </div>
+            <select id="seletor-pasta-cliente" class="rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white font-semibold">
+              <option value="">Selecione a pasta do cliente...</option>
+            </select>
+          </div>
 
+          <div id="painel-pasta-detalhe" class="space-y-4"></div>
+        </div>
+      </section>
+
+      <!-- ABA 3: EXAMES -->
+      <section id="view-exames" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Agendar Exame</h2>
           <form id="form-exame" class="space-y-3 text-sm">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Cliente *</label>
-              <select id="ex-cliente" required class="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <option value="">Selecione um cliente...</option>
+              <select id="ex-cliente" required class="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white">
+                <option value="">Selecione...</option>
               </select>
             </div>
-
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Exame *</label>
-              <select id="ex-tipo" class="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <select id="ex-tipo" class="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white">
                 <option value="Aptidão Psicológica">Aptidão Psicológica</option>
                 <option value="Capacidade Técnica">Capacidade Técnica</option>
-                <option value="Exame Médico / Clínico">Exame Médico / Clínico</option>
-                <option value="Renovação de Laudo">Renovação de Laudo</option>
+                <option value="Exame Médico">Exame Médico</option>
               </select>
             </div>
-
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Profissional / Parceiro</label>
-              <input id="ex-profissional" type="text" placeholder="Ex: Maria Damasceno / Guimarães / Clínica" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Profissional / Clínica</label>
+              <input id="ex-profissional" type="text" placeholder="Ex: Maria Damasceno / Guimarães" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
             </div>
-
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Data *</label>
-                <input id="ex-data" type="date" required class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                <input id="ex-data" type="date" required class="w-full rounded-xl border border-slate-300 px-3 py-2" />
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Horário *</label>
-                <input id="ex-hora" type="time" required class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Hora *</label>
+                <input id="ex-hora" type="time" required class="w-full rounded-xl border border-slate-300 px-3 py-2" />
               </div>
             </div>
-
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Local / Endereço</label>
-              <input id="ex-local" type="text" placeholder="Rua Afonso Pena, 2701, sala 106 ou Clínica" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Local</label>
+              <input id="ex-local" type="text" placeholder="Rua Afonso Pena, 2701, sala 106, Centro, Gov. Valadares/MG" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
             </div>
-
-            <button type="submit" class="w-full rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 transition flex items-center justify-center gap-2">
-              <i data-lucide="calendar-check" class="w-4 h-4 text-amber-400"></i>
-              Confirmar Agendamento
+            <button type="submit" class="w-full rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 transition">
+              Salvar Agendamento
             </button>
           </form>
         </div>
 
-        <!-- LISTA DE EXAMES AGENDADOS -->
         <div class="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
-          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-            <i data-lucide="clock" class="w-4 h-4 text-slate-600"></i>
-            Exames Marcados
-          </h2>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Exames Agendados</h2>
           <div id="lista-exames" class="divide-y divide-slate-100"></div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ABA 3: GOOGLE DRIVE (waglima01@gmail.com) -->
-    <section id="view-drive" class="hidden space-y-6">
-      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Conexão & Backup</span>
-            <h2 class="text-lg font-bold text-slate-900 mt-0.5">Google Drive — waglima01@gmail.com</h2>
-            <p class="text-xs text-slate-500 mt-1">
-              Exporte o pacote de dados (clientes e agendamentos de exames) em JSON para arquivar na pasta do Drive de <strong>waglima01@gmail.com</strong> ou importe um backup salvo anteriormente.
-            </p>
+      <!-- ABA 4: GOOGLE DRIVE -->
+      <section id="view-drive" class="hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Google Drive — waglima01@gmail.com</h2>
+              <p class="text-xs text-slate-500">Exporte o backup JSON com pastas em CAIXA ALTA, documentos e exames para arquivar no Google Drive.</p>
+            </div>
+            <a href="https://drive.google.com/drive/u/0/my-drive" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold">
+              Abrir Google Drive
+            </a>
           </div>
-          <a href="https://drive.google.com/drive/u/0/my-drive" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold flex items-center gap-2 transition">
-            <i data-lucide="external-link" class="w-4 h-4"></i>
-            Abrir Google Drive
-          </a>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <i data-lucide="download" class="w-4 h-4 text-emerald-600"></i>
-              Exportar Backup para waglima01@gmail.com
-            </h3>
-            <p class="text-xs text-slate-600">Gera um arquivo JSON com todos os clientes e exames agendados para você salvar no Google Drive.</p>
-            <button id="btn-exportar-json" type="button" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 transition">
-              <i data-lucide="file-json" class="w-4 h-4"></i>
+          <div class="flex flex-wrap gap-3">
+            <button id="btn-exportar-json" type="button" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
               Baixar Backup JSON
             </button>
-          </div>
-
-          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <i data-lucide="upload" class="w-4 h-4 text-blue-600"></i>
-              Restaurar Backup JSON
-            </h3>
-            <p class="text-xs text-slate-600">Selecione um arquivo JSON exportado anteriormente para carregar os dados na tela.</p>
-            <input id="input-importar-json" type="file" accept=".json,application/json" class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+            <label class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold cursor-pointer">
+              Importar Backup JSON
+              <input id="input-importar-json" type="file" accept=".json,application/json" class="hidden" />
+            </label>
           </div>
         </div>
+      </section>
+    </main>
+  </div>
 
-        <div class="text-xs text-slate-500 pt-2 border-t border-slate-100 flex flex-wrap justify-between gap-2">
-          <span>Conta configurada: <strong>waglima01@gmail.com</strong></span>
-          <span>Endereço: Rua Afonso Pena, 2701, sala 106, Centro, Governador Valadares/MG • (33) 98852-2101</span>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- TOAST -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg border border-slate-700"></div>
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg"></div>
 
   <script>
     (function () {
       const DRIVE_EMAIL = "waglima01@gmail.com";
-      const STORAGE_KEY = "wagner_lima_cac_v1";
+      const STORAGE_KEY = "wagner_lima_cac_v2";
+      const DOCS_PADRAO = [
+        "05 OCUPAÇÃO LÍCITA.pdf",
+        "06 RESIDÊNCIA FIXA.pdf",
+        "07 SEGUNDO ENDEREÇO.pdf",
+        "08 CAPACIDADE TÉCNICA.pdf",
+        "09 APTIDÃO PSICOLÓGICA.pdf"
+      ];
 
-      const memoryFallback = {
-        clientes: [],
-        exames: []
-      };
-
+      const memoryState = { clientes: [], exames: [] };
       let storageBlocked = false;
+
+      function pastaUpper(nome) {
+        return String(nome || "SEM NOME").trim().toUpperCase();
+      }
 
       function loadState() {
         try {
           if (window.localStorage) {
             const raw = window.localStorage.getItem(STORAGE_KEY);
             if (raw) {
-              const parsed = JSON.parse(raw);
+              const d = JSON.parse(raw);
               return {
-                clientes: Array.isArray(parsed.clientes) ? parsed.clientes : [],
-                exames: Array.isArray(parsed.exames) ? parsed.exames : []
+                clientes: Array.isArray(d.clientes) ? d.clientes : [],
+                exames: Array.isArray(d.exames) ? d.exames : []
               };
             }
           }
-        } catch (err) {
+        } catch (e) {
           storageBlocked = true;
         }
-        return {
-          clientes: [...memoryFallback.clientes],
-          exames: [...memoryFallback.exames]
-        };
+        return { clientes: [...memoryState.clientes], exames: [...memoryState.exames] };
       }
 
-      function saveState(state) {
-        memoryFallback.clientes = [...state.clientes];
-        memoryFallback.exames = [...state.exames];
+      function saveState(st) {
+        memoryState.clientes = [...st.clientes];
+        memoryState.exames = [...st.exames];
         try {
           if (window.localStorage) {
-            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
           }
-        } catch (err) {
+        } catch (e) {
           storageBlocked = true;
         }
         if (storageBlocked) {
-          document.getElementById("storage-notice").classList.remove("hidden");
+          const n = document.getElementById("storage-notice");
+          if (n) n.classList.remove("hidden");
         }
       }
 
-      let appState = loadState();
+      let state = loadState();
 
-      function showToast(msg) {
+      function toast(msg) {
         const el = document.getElementById("toast");
+        if (!el) return;
         el.textContent = msg;
         el.classList.remove("hidden");
-        clearTimeout(showToast._timer);
-        showToast._timer = setTimeout(() => {
-          el.classList.add("hidden");
-        }, 3000);
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => el.classList.add("hidden"), 3000);
       }
 
-      function switchTab(tabName) {
-        const tabs = {
-          clientes: { btn: "tab-clientes", view: "view-clientes" },
-          exames: { btn: "tab-exames", view: "view-exames" },
-          drive: { btn: "tab-drive", view: "view-drive" }
-        };
-
-        Object.entries(tabs).forEach(([key, cfg]) => {
-          const btn = document.getElementById(cfg.btn);
-          const view = document.getElementById(cfg.view);
-          const active = key === tabName;
-          view.classList.toggle("hidden", !active);
-          btn.classList.toggle("border-amber-500", active);
-          btn.classList.toggle("text-slate-900", active);
-          btn.classList.toggle("border-transparent", !active);
-          btn.classList.toggle("text-slate-500", !active);
-        });
-
-        if (tabName === "exames") {
-          renderClienteSelect();
-          renderExames();
-        }
-      }
-
-      function renderClienteSelect() {
-        const select = document.getElementById("ex-cliente");
-        const current = select.value;
-        select.innerHTML = '<option value="">Selecione um cliente...</option>';
-        appState.clientes.forEach((c) => {
-          const opt = document.createElement("option");
-          opt.value = c.id;
-          opt.textContent = c.cpf ? `${c.nome} (${c.cpf})` : c.nome;
-          select.appendChild(opt);
-        });
-        if (current) select.value = current;
-      }
-
-      function renderClientes() {
-        const query = (document.getElementById("busca-cliente").value || "").toLowerCase().trim();
-        const container = document.getElementById("lista-clientes");
-
-        document.getElementById("kpi-clientes").textContent = appState.clientes.length;
-        document.getElementById("kpi-exames").textContent = appState.exames.length;
-
-        const filtrados = appState.clientes.filter((c) => {
-          if (!query) return true;
-          return (c.nome || "").toLowerCase().includes(query) || (c.cpf || "").toLowerCase().includes(query);
-        });
-
-        if (filtrados.length === 0) {
-          container.innerHTML = '<p class="py-8 text-center text-sm text-slate-400">Nenhum cliente encontrado.</p>';
-          return;
-        }
-
-        container.innerHTML = "";
-        filtrados.forEach((c) => {
-          const row = document.createElement("div");
-          row.className = "py-3.5 flex flex-wrap items-center justify-between gap-3";
-
-          const info = document.createElement("div");
-          info.innerHTML = `
-            <p class="font-bold text-slate-900 text-sm">${escapeHtml(c.nome)}</p>
-            <p class="text-xs text-slate-500">
-              CPF: ${escapeHtml(c.cpf || "Não informado")} • Tel: ${escapeHtml(c.fone || "Não informado")} •
-              <span class="font-semibold text-amber-700">${escapeHtml(c.modalidade)}</span>
-              ${c.validade ? ` • Validade CR: ${escapeHtml(c.validade)}` : ""}
-            </p>
-            ${c.obs ? `<p class="text-xs text-slate-600 mt-1">${escapeHtml(c.obs)}</p>` : ""}
-          `;
-
-          const actions = document.createElement("div");
-          actions.className = "flex items-center gap-2";
-
-          const btnAgendar = document.createElement("button");
-          btnAgendar.type = "button";
-          btnAgendar.className = "px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-semibold";
-          btnAgendar.textContent = "Agendar Exame";
-          btnAgendar.addEventListener("click", () => {
-            switchTab("exames");
-            document.getElementById("ex-cliente").value = c.id;
-          });
-
-          const btnExcluir = document.createElement("button");
-          btnExcluir.type = "button";
-          btnExcluir.className = "px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold";
-          btnExcluir.textContent = "Excluir";
-          btnExcluir.addEventListener("click", () => {
-            appState.clientes = appState.clientes.filter((item) => item.id !== c.id);
-            saveState(appState);
-            renderClientes();
-            showToast("Cliente removido.");
-          });
-
-          actions.appendChild(btnAgendar);
-          actions.appendChild(btnExcluir);
-          row.appendChild(info);
-          row.appendChild(actions);
-          container.appendChild(row);
-        });
-      }
-
-      function renderExames() {
-        const container = document.getElementById("lista-exames");
-        document.getElementById("kpi-exames").textContent = appState.exames.length;
-
-        if (appState.exames.length === 0) {
-          container.innerHTML = '<p class="py-8 text-center text-sm text-slate-400">Nenhum exame agendado até o momento.</p>';
-          return;
-        }
-
-        container.innerHTML = "";
-        appState.exames.forEach((ex) => {
-          const cliente = appState.clientes.find((c) => c.id === ex.clienteId);
-          const nomeCliente = cliente ? cliente.nome : (ex.clienteNome || "Cliente");
-          const foneCliente = (cliente && cliente.fone ? cliente.fone : "").replace(/\D/g, "");
-
-          const row = document.createElement("div");
-          row.className = "py-3.5 flex flex-wrap items-center justify-between gap-3";
-
-          const info = document.createElement("div");
-          info.innerHTML = `
-            <p class="font-bold text-slate-900 text-sm">${escapeHtml(ex.tipo)} — ${escapeHtml(nomeCliente)}</p>
-            <p class="text-xs text-slate-600">
-              Data: <strong>${escapeHtml(ex.data)}</strong> às <strong>${escapeHtml(ex.hora)}</strong>
-              ${ex.profissional ? ` • Profissional: ${escapeHtml(ex.profissional)}` : ""}
-            </p>
-            ${ex.local ? `<p class="text-xs text-slate-500 mt-0.5">Local: ${escapeHtml(ex.local)}</p>` : ""}
-          `;
-
-          const actions = document.createElement("div");
-          actions.className = "flex flex-wrap items-center gap-2";
-
-          const btnCal = document.createElement("button");
-          btnCal.type = "button";
-          btnCal.className = "px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold";
-          btnCal.textContent = "Google Agenda";
-          btnCal.addEventListener("click", () => {
-            const start = `${ex.data.replace(/-/g, "")}T${ex.hora.replace(":", "")}00`;
-            const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ex.tipo + " - " + nomeCliente)}&dates=${start}/${start}&details=${encodeURIComponent("Consultoria: " + DRIVE_EMAIL + (ex.profissional ? " | Profissional: " + ex.profissional : ""))}&location=${encodeURIComponent(ex.local || "Governador Valadares, MG")}`;
-            window.open(url, "_blank", "noopener,noreferrer");
-          });
-
-          const btnWa = document.createElement("button");
-          btnWa.type = "button";
-          btnWa.className = "px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold";
-          btnWa.textContent = "WhatsApp";
-          btnWa.addEventListener("click", () => {
-            const texto = `Olá ${nomeCliente}, confirmação do exame de *${ex.tipo}* em *${ex.data}* às *${ex.hora}*${ex.local ? ` em *${ex.local}*` : ""}. — Wagner Lima Consultoria Bélica`;
-            const phone = foneCliente ? (foneCliente.startsWith("55") ? foneCliente : "55" + foneCliente) : "";
-            const waUrl = phone
-              ? `https://wa.me/${phone}?text=${encodeURIComponent(texto)}`
-              : `https://wa.me/?text=${encodeURIComponent(texto)}`;
-            window.open(waUrl, "_blank", "noopener,noreferrer");
-          });
-
-          const btnDel = document.createElement("button");
-          btnDel.type = "button";
-          btnDel.className = "px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold";
-          btnDel.textContent = "Cancelar";
-          btnDel.addEventListener("click", () => {
-            appState.exames = appState.exames.filter((item) => item.id !== ex.id);
-            saveState(appState);
-            renderExames();
-            showToast("Agendamento removido.");
-          });
-
-          actions.appendChild(btnCal);
-          actions.appendChild(btnWa);
-          actions.appendChild(btnDel);
-          row.appendChild(info);
-          row.appendChild(actions);
-          container.appendChild(row);
-        });
-      }
-
-      function escapeHtml(str) {
-        return String(str || "")
+      function escapeHtml(s) {
+        return String(s || "")
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
       }
 
+      function criarClienteComAutomacoes({ nome, cpf, fone, modalidade, dataPsico, obs, autoPsico = true }) {
+        const nomeLimpo = String(nome || "").trim();
+        const pasta = pastaUpper(nomeLimpo);
+        const cliente = {
+          id: "cli_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+          nome: nomeLimpo,
+          pastaUpper: pasta,
+          cpf: String(cpf || "").trim(),
+          fone: String(fone || "").trim(),
+          modalidade: modalidade || "Concessão de CR",
+          obs: String(obs || "").trim(),
+          documentos: DOCS_PADRAO.map((arquivo) => ({
+            arquivo,
+            status: "Pendente",
+            nomeArquivoEnviado: ""
+          }))
+        };
+
+        state.clientes.unshift(cliente);
+
+        if (autoPsico || dataPsico) {
+          state.exames.unshift({
+            id: "ex_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+            clienteId: cliente.id,
+            clienteNome: nomeLimpo,
+            pastaUpper: pasta,
+            tipo: "Aptidão Psicológica",
+            profissional: "A definir / Parceiro Credenciado",
+            data: dataPsico || "",
+            hora: "",
+            local: "Governador Valadares, MG",
+            status: dataPsico ? "Agendado" : "Pendente de Horário"
+          });
+        }
+
+        saveState(state);
+        return cliente;
+      }
+
+      function processImportUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const rawImport = params.get("importar");
+        if (!rawImport) return;
+        try {
+          const dados = JSON.parse(decodeURIComponent(escape(atob(rawImport))));
+          if (dados && dados.nome) {
+            criarClienteComAutomacoes({ ...dados, autoPsico: true });
+            toast(`Cliente ${pastaUpper(dados.nome)} importado, pasta criada e exame psicológico preparado!`);
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } catch (err) {
+          console.error("Falha ao importar dados:", err);
+        }
+      }
+
+      function switchTab(tab) {
+        const map = {
+          clientes: ["tab-clientes", "view-clientes"],
+          pastas: ["tab-pastas", "view-pastas"],
+          exames: ["tab-exames", "view-exames"],
+          drive: ["tab-drive", "view-drive"]
+        };
+        Object.entries(map).forEach(([k, [bId, vId]]) => {
+          const b = document.getElementById(bId);
+          const v = document.getElementById(vId);
+          const on = k === tab;
+          v.classList.toggle("hidden", !on);
+          b.classList.toggle("border-amber-500", on);
+          b.classList.toggle("text-slate-900", on);
+          b.classList.toggle("border-transparent", !on);
+          b.classList.toggle("text-slate-500", !on);
+        });
+
+        renderSelects();
+        if (tab === "pastas") renderPastaDetalhe();
+        if (tab === "exames") renderExames();
+      }
+
+      function renderSelects() {
+        const exSel = document.getElementById("ex-cliente");
+        const pastaSel = document.getElementById("seletor-pasta-cliente");
+        const prevEx = exSel.value;
+        const prevPasta = pastaSel.value;
+
+        exSel.innerHTML = '<option value="">Selecione...</option>';
+        pastaSel.innerHTML = '<option value="">Selecione a pasta do cliente...</option>';
+
+        state.clientes.forEach((c) => {
+          const pNome = pastaUpper(c.nome);
+          const o1 = document.createElement("option");
+          o1.value = c.id;
+          o1.textContent = `${pNome} ${c.cpf ? "(" + c.cpf + ")" : ""}`;
+          exSel.appendChild(o1);
+
+          const o2 = document.createElement("option");
+          o2.value = c.id;
+          o2.textContent = pNome;
+          pastaSel.appendChild(o2);
+        });
+
+        if (prevEx) exSel.value = prevEx;
+        if (prevPasta) pastaSel.value = prevPasta;
+        else if (state.clientes[0]) pastaSel.value = state.clientes[0].id;
+      }
+
+      function renderClientes() {
+        const q = (document.getElementById("busca-cliente").value || "").toLowerCase().trim();
+        const box = document.getElementById("lista-clientes");
+        const list = state.clientes.filter((c) => {
+          if (!q) return true;
+          return (c.nome || "").toLowerCase().includes(q) || (c.cpf || "").toLowerCase().includes(q);
+        });
+
+        if (list.length === 0) {
+          box.innerHTML = '<p class="py-8 text-center text-sm text-slate-400">Nenhum cliente cadastrado ainda. Use o formulário ou envie o Link do Cliente.</p>';
+          return;
+        }
+
+        box.innerHTML = "";
+        list.forEach((c) => {
+          const pNome = pastaUpper(c.nome);
+          const row = document.createElement("div");
+          row.className = "py-3.5 flex flex-wrap items-center justify-between gap-3";
+          row.innerHTML = `
+            <div>
+              <p class="font-bold text-slate-900 text-sm">${escapeHtml(pNome)}</p>
+              <p class="text-xs text-slate-500">CPF: ${escapeHtml(c.cpf || "—")} • Tel: ${escapeHtml(c.fone || "—")} • ${escapeHtml(c.modalidade)}</p>
+            </div>
+          `;
+
+          const actions = document.createElement("div");
+          actions.className = "flex items-center gap-2";
+
+          const btnPasta = document.createElement("button");
+          btnPasta.type = "button";
+          btnPasta.className = "px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold";
+          btnPasta.textContent = "Abrir Pasta";
+          btnPasta.addEventListener("click", () => {
+            switchTab("pastas");
+            document.getElementById("seletor-pasta-cliente").value = c.id;
+            renderPastaDetalhe();
+          });
+
+          const btnPsico = document.createElement("button");
+          btnPsico.type = "button";
+          btnPsico.className = "px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-semibold";
+          btnPsico.textContent = "Exame Psicológico";
+          btnPsico.addEventListener("click", () => {
+            switchTab("exames");
+            document.getElementById("ex-cliente").value = c.id;
+            document.getElementById("ex-tipo").value = "Aptidão Psicológica";
+          });
+
+          actions.appendChild(btnPasta);
+          actions.appendChild(btnPsico);
+          row.appendChild(actions);
+          box.appendChild(row);
+        });
+      }
+
+      function renderPastaDetalhe() {
+        const selId = document.getElementById("seletor-pasta-cliente").value;
+        const box = document.getElementById("painel-pasta-detalhe");
+        const cliente = state.clientes.find((c) => c.id === selId);
+
+        if (!cliente) {
+          box.innerHTML = '<p class="text-sm text-slate-400 py-6 text-center">Cadastre ou selecione um cliente para visualizar sua pasta em CAIXA ALTA.</p>';
+          return;
+        }
+
+        const pNome = pastaUpper(cliente.nome);
+        cliente.documentos = Array.isArray(cliente.documentos) && cliente.documentos.length
+          ? cliente.documentos
+          : DOCS_PADRAO.map((arquivo) => ({ arquivo, status: "Pendente", nomeArquivoEnviado: "" }));
+
+        box.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span class="text-[11px] uppercase tracking-wider text-amber-400 font-bold">Pasta do Cliente (CAIXA ALTA)</span>
+              <h3 class="text-base font-extrabold tracking-wide">${escapeHtml(pNome)}</h3>
+              <p class="text-xs text-slate-300">Destino sugerido no Google Drive: <strong>${DRIVE_EMAIL} / ${escapeHtml(pNome)}</strong></p>
+            </div>
+            <div class="flex gap-2">
+              <button id="btn-copiar-pasta" type="button" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold">
+                Copiar Nome da Pasta
+              </button>
+              <a href="https://drive.google.com/drive/u/0/my-drive" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold">
+                Abrir Drive
+              </a>
+            </div>
+          </div>
+          <div id="lista-docs-pasta" class="divide-y divide-slate-100 border border-slate-200 rounded-xl px-4"></div>
+        `;
+
+        document.getElementById("btn-copiar-pasta").addEventListener("click", () => {
+          navigator.clipboard?.writeText(pNome).catch(() => {});
+          toast(`Nome da pasta copiado: ${pNome}`);
+        });
+
+        const docsBox = document.getElementById("lista-docs-pasta");
+        cliente.documentos.forEach((doc, idx) => {
+          const item = document.createElement("div");
+          item.className = "py-3 flex flex-wrap items-center justify-between gap-3 text-xs";
+
+          const left = document.createElement("div");
+          left.innerHTML = `
+            <p class="font-bold text-slate-800">${escapeHtml(doc.arquivo)}</p>
+            <p class="text-slate-500">Status: <strong>${escapeHtml(doc.status)}</strong>${doc.nomeArquivoEnviado ? " • Arquivo: " + escapeHtml(doc.nomeArquivoEnviado) : ""}</p>
+          `;
+
+          const right = document.createElement("div");
+          right.className = "flex items-center gap-2";
+
+          const fileInput = document.createElement("input");
+          fileInput.type = "file";
+          fileInput.className = "hidden";
+          fileInput.id = `doc-upload-${cliente.id}-${idx}`;
+          fileInput.addEventListener("change", (ev) => {
+            const f = ev.target.files && ev.target.files[0];
+            if (!f) return;
+            doc.status = "Recebido";
+            doc.nomeArquivoEnviado = f.name;
+            saveState(state);
+            renderPastaDetalhe();
+            toast(`Documento anexado em ${pNome}`);
+          });
+
+          const lbl = document.createElement("label");
+          lbl.htmlFor = fileInput.id;
+          lbl.className = "px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold cursor-pointer";
+          lbl.textContent = "Anexar / Atualizar";
+
+          right.appendChild(fileInput);
+          right.appendChild(lbl);
+          item.appendChild(left);
+          item.appendChild(right);
+          docsBox.appendChild(item);
+        });
+      }
+
+      function renderExames() {
+        const box = document.getElementById("lista-exames");
+        if (state.exames.length === 0) {
+          box.innerHTML = '<p class="py-8 text-center text-sm text-slate-400">Nenhum exame cadastrado.</p>';
+          return;
+        }
+        box.innerHTML = "";
+        state.exames.forEach((ex) => {
+          const pNome = pastaUpper(ex.clienteNome);
+          const row = document.createElement("div");
+          row.className = "py-3.5 flex flex-wrap items-center justify-between gap-3";
+          row.innerHTML = `
+            <div>
+              <p class="font-bold text-slate-900 text-sm">${escapeHtml(ex.tipo)} — ${escapeHtml(pNome)}</p>
+              <p class="text-xs text-slate-600">
+                ${ex.data ? `Data: <strong>${escapeHtml(ex.data)}</strong>` : "Data a definir"}
+                ${ex.hora ? ` às <strong>${escapeHtml(ex.hora)}</strong>` : ""}
+                • Status: <span class="font-semibold text-amber-700">${escapeHtml(ex.status || "Agendado")}</span>
+              </p>
+              ${ex.profissional ? `<p class="text-xs text-slate-500">Profissional: ${escapeHtml(ex.profissional)}</p>` : ""}
+            </div>
+          `;
+
+          const btnWa = document.createElement("button");
+          btnWa.type = "button";
+          btnWa.className = "px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold";
+          btnWa.textContent = "Confirmar no WhatsApp";
+          btnWa.addEventListener("click", () => {
+            const msg = `Olá ${pNome}, orientação de *${ex.tipo}*${ex.data ? ` para *${ex.data}*` : ""}${ex.hora ? ` às *${ex.hora}*` : ""}. — Wagner Lima Consultoria Bélica`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+          });
+
+          row.appendChild(btnWa);
+          box.appendChild(row);
+        });
+      }
+
       function initEvents() {
         document.getElementById("tab-clientes").addEventListener("click", () => switchTab("clientes"));
+        document.getElementById("tab-pastas").addEventListener("click", () => switchTab("pastas"));
         document.getElementById("tab-exames").addEventListener("click", () => switchTab("exames"));
         document.getElementById("tab-drive").addEventListener("click", () => switchTab("drive"));
         document.getElementById("busca-cliente").addEventListener("input", renderClientes);
+        document.getElementById("seletor-pasta-cliente").addEventListener("change", renderPastaDetalhe);
+
+        document.getElementById("btn-copiar-link-cliente").addEventListener("click", () => {
+          const link = `${window.location.origin}${window.location.pathname}?cadastro=1`;
+          navigator.clipboard?.writeText(link).catch(() => {});
+          toast("Link do cliente copiado!");
+        });
 
         document.getElementById("form-cliente").addEventListener("submit", (e) => {
           e.preventDefault();
           const nome = document.getElementById("cli-nome").value.trim();
           if (!nome) return;
-
-          appState.clientes.unshift({
-            id: "cli_" + Date.now(),
+          criarClienteComAutomacoes({
             nome,
             cpf: document.getElementById("cli-cpf").value.trim(),
             fone: document.getElementById("cli-fone").value.trim(),
             modalidade: document.getElementById("cli-modalidade").value,
-            validade: document.getElementById("cli-validade").value,
-            obs: document.getElementById("cli-obs").value.trim()
+            autoPsico: document.getElementById("cli-auto-psico").checked
           });
-
-          saveState(appState);
           e.target.reset();
+          document.getElementById("cli-auto-psico").checked = true;
           renderClientes();
-          renderClienteSelect();
-          showToast("Cliente salvo!");
+          renderSelects();
+          toast(`Cliente salvo e pasta ${pastaUpper(nome)} criada!`);
         });
 
         document.getElementById("form-exame").addEventListener("submit", (e) => {
@@ -542,40 +659,62 @@
           const data = document.getElementById("ex-data").value;
           const hora = document.getElementById("ex-hora").value;
           if (!clienteId || !data || !hora) return;
-
-          const cliente = appState.clientes.find((c) => c.id === clienteId);
-          appState.exames.unshift({
+          const cli = state.clientes.find((c) => c.id === clienteId);
+          state.exames.unshift({
             id: "ex_" + Date.now(),
             clienteId,
-            clienteNome: cliente ? cliente.nome : "Cliente",
+            clienteNome: cli ? cli.nome : "Cliente",
             tipo: document.getElementById("ex-tipo").value,
             profissional: document.getElementById("ex-profissional").value.trim(),
             data,
             hora,
-            local: document.getElementById("ex-local").value.trim()
+            local: document.getElementById("ex-local").value.trim(),
+            status: "Agendado"
           });
-
-          saveState(appState);
+          saveState(state);
           e.target.reset();
           renderExames();
-          showToast("Exame agendado!");
+          toast("Exame agendado!");
+        });
+
+        document.getElementById("form-link-cliente").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const payload = {
+            nome: document.getElementById("lc-nome").value.trim(),
+            cpf: document.getElementById("lc-cpf").value.trim(),
+            fone: document.getElementById("lc-fone").value.trim(),
+            modalidade: document.getElementById("lc-modalidade").value,
+            dataPsico: document.getElementById("lc-data-psico").value,
+            obs: document.getElementById("lc-obs").value.trim()
+          };
+          const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+          const retorno = `${window.location.origin}${window.location.pathname}?importar=${encoded}`;
+
+          document.getElementById("lc-link-retorno").value = retorno;
+          document.getElementById("lc-btn-wa").href = `https://wa.me/5533988522101?text=${encodeURIComponent("NOVO CADASTRO CAC - " + pastaUpper(payload.nome) + "\nImportar no painel:\n" + retorno)}`;
+          document.getElementById("lc-resultado").classList.remove("hidden");
+        });
+
+        document.getElementById("lc-btn-copiar").addEventListener("click", () => {
+          const val = document.getElementById("lc-link-retorno").value;
+          navigator.clipboard?.writeText(val).catch(() => {});
+          toast("Link de importação copiado!");
         });
 
         document.getElementById("btn-exportar-json").addEventListener("click", () => {
-          const payload = {
+          const blob = new Blob([JSON.stringify({
             contaDrive: DRIVE_EMAIL,
-            exportadoEm: new Date().toISOString(),
-            clientes: appState.clientes,
-            exames: appState.exames
-          };
-          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+            pastasEmCaixaAlta: state.clientes.map((c) => pastaUpper(c.nome)),
+            clientes: state.clientes,
+            exames: state.exames
+          }, null, 2)], { type: "application/json" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `backup-cac-${new Date().toISOString().slice(0, 10)}.json`;
+          a.download = `drive-${DRIVE_EMAIL.split("@")[0]}-${new Date().toISOString().slice(0, 10)}.json`;
           a.click();
           URL.revokeObjectURL(url);
-          showToast(`Backup gerado para ${DRIVE_EMAIL}`);
+          toast(`Backup gerado para ${DRIVE_EMAIL}`);
         });
 
         document.getElementById("input-importar-json").addEventListener("change", (e) => {
@@ -584,16 +723,17 @@
           const reader = new FileReader();
           reader.onload = (ev) => {
             try {
-              const parsed = JSON.parse(ev.target.result);
-              appState.clientes = Array.isArray(parsed.clientes) ? parsed.clientes : appState.clientes;
-              appState.exames = Array.isArray(parsed.exames) ? parsed.exames : appState.exames;
-              saveState(appState);
+              const d = JSON.parse(ev.target.result);
+              if (Array.isArray(d.clientes)) state.clientes = d.clientes;
+              if (Array.isArray(d.exames)) state.exames = d.exames;
+              saveState(state);
               renderClientes();
+              renderSelects();
+              renderPastaDetalhe();
               renderExames();
-              renderClienteSelect();
-              showToast("Backup restaurado com sucesso!");
+              toast("Backup restaurado!");
             } catch (err) {
-              showToast("Arquivo JSON inválido.");
+              toast("JSON inválido.");
             }
           };
           reader.readAsText(file);
@@ -601,13 +741,17 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        const isClientMode = new URLSearchParams(window.location.search).get("cadastro") === "1";
+        document.getElementById("modo-cliente").classList.toggle("hidden", !isClientMode);
+        document.getElementById("modo-escritorio").classList.toggle("hidden", isClientMode);
+
+        processImportUrl();
         initEvents();
         renderClientes();
-        renderClienteSelect();
+        renderSelects();
+        renderPastaDetalhe();
         renderExames();
-        if (storageBlocked) {
-          document.getElementById("storage-notice").classList.remove("hidden");
-        }
+
         if (window.lucide && typeof window.lucide.createIcons === "function") {
           window.lucide.createIcons();
         }
