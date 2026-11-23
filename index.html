@@ -47,23 +47,23 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <button type="button" onclick="copyNewClientLink()" class="text-xs flex items-center space-x-1.5 text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-500/40 transition-colors font-semibold">
+                <button type="button" onclick="window.copyNewClientLink && window.copyNewClientLink()" class="text-xs flex items-center space-x-1.5 text-emerald-300 hover:text-white bg-emerald-950/60 hover:bg-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-500/40 transition-colors font-semibold">
                     <i data-lucide="link" class="w-3.5 h-3.5"></i>
                     <span>Link Novo Cliente</span>
                 </button>
-                <button type="button" onclick="syncWithGoogleDrive()" class="text-xs flex items-center space-x-1.5 text-blue-300 hover:text-white bg-pf-800 hover:bg-blue-900/50 px-3 py-1.5 rounded-lg border border-blue-500/40 transition-colors font-semibold">
+                <button type="button" onclick="window.syncWithGoogleDrive && window.syncWithGoogleDrive()" class="text-xs flex items-center space-x-1.5 text-blue-300 hover:text-white bg-pf-800 hover:bg-blue-900/50 px-3 py-1.5 rounded-lg border border-blue-500/40 transition-colors font-semibold">
                     <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-blue-400"></i>
                     <span>Backup / Drive</span>
                 </button>
-                <button type="button" onclick="openDispatcherSettingsModal()" class="text-xs flex items-center space-x-1.5 text-amber-300 hover:text-white bg-pf-800 hover:bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold">
+                <button type="button" onclick="window.openDispatcherSettingsModal && window.openDispatcherSettingsModal()" class="text-xs flex items-center space-x-1.5 text-amber-300 hover:text-white bg-pf-800 hover:bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold">
                     <i data-lucide="user-cog" class="w-3.5 h-3.5"></i>
                     <span>Meus Dados</span>
                 </button>
-                <button type="button" onclick="openAIAgentModal()" class="text-xs flex items-center space-x-1.5 text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 px-3 py-1.5 rounded-lg border border-indigo-400/50 shadow-sm transition-all font-semibold">
+                <button type="button" onclick="window.openAIAgentModal && window.openAIAgentModal()" class="text-xs flex items-center space-x-1.5 text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 px-3 py-1.5 rounded-lg border border-indigo-400/50 shadow-sm transition-all font-semibold">
                     <i data-lucide="bot" class="w-3.5 h-3.5 text-amber-300"></i>
                     <span>Agente IA & WhatsApp</span>
                 </button>
-                <button type="button" onclick="compileFullDossier()" class="text-xs flex items-center space-x-1.5 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold">
+                <button type="button" onclick="window.compileFullDossier && window.compileFullDossier()" class="text-xs flex items-center space-x-1.5 text-amber-400 hover:text-white bg-pf-800 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors font-semibold">
                     <i data-lucide="printer" class="w-3.5 h-3.5"></i>
                     <span>Dossiê / Minuta</span>
                 </button>
@@ -101,7 +101,7 @@
                         <span class="text-xs font-bold text-amber-300 uppercase">Novo Processo</span>
                         <i data-lucide="plus-circle" class="w-5 h-5 text-amber-300"></i>
                     </div>
-                    <button type="button" onclick="createNewClient()" class="mt-3 w-full py-2 bg-amber-500 hover:bg-amber-400 text-pf-950 font-extrabold text-xs rounded-xl transition-colors shadow">
+                    <button type="button" onclick="window.createNewClient && window.createNewClient()" class="mt-3 w-full py-2 bg-amber-500 hover:bg-amber-400 text-pf-950 font-extrabold text-xs rounded-xl transition-colors shadow">
                         + Cadastrar Novo Requerente
                     </button>
                 </div>
@@ -114,13 +114,13 @@
                         <p class="text-xs text-slate-500">Cadastros preenchidos via link entram aqui ao abrir o link de importação.</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="refreshDashboardData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm">
+                        <button type="button" onclick="window.refreshDashboardData && window.refreshDashboardData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-sm">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                             <span>Atualizar Lista</span>
                         </button>
                         <div class="relative w-full sm:w-64">
                             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
-                            <input type="text" id="search-input" onkeyup="filterClients()" placeholder="Buscar por nome ou CPF..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="search-input" onkeyup="window.filterClients && window.filterClients()" placeholder="Buscar por nome ou CPF..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
         <section id="client-portal" class="hidden space-y-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center space-x-3">
-                    <button type="button" id="btn-back-dashboard" onclick="backToDashboard()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors">
+                    <button type="button" id="btn-back-dashboard" onclick="window.backToDashboard && window.backToDashboard()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-colors">
                         <i data-lucide="arrow-left" class="w-4 h-4"></i>
                         <span>Voltar ao Painel</span>
                     </button>
@@ -154,19 +154,19 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2" id="dispatcher-only-portal-actions">
-                    <button type="button" onclick="openWeaponModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
+                    <button type="button" onclick="window.openWeaponModal && window.openWeaponModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
                         <i data-lucide="crosshair" class="w-4 h-4 text-amber-400"></i>
                         <span>Dados da Arma</span>
                     </button>
-                    <button type="button" onclick="openAlienatorModal()" class="px-3 py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
+                    <button type="button" onclick="window.openAlienatorModal && window.openAlienatorModal()" class="px-3 py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm">
                         <i data-lucide="user-check" class="w-4 h-4 text-indigo-200"></i>
                         <span>Alienante / 5 Anos</span>
                     </button>
-                    <button type="button" onclick="syncWithGoogleDrive()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow">
+                    <button type="button" onclick="window.syncWithGoogleDrive && window.syncWithGoogleDrive()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow">
                         <i data-lucide="hard-drive" class="w-4 h-4"></i>
                         <span>Backup</span>
                     </button>
-                    <button type="button" onclick="saveCurrentClientData(true)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow">
+                    <button type="button" onclick="window.saveCurrentClientData && window.saveCurrentClientData(true)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow">
                         <i data-lucide="save" class="w-4 h-4"></i>
                         <span>Salvar Ficha</span>
                     </button>
@@ -185,7 +185,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                     <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
                         <label class="block font-bold text-slate-700">Etapa Atual do Cliente</label>
-                        <select id="field-processStage" onchange="saveCurrentClientData(false); updateCRHealthBadge();" class="w-full p-2 bg-white border border-slate-300 rounded-lg font-bold text-slate-800">
+                        <select id="field-processStage" onchange="window.saveCurrentClientData && window.saveCurrentClientData(false); window.updateCRHealthBadge && window.updateCRHealthBadge();" class="w-full p-2 bg-white border border-slate-300 rounded-lg font-bold text-slate-800">
                             <option value="Jornada CR: Coleta & Laudos">Jornada CR: Coleta & Laudos</option>
                             <option value="Jornada CR: Protocolo & Análise">Jornada CR: Protocolo & Análise</option>
                             <option value="CAC Ativo: Aquisição, Porte & Clube">CAC Ativo: Aquisição, Porte & Clube</option>
@@ -196,7 +196,7 @@
 
                     <div class="md:col-span-2 p-3.5 bg-amber-50/60 rounded-xl border border-amber-200/80 space-y-1.5">
                         <label class="block font-bold text-amber-950">Próximo Passo / Combinado da Consultoria</label>
-                        <input type="text" id="field-nextActionNote" oninput="saveCurrentClientData(false)" class="w-full p-2 bg-white border border-amber-300 rounded-lg font-medium text-slate-800" placeholder="Ex: Envio dos laudos de capacidade técnica e psicológica; próximo passo: conferência para protocolo.">
+                        <input type="text" id="field-nextActionNote" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2 bg-white border border-amber-300 rounded-lg font-medium text-slate-800" placeholder="Ex: Envio dos laudos de capacidade técnica e psicológica; próximo passo: conferência para protocolo.">
                         <p class="text-[11px] text-slate-600">Atendimento: Rua Afonso Pena, 2701, sala 106, Centro, Governador Valadares/MG • Seg a Sex, 09h às 18h • (33) 98852-2101 • waglima01@gmail.com</p>
                     </div>
                 </div>
@@ -216,37 +216,37 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div class="sm:col-span-2">
                                 <label class="block font-bold text-slate-700 mb-1">Nome Completo (sem abreviações) *</label>
-                                <input type="text" id="field-fullname" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-fullname" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">CPF *</label>
-                                <input type="text" id="field-cpf" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="000.000.000-00">
+                                <input type="text" id="field-cpf" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="000.000.000-00">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Data de Nascimento *</label>
-                                <input type="date" id="field-birthdate" onchange="validateAge(); saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                <input type="date" id="field-birthdate" onchange="window.validateAge && window.validateAge(); window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">RG (Identidade) *</label>
-                                <input type="text" id="field-rg" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-rg" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block font-bold text-slate-700 mb-1">Órgão/UF RG *</label>
-                                    <input type="text" id="field-rgIssuer" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="PC MG">
+                                    <input type="text" id="field-rgIssuer" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold" placeholder="PC MG">
                                 </div>
                                 <div>
                                     <label class="block font-bold text-slate-700 mb-1">Emissão RG</label>
-                                    <input type="date" id="field-rgDate" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                    <input type="date" id="field-rgDate" onchange="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                                 </div>
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Título de Eleitor *</label>
-                                <input type="text" id="field-voterId" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                <input type="text" id="field-voterId" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Estado Civil *</label>
-                                <select id="field-maritalStatus" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                <select id="field-maritalStatus" onchange="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                                     <option value="Solteiro(a)">Solteiro(a)</option>
                                     <option value="Casado(a)">Casado(a)</option>
                                     <option value="Divorciado(a)">Divorciado(a)</option>
@@ -256,35 +256,35 @@
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Município Natal *</label>
-                                <input type="text" id="field-birthCity" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-birthCity" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Estado Natal (UF) *</label>
-                                <input type="text" id="field-birthState" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-birthState" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Nome do Pai *</label>
-                                <input type="text" id="field-fatherName" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-fatherName" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Nome da Mãe *</label>
-                                <input type="text" id="field-motherName" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-motherName" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Profissão / Cargo *</label>
-                                <input type="text" id="field-profession" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-profession" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Matrícula / Ident. Funcional</label>
-                                <input type="text" id="field-functionalId" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                <input type="text" id="field-functionalId" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Telefone / WhatsApp *</label>
-                                <input type="text" id="field-phone" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="(33) 99999-9999">
+                                <input type="text" id="field-phone" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="(33) 99999-9999">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">E-mail Pessoal (Gov.br) *</label>
-                                <input type="email" id="field-email" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="email@exemplo.com">
+                                <input type="email" id="field-email" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="email@exemplo.com">
                             </div>
                         </div>
                     </div>
@@ -299,25 +299,25 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">CEP *</label>
-                                <input type="text" id="field-cep" oninput="onCepInput(this.value); saveCurrentClientData(false);" maxlength="9" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="35020-010">
+                                <input type="text" id="field-cep" oninput="window.onCepInput && window.onCepInput(this.value); window.saveCurrentClientData && window.saveCurrentClientData(false);" maxlength="9" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="35020-010">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block font-bold text-slate-700 mb-1">Logradouro (Rua / Avenida) *</label>
-                                <input type="text" id="field-street" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-street" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Número *</label>
-                                <input type="text" id="field-number" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-number" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Bairro *</label>
-                                <input type="text" id="field-neighborhood" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                <input type="text" id="field-neighborhood" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Cidade / UF *</label>
                                 <div class="grid grid-cols-3 gap-1">
-                                    <input type="text" id="field-city" oninput="saveCurrentClientData(false)" class="col-span-2 p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
-                                    <input type="text" id="field-state" oninput="saveCurrentClientData(false)" class="p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold text-center">
+                                    <input type="text" id="field-city" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="col-span-2 p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold">
+                                    <input type="text" id="field-state" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="p-2.5 bg-slate-50 border border-slate-300 rounded-xl uppercase font-semibold text-center">
                                 </div>
                             </div>
                         </div>
@@ -328,7 +328,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Modelo da Arma *</label>
-                                <select id="field-selectedWeapon" onchange="saveCurrentClientData(false);" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                                <select id="field-selectedWeapon" onchange="window.saveCurrentClientData && window.saveCurrentClientData(false);" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                                     <option value="">Selecione o modelo da arma...</option>
                                     <optgroup label="Pistolas Taurus .380 & .38 TPC">
                                         <option value="Pistola Taurus G2C">Pistola Taurus G2C</option>
@@ -349,7 +349,7 @@
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Calibre Principal *</label>
-                                <select id="field-selectedCaliber" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-800">
+                                <select id="field-selectedCaliber" onchange="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-800">
                                     <option value="">Selecione o calibre...</option>
                                     <option value=".380 Auto (.380 ACP)">.380 Auto (.380 ACP)</option>
                                     <option value=".38 TPC">.38 TPC</option>
@@ -359,7 +359,7 @@
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block font-bold text-slate-700 mb-1">Clube de Tiro / Observações de Rotina (Aquisição, Porte, Habitualidade)</label>
-                                <input type="text" id="field-clubNotes" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium" placeholder="Ex: Interesse em aquisição/porte após CR e registro de idas ao clube de tiro.">
+                                <input type="text" id="field-clubNotes" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium" placeholder="Ex: Interesse em aquisição/porte após CR e registro de idas ao clube de tiro.">
                             </div>
                         </div>
                     </div>
@@ -367,7 +367,7 @@
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Tipo de Processo</label>
-                            <select id="field-serviceType" onchange="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                            <select id="field-serviceType" onchange="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                                 <option value="Concessão de CR (Atirador)">Concessão de CR (Atirador)</option>
                                 <option value="Aquisição SINARM-CAC">Aquisição SINARM-CAC</option>
                                 <option value="Porte de Arma">Porte de Arma</option>
@@ -378,16 +378,16 @@
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Nº do CR</label>
-                            <input type="text" id="field-crNumber" oninput="saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="Opcional">
+                            <input type="text" id="field-crNumber" oninput="window.saveCurrentClientData && window.saveCurrentClientData(false)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold" placeholder="Opcional">
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Validade do CR</label>
-                            <input type="date" id="field-crExpiry" onchange="saveCurrentClientData(false); updateCRHealthBadge();" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
+                            <input type="date" id="field-crExpiry" onchange="window.saveCurrentClientData && window.saveCurrentClientData(false); window.updateCRHealthBadge && window.updateCRHealthBadge();" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold">
                         </div>
                     </div>
 
                     <div id="client-bottom-submit-container" class="hidden pt-2">
-                        <button type="button" onclick="submitClientRegistrationOnline()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-extrabold flex items-center justify-center space-x-2 shadow-lg transition-all">
+                        <button type="button" onclick="window.submitClientRegistrationOnline && window.submitClientRegistrationOnline()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-extrabold flex items-center justify-center space-x-2 shadow-lg transition-all">
                             <i data-lucide="check-circle-2" class="w-5 h-5"></i>
                             <span>Concluir & Enviar Meus Dados ao Despachante</span>
                         </button>
@@ -405,27 +405,27 @@
                         </div>
 
                         <div class="grid grid-cols-1 gap-2 text-xs">
-                            <button type="button" onclick="openDocumentPreview('ANEXO I - Requerimento Padrão PF')" class="w-full p-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center justify-between transition-colors shadow-sm">
+                            <button type="button" onclick="window.openDocumentPreview && window.openDocumentPreview('ANEXO I - Requerimento Padrão PF')" class="w-full p-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center justify-between transition-colors shadow-sm">
                                 <span class="flex items-center gap-2"><i data-lucide="file-badge" class="w-4 h-4 text-amber-400"></i> ANEXO I - Requerimento Padrão PF</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-400"></i>
                             </button>
-                            <button type="button" onclick="openDocumentPreview('ANEXO A - Aquisição Uso Restrito')" class="w-full p-3 bg-indigo-900 hover:bg-indigo-800 text-white rounded-xl font-bold flex items-center justify-between transition-colors shadow-sm">
+                            <button type="button" onclick="window.openDocumentPreview && window.openDocumentPreview('ANEXO A - Aquisição Uso Restrito')" class="w-full p-3 bg-indigo-900 hover:bg-indigo-800 text-white rounded-xl font-bold flex items-center justify-between transition-colors shadow-sm">
                                 <span class="flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4 text-indigo-300"></i> ANEXO A - Aquisição Uso Restrito</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-indigo-300"></i>
                             </button>
-                            <button type="button" onclick="openDocumentPreview('Termo de Doação de Arma')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
+                            <button type="button" onclick="window.openDocumentPreview && window.openDocumentPreview('Termo de Doação de Arma')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
                                 <span class="flex items-center gap-2"><i data-lucide="repeat" class="w-4 h-4 text-blue-600"></i> Termo de Doação de Arma</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i>
                             </button>
-                            <button type="button" onclick="openDocumentPreview('Declaração de Idoneidade')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
+                            <button type="button" onclick="window.openDocumentPreview && window.openDocumentPreview('Declaração de Idoneidade')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
                                 <span class="flex items-center gap-2"><i data-lucide="scale" class="w-4 h-4 text-emerald-600"></i> Declaração de Idoneidade</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i>
                             </button>
-                            <button type="button" onclick="openDocumentPreview('Declaração de Residência (5 Anos)')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
+                            <button type="button" onclick="window.openDocumentPreview && window.openDocumentPreview('Declaração de Residência (5 Anos)')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
                                 <span class="flex items-center gap-2"><i data-lucide="home" class="w-4 h-4 text-purple-600"></i> Declaração Residência (5 Anos)</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i>
                             </button>
-                            <button type="button" onclick="openDocumentPreview('Declaração de Segurança (DSA)')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
+                            <button type="button" onclick="window.openDocumentPreview && window.openDocumentPreview('Declaração de Segurança (DSA)')" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold flex items-center justify-between transition-colors border border-slate-300">
                                 <span class="flex items-center gap-2"><i data-lucide="lock" class="w-4 h-4 text-amber-600"></i> Declaração de Segurança (DSA)</span>
                                 <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i>
                             </button>
@@ -444,7 +444,7 @@
                         <div id="pf-checklist-container" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1"></div>
 
                         <div id="dispatcher-drive-sync-bar" class="pt-3 border-t border-slate-100 flex justify-end">
-                            <button type="button" onclick="syncWithGoogleDrive()" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 shadow">
+                            <button type="button" onclick="window.syncWithGoogleDrive && window.syncWithGoogleDrive()" class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 shadow">
                                 <i data-lucide="hard-drive" class="w-4 h-4"></i>
                                 <span>Registrar Backup do Dossiê</span>
                             </button>
@@ -475,7 +475,7 @@
                 <h3 id="preview-modal-title" class="font-extrabold text-base text-slate-900">Documento Oficial</h3>
                 <div class="flex items-center gap-2">
                     <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-amber-500 text-pf-950 font-bold text-xs rounded-xl flex items-center gap-1"><i data-lucide="printer" class="w-4 h-4"></i> Imprimir</button>
-                    <button type="button" onclick="closeDocumentPreview()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <button type="button" onclick="window.closeDocumentPreview && window.closeDocumentPreview()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
             </div>
             <div id="print-area" class="flex-1 overflow-y-auto p-4 bg-slate-50 border border-slate-200 rounded-xl"></div>
@@ -486,15 +486,15 @@
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 class="font-bold text-base text-slate-900">Configuração da Consultoria</h3>
-                <button type="button" onclick="closeDispatcherSettingsModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button type="button" onclick="window.closeDispatcherSettingsModal && window.closeDispatcherSettingsModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-3 text-xs">
                 <div><label class="block font-bold text-slate-700 mb-1">Nome / Consultoria *</label><input type="text" id="disp-setting-name" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold"></div>
                 <div><label class="block font-bold text-slate-700 mb-1">WhatsApp *</label><input type="text" id="disp-setting-phone" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold"></div>
                 <div><label class="block font-bold text-slate-700 mb-1">E-mail *</label><input type="email" id="disp-setting-email" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold"></div>
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeDispatcherSettingsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button>
-                    <button type="button" onclick="saveDispatcherSettingsData()" class="px-4 py-2 bg-amber-600 text-white rounded-xl font-bold">Salvar</button>
+                    <button type="button" onclick="window.closeDispatcherSettingsModal && window.closeDispatcherSettingsModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold">Cancelar</button>
+                    <button type="button" onclick="window.saveDispatcherSettingsData && window.saveDispatcherSettingsData()" class="px-4 py-2 bg-amber-600 text-white rounded-xl font-bold">Salvar</button>
                 </div>
             </div>
         </div>
@@ -502,7 +502,7 @@
 
     <div id="weapon-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto text-xs">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 class="font-bold text-base text-slate-900">Dados da Arma</h3><button type="button" onclick="closeWeaponModal()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3"><h3 class="font-bold text-base text-slate-900">Dados da Arma</h3><button type="button" onclick="window.closeWeaponModal && window.closeWeaponModal()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             <div class="grid grid-cols-2 gap-2">
                 <div><label class="font-bold text-slate-700">Espécie</label><input type="text" id="weapon-species" class="w-full p-2 bg-slate-50 border rounded-xl" value="PISTOLA"></div>
                 <div><label class="font-bold text-slate-700">Marca</label><input type="text" id="weapon-brand" class="w-full p-2 bg-slate-50 border rounded-xl" value="TAURUS"></div>
@@ -511,20 +511,20 @@
                 <div><label class="font-bold text-slate-700">SIGMA</label><input type="text" id="weapon-sigma" class="w-full p-2 bg-slate-50 border rounded-xl"></div>
                 <div><label class="font-bold text-slate-700">SINARM</label><input type="text" id="weapon-sinarm" class="w-full p-2 bg-slate-50 border rounded-xl"></div>
             </div>
-            <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeWeaponModal()" class="px-4 py-2 bg-slate-100 rounded-xl font-bold">Cancelar</button><button type="button" onclick="saveWeaponModalData()" class="px-4 py-2 bg-slate-900 text-white rounded-xl font-bold">Salvar</button></div>
+            <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="window.closeWeaponModal && window.closeWeaponModal()" class="px-4 py-2 bg-slate-100 rounded-xl font-bold">Cancelar</button><button type="button" onclick="window.saveWeaponModalData && window.saveWeaponModalData()" class="px-4 py-2 bg-slate-900 text-white rounded-xl font-bold">Salvar</button></div>
         </div>
     </div>
 
     <div id="alienator-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto text-xs">
-            <div class="flex items-center justify-between border-b pb-3"><h3 class="font-bold text-base text-slate-900">Alienante & Residência (5 Anos)</h3><button type="button" onclick="closeAlienatorModal()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+            <div class="flex items-center justify-between border-b pb-3"><h3 class="font-bold text-base text-slate-900">Alienante & Residência (5 Anos)</h3><button type="button" onclick="window.closeAlienatorModal && window.closeAlienatorModal()"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             <div class="space-y-3">
                 <input type="text" id="alienator-name" class="w-full p-2 bg-slate-50 border rounded-xl uppercase" placeholder="Nome do Alienante">
                 <input type="text" id="alienator-cpf" class="w-full p-2 bg-slate-50 border rounded-xl" placeholder="CPF do Alienante">
                 <input type="text" id="res-2026" class="w-full p-2 bg-slate-50 border rounded-xl" placeholder="Residência 2026">
                 <input type="text" id="res-2025" class="w-full p-2 bg-slate-50 border rounded-xl" placeholder="Residência 2025">
             </div>
-            <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeAlienatorModal()" class="px-4 py-2 bg-slate-100 rounded-xl font-bold">Cancelar</button><button type="button" onclick="saveAlienatorModalData()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold">Salvar</button></div>
+            <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="window.closeAlienatorModal && window.closeAlienatorModal()" class="px-4 py-2 bg-slate-100 rounded-xl font-bold">Cancelar</button><button type="button" onclick="window.saveAlienatorModalData && window.saveAlienatorModalData()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold">Salvar</button></div>
         </div>
     </div>
 
@@ -532,18 +532,18 @@
         <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col text-xs">
             <div class="flex items-center justify-between border-b pb-3">
                 <div class="flex items-center space-x-2"><div class="p-2 bg-purple-100 text-purple-700 rounded-xl"><i data-lucide="bot" class="w-5 h-5"></i></div><h3 class="font-bold text-base text-slate-900">Agente IA & WhatsApp (Parceiros & Cliente)</h3></div>
-                <button type="button" onclick="closeAIAgentModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button type="button" onclick="window.closeAIAgentModal && window.closeAIAgentModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">Selecionar Requerente / Processo *</label>
-                    <select id="ai-client-select" onchange="generateAIWhatsAppScript()" class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold">
+                    <select id="ai-client-select" onchange="window.generateAIWhatsAppScript && window.generateAIWhatsAppScript()" class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold">
                         <option value="">Selecione o cliente...</option>
                     </select>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">Destinatário / Modelo *</label>
-                    <select id="ai-professional-select" onchange="generateAIWhatsAppScript()" class="w-full p-2.5 bg-slate-50 border rounded-xl font-bold text-purple-900">
+                    <select id="ai-professional-select" onchange="window.generateAIWhatsAppScript && window.generateAIWhatsAppScript()" class="w-full p-2.5 bg-slate-50 border rounded-xl font-bold text-purple-900">
                         <option value="damasceno">Parceiro: Maria Damasceno (33 98865-0173)</option>
                         <option value="guimaraes">Parceiro: Guimarães (33 99138-5754)</option>
                         <option value="cliente">Cliente: Atualização & Próximo Passo</option>
@@ -555,13 +555,13 @@
                 <textarea id="ai-whatsapp-output" rows="7" class="w-full p-3 bg-slate-50 border rounded-xl font-mono text-[11px]" placeholder="Mensagem do WhatsApp..."></textarea>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
-                <button type="button" onclick="scheduleGoogleCalendar()" class="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl font-bold flex items-center gap-1.5">
+                <button type="button" onclick="window.scheduleGoogleCalendar && window.scheduleGoogleCalendar()" class="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl font-bold flex items-center gap-1.5">
                     <i data-lucide="calendar" class="w-4 h-4"></i>
                     <span>Agendar no Google Calendar</span>
                 </button>
                 <div class="flex gap-2">
-                    <button type="button" onclick="generateAIWhatsAppScript()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold">Atualizar Texto</button>
-                    <button type="button" onclick="sendAIWhatsApp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-1">
+                    <button type="button" onclick="window.generateAIWhatsAppScript && window.generateAIWhatsAppScript()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold">Atualizar Texto</button>
+                    <button type="button" onclick="window.sendAIWhatsApp && window.sendAIWhatsApp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-1">
                         <i data-lucide="message-circle" class="w-4 h-4"></i>
                         <span>Abrir WhatsApp</span>
                     </button>
@@ -576,215 +576,7 @@
     </div>
 
     <script>
-        const STORAGE_CLIENTS_KEY = 'pf_cr_clients_v4';
-        const STORAGE_CONFIG_KEY = 'pf_dispatcher_config_v2';
-        const STORAGE_LINK_CLIENT_KEY = 'pf_current_link_client_id_v2';
-
-        const DEFAULT_DISPATCHER_CONFIG = {
-            name: 'Wagner Lima Consultoria Bélica',
-            phone: '33988522101',
-            email: 'waglima01@gmail.com'
-        };
-
-        let memoryStore = {};
-        let clientsData = [];
-        window.activeClientId = null;
-
-        const pfChecklistItems = [
-            { id: 5, name: "Comprovante de ocupação lícita ou aposentadoria", standard: "05 OCUPAÇÃO LÍCITA.pdf" },
-            { id: 6, name: "Comprovante de residência fixa", standard: "06 RESIDÊNCIA FIXA.pdf" },
-            { id: 7, name: "Comprovante de segundo endereço para guarda do acervo", standard: "07 SEGUNDO ENDEREÇO.pdf" },
-            { id: 8, name: "Comprovante de capacidade técnica para o manuseio de arma de fogo", standard: "08 CAPACIDADE TÉCNICA.pdf" },
-            { id: 9, name: "Comprovante de aptidão psicológica para o manuseio de arma de fogo", standard: "09 APTIDÃO PSICOLÓGICA.pdf" }
-        ];
-
-        const urlParams = new URLSearchParams(window.location.search);
-
-        function safeReadStorage(key) {
-            try {
-                if (window.localStorage) {
-                    const val = window.localStorage.getItem(key);
-                    if (val !== null) return val;
-                }
-            } catch (e) {}
-            return memoryStore[key] || null;
-        }
-
-        function safeWriteStorage(key, value) {
-            memoryStore[key] = value;
-            try {
-                if (window.localStorage) {
-                    window.localStorage.setItem(key, value);
-                }
-            } catch (e) {}
-        }
-
-        function loadClientsFromStorage() {
-            try {
-                const raw = safeReadStorage(STORAGE_CLIENTS_KEY);
-                const parsed = raw ? JSON.parse(raw) : [];
-                return Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function persistClients() {
-            safeWriteStorage(STORAGE_CLIENTS_KEY, JSON.stringify(clientsData));
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            const m = document.getElementById('toast-msg');
-            if (!t || !m) return;
-            m.innerText = msg;
-            t.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3500);
-        }
-
-        function getDispatcherConfig() {
-            try {
-                const raw = safeReadStorage(STORAGE_CONFIG_KEY);
-                const saved = raw ? JSON.parse(raw) : null;
-                return { ...DEFAULT_DISPATCHER_CONFIG, ...(saved || {}) };
-            } catch (e) {
-                return { ...DEFAULT_DISPATCHER_CONFIG };
-            }
-        }
-
-        function openDispatcherSettingsModal() {
-            const cfg = getDispatcherConfig();
-            document.getElementById('disp-setting-name').value = cfg.name;
-            document.getElementById('disp-setting-phone').value = cfg.phone;
-            document.getElementById('disp-setting-email').value = cfg.email;
-            document.getElementById('dispatcher-settings-modal').classList.remove('hidden');
-        }
-
-        function closeDispatcherSettingsModal() {
-            document.getElementById('dispatcher-settings-modal').classList.add('hidden');
-        }
-
-        function saveDispatcherSettingsData() {
-            safeWriteStorage(STORAGE_CONFIG_KEY, JSON.stringify({
-                name: document.getElementById('disp-setting-name').value.trim() || DEFAULT_DISPATCHER_CONFIG.name,
-                phone: document.getElementById('disp-setting-phone').value.trim() || DEFAULT_DISPATCHER_CONFIG.phone,
-                email: document.getElementById('disp-setting-email').value.trim() || DEFAULT_DISPATCHER_CONFIG.email
-            }));
-            closeDispatcherSettingsModal();
-            showToast('Configurações salvas!');
-        }
-
-        function processIncomingPayload() {
-            const payloadData = urlParams.get('payload');
-            if (!payloadData) return;
-            try {
-                const decodedClient = JSON.parse(decodeURIComponent(escape(atob(payloadData))));
-                if (decodedClient && decodedClient.cpf) {
-                    const existingIndex = clientsData.findIndex(c => c.cpf === decodedClient.cpf);
-                    const existingFiles = existingIndex >= 0 ? (clientsData[existingIndex].files || {}) : {};
-                    decodedClient.files = { ...existingFiles, ...(decodedClient.files || {}) };
-
-                    if (existingIndex >= 0) {
-                        clientsData[existingIndex] = { ...clientsData[existingIndex], ...decodedClient };
-                    } else {
-                        clientsData.push(decodedClient);
-                    }
-                    persistClients();
-                    alert('Cadastro de ' + (decodedClient.fullname || decodedClient.cpf) + ' importado para o painel!');
-                    window.location.href = window.location.origin + window.location.pathname;
-                }
-            } catch (e) {
-                console.error('Erro ao importar payload:', e);
-            }
-        }
-
-        function daysUntilDate(dateStr) {
-            if (!dateStr) return null;
-            const target = new Date(dateStr + 'T00:00:00');
-            if (isNaN(target.getTime())) return null;
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
-        }
-
-        function getCRStatusInfo(crExpiry) {
-            const days = daysUntilDate(crExpiry);
-            if (days === null) return { label: 'Sem validade informada', isAlert: false, badgeClass: 'bg-slate-100 text-slate-700' };
-            if (days < 0) return { label: 'CR Vencido (' + Math.abs(days) + 'd)', isAlert: true, badgeClass: 'bg-red-100 text-red-800' };
-            if (days <= 90) return { label: 'Vence em ' + days + 'd', isAlert: true, badgeClass: 'bg-amber-100 text-amber-800' };
-            return { label: 'Válido (' + days + 'd)', isAlert: false, badgeClass: 'bg-emerald-100 text-emerald-800' };
-        }
-
-        function updateCRHealthBadge() {
-            const elExpiry = document.getElementById('field-crExpiry');
-            const badge = document.getElementById('cr-health-badge');
-            if (!elExpiry || !badge) return;
-            const info = getCRStatusInfo(elExpiry.value);
-            badge.className = 'text-xs font-bold px-3 py-1 rounded-full ' + info.badgeClass;
-            badge.innerText = 'CR: ' + info.label;
-        }
-
-        function createNewClient() {
-            const nc = {
-                id: 'cli_' + Date.now(),
-                fullname: '',
-                cpf: '',
-                phone: '',
-                email: '',
-                serviceType: 'Concessão de CR (Atirador)',
-                processStage: 'Jornada CR: Coleta & Laudos',
-                nextActionNote: '',
-                clubNotes: '',
-                selectedWeapon: '',
-                selectedCaliber: '',
-                crNumber: '',
-                crExpiry: '',
-                files: {}
-            };
-            clientsData.push(nc);
-            persistClients();
-            openClientPortal(nc.id);
-        }
-
-        function openClientPortal(clientId) {
-            window.activeClientId = clientId;
-            const client = clientsData.find(c => c.id === clientId);
-            if (!client) return;
-
-            const isClientLink = Boolean(urlParams.get('client') || urlParams.get('novo-cadastro'));
-
-            document.getElementById('app-header').style.display = isClientLink ? 'none' : 'block';
-            document.getElementById('section-item-3-dispatcher').style.display = isClientLink ? 'none' : 'block';
-            document.getElementById('dispatcher-only-portal-actions').style.display = isClientLink ? 'none' : 'flex';
-            document.getElementById('btn-back-dashboard').style.display = isClientLink ? 'none' : 'flex';
-            document.getElementById('client-bottom-submit-container').style.display = isClientLink ? 'block' : 'none';
-
-            document.getElementById('dispatcher-dashboard').classList.add('hidden');
-            document.getElementById('client-success-screen').classList.add('hidden');
-            document.getElementById('client-portal').classList.remove('hidden');
-
-            const fields = [
-                'fullname', 'cpf', 'birthdate', 'rg', 'rgIssuer', 'rgDate', 'voterId',
-                'maritalStatus', 'birthCity', 'birthState', 'fatherName', 'motherName',
-                'profession', 'functionalId', 'phone', 'email', 'serviceType',
-                'processStage', 'nextActionNote', 'clubNotes',
-                'cep', 'street', 'number', 'neighborhood', 'city', 'state',
-                'crNumber', 'crExpiry'
-            ];
-
-            fields.forEach(f => {
-                const el = document.getElementById('field-' + f);
-                if (el) el.value = client[f] || '';
-            });
-
-            if (!document.getElementById('field-processStage').value) {
-                document.getElementById('field-processStage').value = 'Jornada CR: Coleta & Laudos';
-            }
-
-            document.getElementById('field-selectedWeapon').value = client.selectedWeapon || '';
-            document.getElementById('field-selectedCaliber').value = client.selectedCaliber || '';
-
-            validateAge();
-            updateCRHealthBadge();
-            renderPFChecklist();
-            window.scrollTo({ top
+        (function () {
+            const STORAGE_CLIENTS_KEY = 'pf_cr_clients_v4';
+            const STORAGE_CONFIG_KEY = 'pf_dispatcher_config_v2';
+            const STORAGE_LINK_CLIENT
