@@ -15,10 +15,15 @@
   <!-- MODO CLIENTE (?cadastro=1) -->
   <div id="modo-cliente" class="hidden min-h-screen bg-slate-950 text-white py-8 px-4">
     <div class="max-w-xl mx-auto bg-white text-slate-900 rounded-2xl p-6 shadow-xl space-y-5">
-      <div class="border-b border-slate-200 pb-3">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Cadastro Online Direto</span>
-        <h1 class="text-lg font-extrabold text-slate-900">Wagner Lima Consultoria Bélica</h1>
-        <p class="text-xs text-slate-500">Preencha seus dados abaixo. O envio segue direto para o sistema da consultoria.</p>
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Cadastro Online Direto</span>
+          <h1 class="text-lg font-extrabold text-slate-900">Wagner Lima Consultoria Bélica</h1>
+          <p class="text-xs text-slate-500">Preencha seus dados abaixo. O envio segue direto para o sistema da consultoria.</p>
+        </div>
+        <button id="btn-voltar-painel" type="button" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer">
+          Voltar ao Painel
+        </button>
       </div>
 
       <form id="form-link-cliente" class="space-y-3 text-sm">
@@ -288,8 +293,8 @@
     (function () {
       const DRIVE_EMAIL = "waglima01@gmail.com";
       const DEFAULT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkldvd77NjFETUlYaBiKcTaZgMAxG_lSRBcQFzL6Np-rymuwpNUWIjpLd27RBZX4Zd/exec";
-      const STORAGE_KEY = "wagner_lima_cac_v4";
-      const WEBAPP_KEY = "wagner_lima_webapp_url_v2";
+      const STORAGE_KEY = "wagner_lima_cac_v5";
+      const WEBAPP_KEY = "wagner_lima_webapp_url_v3";
       const DOCS_PADRAO = [
         "05 OCUPAÇÃO LÍCITA.pdf",
         "06 RESIDÊNCIA FIXA.pdf",
@@ -300,7 +305,7 @@
 
       const memoryState = { clientes: [], exames: [] };
       let memoryWebAppUrl = DEFAULT_WEB_APP_URL;
-      let storageBlocked = false;
+      let forcedClientView = false;
 
       function pastaUpper(nome) {
         return String(nome || "SEM NOME").trim().toUpperCase();
@@ -312,9 +317,7 @@
             const saved = window.localStorage.getItem(WEBAPP_KEY);
             if (saved && saved.trim()) return saved.trim();
           }
-        } catch (e) {
-          storageBlocked = true;
-        }
+        } catch (e) {}
         return memoryWebAppUrl || DEFAULT_WEB_APP_URL;
       }
 
@@ -325,9 +328,7 @@
           if (window.localStorage) {
             window.localStorage.setItem(WEBAPP_KEY, clean);
           }
-        } catch (e) {
-          storageBlocked = true;
-        }
+        } catch (e) {}
       }
 
       function loadState() {
@@ -342,9 +343,7 @@
               };
             }
           }
-        } catch (e) {
-          storageBlocked = true;
-        }
+        } catch (e) {}
         return { clientes: [...memoryState.clientes], exames: [...memoryState.exames] };
       }
 
@@ -355,26 +354,18 @@
           if (window.localStorage) {
             window.localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
           }
-        } catch (e) {
-          storageBlocked = true;
-        }
-        if (storageBlocked) {
-          const n = document.getElementById("storage-notice");
-          if (n) n.classList.remove("hidden");
-        }
+        } catch (e) {}
       }
 
       let state = loadState();
 
       function toast(msg) {
-        try {
-          const el = document.getElementById("toast");
-          if (!el) return;
-          el.textContent = msg;
-          el.classList.remove("hidden");
-          clearTimeout(toast._t);
-          toast._t = setTimeout(() => el.classList.add("hidden"), 3200);
-        } catch (e) {}
+        const el = document.getElementById("toast");
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.remove("hidden");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => el.classList.add("hidden"), 3200);
       }
 
       function escapeHtml(s) {
@@ -386,11 +377,11 @@
       }
 
       function getClientLink() {
-        const base = `${window.location.origin}${window.location.pathname}`;
-        return `${base}?cadastro=1`;
+        return `${window.location.origin}${window.location.pathname}?cadastro=1`;
       }
 
       function isClientCadastroMode() {
+        if (forcedClientView) return true;
         try {
           const params = new URLSearchParams(window.location.search || "");
           const c = params.get("cadastro");
@@ -425,26 +416,8 @@
             body: JSON.stringify(body)
           });
           return true;
-        } catch (postErr) {
-          try {
-            const params = new URLSearchParams({
-              evento: body.evento || "cadastro",
-              pasta: body.pastaUpper,
-              nome: body.nome || body.clienteNome || "",
-              cpf: body.cpf || "",
-              fone: body.fone || "",
-              modalidade: body.modalidade || "",
-              tipoExame: body.tipoExame || "",
-              data: body.data || body.dataPsico || "",
-              hora: body.hora || "",
-              local: body.local || "",
-              obs: body.obs || ""
-            });
-            await fetch(`${endpoint}?${params.toString()}`, { mode: "no-cors" });
-            return true;
-          } catch (getErr) {
-            return false;
-          }
+        } catch (err) {
+          return false;
         }
       }
 
@@ -636,11 +609,6 @@
           <div id="lista-docs-pasta" class="divide-y divide-slate-100 border border-slate-200 rounded-xl px-4"></div>
         `;
 
-        document.getElementById("btn-copiar-pasta")?.addEventListener("click", () => {
-          navigator.clipboard?.writeText(pNome).catch(() => {});
-          toast(`Nome da pasta copiado: ${pNome}`);
-        });
-
         const docsBox = document.getElementById("lista-docs-pasta");
         cliente.documentos.forEach((doc, idx) => {
           const item = document.createElement("div");
@@ -658,3 +626,316 @@
           const fileInput = document.createElement("input");
           fileInput.type = "file";
           fileInput.className = "hidden";
+          fileInput.id = `doc-upload-${cliente.id}-${idx}`;
+          fileInput.addEventListener("change", (ev) => {
+            const f = ev.target.files && ev.target.files[0];
+            if (!f) return;
+            doc.status = "Recebido";
+            doc.nomeArquivoEnviado = f.name;
+            saveState(state);
+            renderPastaDetalhe();
+            toast(`Documento anexado em ${pNome}`);
+          });
+
+          const lbl = document.createElement("label");
+          lbl.htmlFor = fileInput.id;
+          lbl.className = "px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold cursor-pointer";
+          lbl.textContent = "Anexar / Atualizar";
+
+          right.appendChild(fileInput);
+          right.appendChild(lbl);
+          item.appendChild(left);
+          item.appendChild(right);
+          docsBox.appendChild(item);
+        });
+      }
+
+      function renderExames() {
+        const box = document.getElementById("lista-exames");
+        if (!box) return;
+        if (state.exames.length === 0) {
+          box.innerHTML = '<p class="py-8 text-center text-sm text-slate-400">Nenhum exame cadastrado.</p>';
+          return;
+        }
+        box.innerHTML = "";
+        state.exames.forEach((ex, index) => {
+          const pNome = pastaUpper(ex.clienteNome);
+          const row = document.createElement("div");
+          row.className = "py-3.5 flex flex-wrap items-center justify-between gap-3";
+          row.innerHTML = `
+            <div>
+              <p class="font-bold text-slate-900 text-sm">${escapeHtml(ex.tipo)} — ${escapeHtml(pNome)}</p>
+              <p class="text-xs text-slate-600">
+                ${ex.data ? `Data: <strong>${escapeHtml(ex.data)}</strong>` : "Data a definir"}
+                ${ex.hora ? ` às <strong>${escapeHtml(ex.hora)}</strong>` : ""}
+                • Status: <span class="font-semibold text-amber-700">${escapeHtml(ex.status || "Agendado")}</span>
+              </p>
+              ${ex.profissional ? `<p class="text-xs text-slate-500">Profissional: ${escapeHtml(ex.profissional)}</p>` : ""}
+              ${ex.local ? `<p class="text-xs text-slate-500">Local: ${escapeHtml(ex.local)}</p>` : ""}
+            </div>
+          `;
+
+          const btnReenviar = document.createElement("button");
+          btnReenviar.type = "button";
+          btnReenviar.dataset.examIndex = String(index);
+          btnReenviar.className = "btn-reenviar-exame px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold cursor-pointer";
+          btnReenviar.textContent = "Enviar ao Web App";
+
+          row.appendChild(btnReenviar);
+          box.appendChild(row);
+        });
+      }
+
+      // Delegação global de cliques para nunca perder eventos
+      document.addEventListener("click", async (e) => {
+        if (e.target.closest("#tab-clientes")) {
+          switchTab("clientes");
+          return;
+        }
+        if (e.target.closest("#tab-pastas")) {
+          switchTab("pastas");
+          return;
+        }
+        if (e.target.closest("#tab-exames")) {
+          switchTab("exames");
+          return;
+        }
+        if (e.target.closest("#tab-drive")) {
+          switchTab("drive");
+          return;
+        }
+        if (e.target.closest("#btn-abrir-link-cliente")) {
+          forcedClientView = true;
+          applyLayoutMode();
+          toast("Modo link do cliente aberto!");
+          return;
+        }
+        if (e.target.closest("#btn-voltar-painel")) {
+          forcedClientView = false;
+          applyLayoutMode();
+          return;
+        }
+        if (e.target.closest("#btn-copiar-link-cliente")) {
+          const link = getClientLink();
+          navigator.clipboard?.writeText(link).catch(() => {});
+          toast(`Link copiado: ${link}`);
+          return;
+        }
+        if (e.target.closest("#btn-copiar-pasta")) {
+          const selId = document.getElementById("seletor-pasta-cliente")?.value;
+          const cli = state.clientes.find((c) => c.id === selId);
+          if (cli) {
+            const pNome = pastaUpper(cli.nome);
+            navigator.clipboard?.writeText(pNome).catch(() => {});
+            toast(`Nome da pasta copiado: ${pNome}`);
+          }
+          return;
+        }
+        if (e.target.closest("#btn-salvar-webapp")) {
+          const val = document.getElementById("cfg-webapp-url")?.value || "";
+          setWebAppUrl(val);
+          toast("URL do Web App salva!");
+          return;
+        }
+        if (e.target.closest("#btn-exportar-json")) {
+          const blob = new Blob([JSON.stringify({
+            contaDrive: DRIVE_EMAIL,
+            webAppUrl: getWebAppUrl(),
+            pastasEmCaixaAlta: state.clientes.map((c) => pastaUpper(c.nome)),
+            clientes: state.clientes,
+            exames: state.exames
+          }, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `wagner-lima-cac-${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          toast(`Backup exportado (${DRIVE_EMAIL})`);
+          return;
+        }
+        const reenviarBtn = e.target.closest(".btn-reenviar-exame");
+        if (reenviarBtn) {
+          const idx = Number(reenviarBtn.dataset.examIndex);
+          const ex = state.exames[idx];
+          if (ex) {
+            await sendToWebApp({
+              evento: "exame",
+              nome: ex.clienteNome,
+              tipoExame: ex.tipo,
+              profissional: ex.profissional,
+              data: ex.data,
+              hora: ex.hora,
+              local: ex.local,
+              status: ex.status
+            });
+            toast(`Exame de ${pastaUpper(ex.clienteNome)} enviado ao Web App!`);
+          }
+        }
+      });
+
+      document.addEventListener("change", (e) => {
+        if (e.target && e.target.id === "seletor-pasta-cliente") {
+          renderPastaDetalhe();
+        }
+        if (e.target && e.target.id === "input-importar-json") {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              const d = JSON.parse(ev.target.result);
+              if (Array.isArray(d.clientes)) state.clientes = d.clientes;
+              if (Array.isArray(d.exames)) state.exames = d.exames;
+              if (d.webAppUrl) setWebAppUrl(d.webAppUrl);
+              saveState(state);
+              renderClientes();
+              renderSelects();
+              renderPastaDetalhe();
+              renderExames();
+              const cfg = document.getElementById("cfg-webapp-url");
+              if (cfg) cfg.value = getWebAppUrl();
+              toast("Backup restaurado!");
+            } catch (err) {
+              toast("JSON inválido.");
+            }
+          };
+          reader.readAsText(file);
+        }
+      });
+
+      document.addEventListener("input", (e) => {
+        if (e.target && e.target.id === "busca-cliente") {
+          renderClientes();
+        }
+      });
+
+      document.addEventListener("submit", async (e) => {
+        if (e.target && e.target.id === "form-link-cliente") {
+          e.preventDefault();
+          const btn = document.getElementById("lc-btn-enviar");
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = "Enviando...";
+          }
+
+          const payload = {
+            evento: "cadastro_cliente",
+            nome: document.getElementById("lc-nome").value.trim(),
+            cpf: document.getElementById("lc-cpf").value.trim(),
+            fone: document.getElementById("lc-fone").value.trim(),
+            modalidade: document.getElementById("lc-modalidade").value,
+            dataPsico: document.getElementById("lc-data-psico").value,
+            obs: document.getElementById("lc-obs").value.trim()
+          };
+
+          criarClienteLocal({ ...payload, autoPsico: true });
+          await sendToWebApp(payload);
+
+          const resumo = document.getElementById("lc-resumo-pasta");
+          if (resumo) {
+            resumo.textContent = `Pasta em CAIXA ALTA: ${pastaUpper(payload.nome)} • Exame psicológico encaminhado.`;
+          }
+          document.getElementById("lc-confirmacao")?.classList.remove("hidden");
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Enviar Cadastro Diretamente";
+          }
+          e.target.reset();
+          return;
+        }
+
+        if (e.target && e.target.id === "form-cliente") {
+          e.preventDefault();
+          const nome = document.getElementById("cli-nome").value.trim();
+          if (!nome) return;
+
+          const dados = {
+            evento: "cadastro_escritorio",
+            nome,
+            cpf: document.getElementById("cli-cpf").value.trim(),
+            fone: document.getElementById("cli-fone").value.trim(),
+            modalidade: document.getElementById("cli-modalidade").value,
+            obs: document.getElementById("cli-obs").value.trim(),
+            autoPsico: Boolean(document.getElementById("cli-auto-psico")?.checked)
+          };
+
+          criarClienteLocal(dados);
+          await sendToWebApp(dados);
+
+          e.target.reset();
+          const chk = document.getElementById("cli-auto-psico");
+          if (chk) chk.checked = true;
+          renderClientes();
+          renderSelects();
+          toast(`Pasta ${pastaUpper(nome)} criada e enviada ao Web App!`);
+          return;
+        }
+
+        if (e.target && e.target.id === "form-exame") {
+          e.preventDefault();
+          const clienteId = document.getElementById("ex-cliente").value;
+          const data = document.getElementById("ex-data").value;
+          const hora = document.getElementById("ex-hora").value;
+          if (!clienteId || !data || !hora) return;
+
+          const cli = state.clientes.find((c) => c.id === clienteId);
+          const nomeCli = cli ? cli.nome : "Cliente";
+          const exameObj = {
+            id: "ex_" + Date.now(),
+            clienteId,
+            clienteNome: nomeCli,
+            pastaUpper: pastaUpper(nomeCli),
+            tipo: document.getElementById("ex-tipo").value,
+            profissional: document.getElementById("ex-profissional").value.trim(),
+            data,
+            hora,
+            local: document.getElementById("ex-local").value.trim(),
+            status: "Agendado"
+          };
+
+          state.exames.unshift(exameObj);
+          saveState(state);
+          await sendToWebApp({
+            evento: "agendamento_exame",
+            nome: nomeCli,
+            cpf: cli ? cli.cpf : "",
+            fone: cli ? cli.fone : "",
+            tipoExame: exameObj.tipo,
+            profissional: exameObj.profissional,
+            data: exameObj.data,
+            hora: exameObj.hora,
+            local: exameObj.local,
+            status: exameObj.status
+          });
+
+          e.target.reset();
+          renderExames();
+          toast("Exame salvo e enviado ao Web App!");
+        }
+      });
+
+      function startApp() {
+        applyLayoutMode();
+        const cfg = document.getElementById("cfg-webapp-url");
+        if (cfg) cfg.value = getWebAppUrl();
+        renderClientes();
+        renderSelects();
+        renderPastaDetalhe();
+        renderExames();
+        try {
+          if (window.lucide && typeof window.lucide.createIcons === "function") {
+            window.lucide.createIcons();
+          }
+        } catch (e) {}
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", startApp);
+      } else {
+        startApp();
+      }
+    })();
+  </script>
+</body>
+</html>
